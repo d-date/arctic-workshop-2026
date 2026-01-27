@@ -1,0 +1,199 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld" : {
+
+    },
+    "Arrival Erea" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "到着"
+          }
+        }
+      }
+    },
+    "Chuo line" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中央線"
+          }
+        }
+      }
+    },
+    "Directions" : {
+
+    },
+    "Haneda Airport" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "羽田空港"
+          }
+        }
+      }
+    },
+    "haneda-1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to Board the Bus\n\nIf you are traveling from Haneda Airport by bus, please follow these steps to ensure a smooth journey:\n\nPurchase Your Ticket in Advance\n\nFor the \"From Haneda Airport\" ride, you need to buy your ticket before boarding.\n\nIf you plan to use a transportation IC card instead, please let the bus ticket handling counter at Terminal 3 or the staff at your bus stop know the time of the bus you will be taking.\n\nLocate Your Boarding Point\nDepending on the terminal where you arrive, the boarding platforms are as follows:\n\nTerminal 3: Go to Platform 4.\n\nTerminal 1: Head to the 1st Floor Arrival Lobby and proceed to Platform 9.\n\nTerminal 2: Head to the 1st Floor Arrival Lobby and proceed to Platform 10.\n\nBoarding the Bus\n\nOnce you are at the correct boarding point, please use your pre-purchased ticket or transportation IC card.\n\nPay your fare in the fare box when boarding the bus."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "羽田空港発立川行き京急バスの乗車ガイド\n\nチケットの購入について\n\n「From Haneda Airport」バスをご利用の場合、事前にチケットを購入してください。\n\n交通系ICカードを利用される方は、ターミナル3の到着ロビー内のバスチケット取扱カウンター、またはバス乗り場のスタッフに、乗車するバスの時刻をお知らせください。\n\n乗車場所のご案内\nターミナルごとの乗車場所は以下の通りです：\n\nターミナル3：\n\nプラットフォーム4\n\nターミナル1：\n\n1階到着ロビー内、プラットフォーム9\n\nターミナル2：\n\n1階到着ロビー内、プラットフォーム10\n\n乗車時の手続き\n\n乗車の際は、事前に購入したチケットまたは交通系ICカードを使用し、運賃箱に料金をお支払いください。"
+          }
+        }
+      }
+    },
+    "Lines" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "路線"
+          }
+        }
+      }
+    },
+    "North Exit" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "北口"
+          }
+        }
+      }
+    },
+    "Open Map" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapを開く"
+          }
+        }
+      }
+    },
+    "Tachikawa St." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立川駅"
+          }
+        }
+      }
+    },
+    "Tachikawa Stage Garden" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立川ステージガーデン"
+          }
+        }
+      }
+    },
+    "Tachikawa Stage Garden address" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "〒190-0014 N1, 3-3, Midori-cho, Tachikawa, Tokyo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "〒190-0014 東京都立川市緑町3-3 N1"
+          }
+        }
+      }
+    },
+    "Tachikawa Station" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立川駅"
+          }
+        }
+      }
+    },
+    "tachikawa-1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exit through the north ticket gate of Tachikawa Station and head to the right. Go under the monorail station, then continue straight ahead. Walk along the monorail tracks and descend via the escalator. Keep following the monorail, and you will see the venue on your left."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立川駅北改札から出て右方向に進み、モノレールの駅の下をくぐります。そのまま直進し、モノレールの線路に沿って歩き、エスカレータを降ります。引き続きモノレールに沿って歩くと左手に会場が見えます。"
+          }
+        }
+      }
+    },
+    "Tokyo St." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "東京駅"
+          }
+        }
+      }
+    },
+    "Tokyo Station" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "東京駅"
+          }
+        }
+      }
+    },
+    "tokyo-1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It takes about 40 minutes on the Chuo line from Tokyo Station’s platforms 1 and 2. We strongly recommend using the Chuo Special Rapid, the Ome Special Rapid, or the Limited Express Azusa/Kaiji instead of the regular rapid service."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "東京駅の1番・2番ホームから中央線で40分程度で到着します。\n快速ではなく、中央特快・青梅特快・特急あずさ・特急かいじの利用を強く推奨します。"
+          }
+        }
+      }
+    },
+    "Venue" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会場"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
