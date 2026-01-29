@@ -1,4 +1,5 @@
 import Foundation
+import SwiftCBOR
 
 // MARK: - ISO 18013-5 mdoc Structures
 
@@ -61,32 +62,54 @@ struct DeviceAuth {
     let deviceSignature: Data?
 }
 
-// MARK: - TODO: Implement CBOR encoding/decoding
+// MARK: - CBOR Encoding/Decoding
 
 extension MDoc {
     /// Encode the mdoc to CBOR format
     /// - Returns: CBOR-encoded data
     func toCBOR() -> Data {
-        // TODO: Implement CBOR encoding using SwiftCBOR
-        // Hint: Use CBOR.encode() to convert the structure
-        fatalError("Not implemented - Complete this in Chapter 3")
+        // Delegate to CBORService for encoding
+        return CBORService.shared.encode(mdoc: self)
     }
 
     /// Decode an mdoc from CBOR format
     /// - Parameter data: CBOR-encoded data
     /// - Returns: Decoded MDoc
     static func fromCBOR(_ data: Data) -> MDoc? {
-        // TODO: Implement CBOR decoding using SwiftCBOR
-        // Hint: Use CBOR.decode() and extract the fields
-        fatalError("Not implemented - Complete this in Chapter 3")
+        // Delegate to CBORService for decoding
+        return CBORService.shared.decodeMDoc(from: data)
     }
 }
 
 extension IssuerSignedItem {
     /// Encode the item to CBOR format (tagged as per ISO 18013-5)
     func toCBOR() -> Data {
-        // TODO: Implement CBOR encoding
-        // The item should be encoded as a CBOR map with tag 24
-        fatalError("Not implemented - Complete this in Chapter 3")
+        var map: [CBOR: CBOR] = [:]
+
+        map[.utf8String("digestID")] = .unsignedInt(UInt64(digestID))
+        map[.utf8String("random")] = .byteString(Array(random))
+        map[.utf8String("elementIdentifier")] = .utf8String(elementIdentifier)
+        map[.utf8String("elementValue")] = encodeToCBOR(elementValue)
+
+        return Data(CBOR.map(map).encode())
+    }
+
+    private func encodeToCBOR(_ value: Any) -> CBOR {
+        switch value {
+        case let boolVal as Bool:
+            return .boolean(boolVal)
+        case let intVal as Int:
+            if intVal >= 0 {
+                return .unsignedInt(UInt64(intVal))
+            } else {
+                return .negativeInt(UInt64(-intVal - 1))
+            }
+        case let stringVal as String:
+            return .utf8String(stringVal)
+        case let dataVal as Data:
+            return .byteString(Array(dataVal))
+        default:
+            return .utf8String(String(describing: value))
+        }
     }
 }

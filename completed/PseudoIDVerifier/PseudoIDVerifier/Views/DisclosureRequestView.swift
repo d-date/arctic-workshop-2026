@@ -94,15 +94,7 @@ struct DisclosureRequestView: View {
     // MARK: - Computed Properties
 
     private var requestedAttributes: [RequestedAttribute] {
-        // TODO: Extract requested attributes from request and match with credential
-        //
-        // Steps:
-        // 1. Get the first docRequest from the request
-        // 2. Get the nameSpaces from itemsRequest
-        // 3. For each namespace/element, find the corresponding value in credential
-        // 4. Return array of RequestedAttribute
-
-        // Placeholder implementation for initial project
+        // Extract requested attributes from request and match with credential
         guard let docRequest = request.docRequests.first else {
             return []
         }

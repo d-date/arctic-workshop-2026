@@ -1,4 +1,5 @@
 import Foundation
+import SwiftCBOR
 
 // MARK: - Device Engagement and Request Structures (ISO 18013-5)
 
@@ -208,32 +209,32 @@ enum MDLElementIdentifier: String, CaseIterable {
     }
 }
 
-// MARK: - TODO: Implement CBOR encoding/decoding
+// MARK: - CBOR Encoding/Decoding
 
 extension DeviceRequest {
     /// Encode the request to CBOR format
     func toCBOR() -> Data {
-        // TODO: Implement CBOR encoding
-        fatalError("Not implemented - Complete this in Chapter 3")
+        // Delegate to CBORService for encoding
+        return CBORService.shared.encode(request: self)
     }
 
     /// Decode a request from CBOR format
     static func fromCBOR(_ data: Data) -> DeviceRequest? {
-        // TODO: Implement CBOR decoding
-        fatalError("Not implemented - Complete this in Chapter 3")
+        // Delegate to CBORService for decoding
+        return CBORService.shared.decodeRequest(from: data)
     }
 }
 
 extension DeviceResponse {
     /// Encode the response to CBOR format
     func toCBOR() -> Data {
-        // TODO: Implement CBOR encoding
-        fatalError("Not implemented - Complete this in Chapter 3")
+        // Delegate to CBORService for encoding
+        return CBORService.shared.encode(response: self)
     }
 
     /// Decode a response from CBOR format
     static func fromCBOR(_ data: Data) -> DeviceResponse? {
-        // TODO: Implement CBOR decoding
-        fatalError("Not implemented - Complete this in Chapter 3")
+        // Delegate to CBORService for decoding
+        return CBORService.shared.decodeResponse(from: data)
     }
 }

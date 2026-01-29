@@ -1,5 +1,6 @@
 import Foundation
 import CryptoKit
+import SwiftCBOR
 
 // MARK: - Cryptographic Service
 
@@ -13,6 +14,9 @@ class CryptoService {
     /// Device private key for signing (in real app, store in Keychain)
     private var devicePrivateKey: P256.Signing.PrivateKey?
 
+    /// Key agreement private key for ECDH
+    private var keyAgreementPrivateKey: P256.KeyAgreement.PrivateKey?
+
     /// Session keys for secure communication
     private var sessionKey: SymmetricKey?
 
@@ -25,14 +29,13 @@ class CryptoService {
 
     /// Load existing device key from Keychain or generate new one
     private func loadOrGenerateDeviceKey() {
-        // TODO: Implement key loading from Keychain
-        //
-        // For the workshop, we'll generate a new key each time
+        // For the workshop, we generate a new key each time
         // In production, you would:
         // 1. Try to load from Keychain
         // 2. If not found, generate and store
 
         devicePrivateKey = P256.Signing.PrivateKey()
+        keyAgreementPrivateKey = P256.KeyAgreement.PrivateKey()
     }
 
     /// Get the device's public key
@@ -51,17 +54,6 @@ class CryptoService {
     /// - Parameter data: The data to sign
     /// - Returns: The signature
     func sign(_ data: Data) throws -> Data {
-        // TODO: Implement signing
-        //
-        // Steps:
-        // 1. Ensure device private key exists
-        // 2. Create signature using ECDSA
-        // 3. Return DER-encoded signature
-        //
-        // Hint:
-        // let signature = try devicePrivateKey.signature(for: data)
-        // return signature.derRepresentation
-
         guard let privateKey = devicePrivateKey else {
             throw CryptoError.keyNotAvailable
         }
@@ -76,8 +68,10 @@ class CryptoService {
     ///   - additionalData: Additional authenticated data
     /// - Returns: COSE_Sign1 encoded as CBOR
     func createCOSESign1(payload: Data, additionalData: Data? = nil) throws -> Data {
-        // TODO: Implement COSE_Sign1 creation
-        //
+        guard let privateKey = devicePrivateKey else {
+            throw CryptoError.keyNotAvailable
+        }
+
         // COSE_Sign1 structure:
         // [
         //   protected_header,    // CBOR map with algorithm ID
@@ -85,10 +79,40 @@ class CryptoService {
         //   payload,             // The data being signed
         //   signature            // ECDSA signature
         // ]
-        //
-        // For this workshop, we'll create a simplified version
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        // Protected header: algorithm ES256 (-7)
+        let protectedHeader: [CBOR: CBOR] = [
+            .unsignedInt(1): .negativeInt(6)  // alg: ES256 = -7
+        ]
+        let protectedBytes = Data(CBOR.map(protectedHeader).encode())
+
+        // Create Sig_structure for signing
+        // Sig_structure = [
+        //   context: "Signature1",
+        //   body_protected: protected_header,
+        //   external_aad: bstr (empty or additionalData),
+        //   payload: bstr
+        // ]
+        let sigStructure: [CBOR] = [
+            .utf8String("Signature1"),
+            .byteString(Array(protectedBytes)),
+            .byteString(additionalData.map { Array($0) } ?? []),
+            .byteString(Array(payload))
+        ]
+        let sigStructureBytes = Data(CBOR.array(sigStructure).encode())
+
+        // Sign the Sig_structure
+        let signature = try privateKey.signature(for: sigStructureBytes)
+
+        // Build COSE_Sign1 array
+        let coseSign1: [CBOR] = [
+            .byteString(Array(protectedBytes)),
+            .map([:]),  // Empty unprotected header
+            .byteString(Array(payload)),
+            .byteString(Array(signature.rawRepresentation))
+        ]
+
+        return Data(CBOR.array(coseSign1).encode())
     }
 
     // MARK: - Verification Operations
@@ -100,16 +124,6 @@ class CryptoService {
     ///   - publicKey: The public key to verify against
     /// - Returns: true if signature is valid
     func verify(signature: Data, for data: Data, using publicKey: P256.Signing.PublicKey) -> Bool {
-        // TODO: Implement signature verification
-        //
-        // Steps:
-        // 1. Create ECDSASignature from DER data
-        // 2. Verify using the public key
-        //
-        // Hint:
-        // let ecdsaSignature = try P256.Signing.ECDSASignature(derRepresentation: signature)
-        // return publicKey.isValidSignature(ecdsaSignature, for: data)
-
         do {
             let ecdsaSignature = try P256.Signing.ECDSASignature(derRepresentation: signature)
             return publicKey.isValidSignature(ecdsaSignature, for: data)
@@ -124,15 +138,35 @@ class CryptoService {
     ///   - publicKey: The public key to verify against
     /// - Returns: The payload if signature is valid, nil otherwise
     func verifyCOSESign1(_ coseSign1: Data, using publicKey: P256.Signing.PublicKey) -> Data? {
-        // TODO: Implement COSE_Sign1 verification
-        //
-        // Steps:
-        // 1. Decode the CBOR structure
-        // 2. Extract protected header, payload, and signature
-        // 3. Reconstruct the Sig_structure
-        // 4. Verify the signature
+        guard let cbor = try? CBOR.decode(Array(coseSign1)),
+              case .array(let coseArray) = cbor,
+              coseArray.count >= 4,
+              case .byteString(let protectedBytes) = coseArray[0],
+              case .byteString(let payloadBytes) = coseArray[2],
+              case .byteString(let signatureBytes) = coseArray[3] else {
+            return nil
+        }
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        // Reconstruct Sig_structure
+        let sigStructure: [CBOR] = [
+            .utf8String("Signature1"),
+            .byteString(protectedBytes),
+            .byteString([]),  // external_aad
+            .byteString(payloadBytes)
+        ]
+        let sigStructureData = Data(CBOR.array(sigStructure).encode())
+
+        // Verify signature
+        do {
+            let signature = try P256.Signing.ECDSASignature(rawRepresentation: Data(signatureBytes))
+            if publicKey.isValidSignature(signature, for: sigStructureData) {
+                return Data(payloadBytes)
+            }
+        } catch {
+            return nil
+        }
+
+        return nil
     }
 
     // MARK: - Session Key Operations
@@ -141,31 +175,32 @@ class CryptoService {
     /// - Parameter peerPublicKeyData: The peer's public key as raw bytes
     /// - Returns: The shared session key
     func establishSessionKey(with peerPublicKeyData: Data) throws -> SymmetricKey {
-        // TODO: Implement ECDH key agreement
-        //
-        // Steps:
-        // 1. Create P256.KeyAgreement.PrivateKey (or reuse device key for simplicity)
-        // 2. Create peer's public key from raw data
-        // 3. Perform ECDH to get shared secret
-        // 4. Derive session key using HKDF
-        //
-        // Hint:
-        // let sharedSecret = try privateKey.sharedSecretFromKeyAgreement(with: peerPublicKey)
-        // let sessionKey = sharedSecret.hkdfDerivedSymmetricKey(...)
+        guard let privateKey = keyAgreementPrivateKey else {
+            throw CryptoError.keyNotAvailable
+        }
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        // Create peer's public key from raw data
+        let peerPublicKey = try P256.KeyAgreement.PublicKey(rawRepresentation: peerPublicKeyData)
+
+        // Perform ECDH to get shared secret
+        let sharedSecret = try privateKey.sharedSecretFromKeyAgreement(with: peerPublicKey)
+
+        // Derive session key using HKDF
+        let derivedKey = sharedSecret.hkdfDerivedSymmetricKey(
+            using: SHA256.self,
+            salt: Data(),
+            sharedInfo: Data("ISO18013-5 Session Key".utf8),
+            outputByteCount: 32
+        )
+
+        sessionKey = derivedKey
+        return derivedKey
     }
 
     /// Encrypt data using the session key
     /// - Parameter data: The data to encrypt
     /// - Returns: Encrypted data with nonce prepended
     func encrypt(_ data: Data) throws -> Data {
-        // TODO: Implement encryption using AES-GCM
-        //
-        // Hint:
-        // let sealedBox = try AES.GCM.seal(data, using: sessionKey)
-        // return sealedBox.combined!
-
         guard let key = sessionKey else {
             throw CryptoError.sessionKeyNotEstablished
         }
@@ -181,12 +216,6 @@ class CryptoService {
     /// - Parameter data: The encrypted data (nonce + ciphertext + tag)
     /// - Returns: Decrypted data
     func decrypt(_ data: Data) throws -> Data {
-        // TODO: Implement decryption using AES-GCM
-        //
-        // Hint:
-        // let sealedBox = try AES.GCM.SealedBox(combined: data)
-        // return try AES.GCM.open(sealedBox, using: sessionKey)
-
         guard let key = sessionKey else {
             throw CryptoError.sessionKeyNotEstablished
         }
