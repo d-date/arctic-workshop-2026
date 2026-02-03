@@ -378,15 +378,25 @@ class ReaderViewModel: ObservableObject {
     func startReading() {
         // TODO: Implement reading flow
         //
-        // Steps:
+        // ## iOS の技術的制約
+        //
+        // ISO 18013-5 の本来のフロー:
+        //   1. Reader が NFCNDEFReaderSession を開始
+        //   2. Holder の iPhone が NDEF タグとして DeviceEngagement を返す (HCE)
+        //   3. Reader が DeviceEngagement から BLE UUID を抽出し BLE 接続
+        //
+        // しかし、iOS では NFC タグエミュレーション (HCE) が Apple Wallet 専用のため、
+        // サードパーティアプリでは Holder を NDEF タグにできない。
+        // 本ワークショップでは BLE 直接接続を使用する。
+        //
+        // ## 実装手順
+        //
         // 1. Set state to .scanning
-        // 2. Start NFC reader session
-        // 3. On NFC success, extract BLE UUID and device engagement
-        // 4. Set state to .connecting
-        // 5. Connect via BLE
-        // 6. Send device request
-        // 7. Set state to .waitingForResponse
-        // 8. On response, decode and display attributes
+        // 2. Set up BLE callbacks (onConnected, onResponseReceived)
+        // 3. Start BLE central mode: bleService.startCentralMode()
+        // 4. On BLE connection, send DeviceRequest
+        // 5. Set state to .waitingForResponse
+        // 6. On response, decode and display attributes
 
         fatalError("Not implemented - Complete this in Chapter 7")
     }

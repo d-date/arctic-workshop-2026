@@ -368,12 +368,27 @@ class ReaderViewModel: ObservableObject {
 
     enum ReaderState {
         case idle
-        case scanning
-        case connecting
+        case scanning        // BLE scanning (Tap to Pay 風 UI)
+        case connecting      // BLE connecting
         case waitingForResponse
         case success([String: Any])
         case error(String)
     }
+
+    // MARK: - iOS Technical Constraints (NFC)
+    //
+    // Apple の ID Verifier API (ProximityReader) では、Reader が NFC session を開始し、
+    // Holder の iPhone が NDEF タグとして DeviceEngagement を返す (NFC-to-BLE handover)。
+    // しかし、NFC タグエミュレーション (HCE) は Apple Wallet 専用であり、
+    // サードパーティアプリでは Holder 側を NDEF タグとして振る舞わせることができない。
+    //
+    // そのため本ワークショップでは:
+    // - BLE による直接接続を使用（ISO 18013-5 の BLE engagement に相当）
+    // - UI は Tap to Pay 風の体験を再現
+    // - DeviceEngagement の CBOR 構造は ISO 18013-5 準拠のまま使用
+    //
+    // 参考: Apple ID Verifier API は ProximityReader framework 経由で
+    // NFC engagement + BLE data transfer を内部的に実装している。
 
     init() {
         setupCallbacks()
@@ -414,14 +429,19 @@ class ReaderViewModel: ObservableObject {
     }
 
     func startReading() {
+        // ISO 18013-5 の本来のフロー:
+        //   1. Reader が NFCNDEFReaderSession を開始
+        //   2. Holder の iPhone が NDEF タグとして DeviceEngagement を返す
+        //   3. Reader が DeviceEngagement から BLE UUID を抽出し BLE 接続
+        //
+        // しかし、iOS では NFC タグエミュレーション (HCE) が Apple Wallet 専用のため、
+        // サードパーティアプリでは Holder を NDEF タグとして振る舞わせることができない。
+        // Apple の ID Verifier API (ProximityReader framework) はこれを内部的に実装するが、
+        // 特別な entitlement と Apple との契約が必要。
+        //
+        // 本ワークショップでは BLE 直接接続を使用し、
+        // UI 上は Tap to Pay 風の体験を再現する。
         state = .scanning
-
-        // For workshop simplicity, we skip NFC and go directly to BLE
-        // In a real implementation, you would start NFC first:
-        // nfcService.startReaderSession()
-
-        // Start BLE scanning directly
-        state = .connecting
         bleService.startCentralMode()
     }
 

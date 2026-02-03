@@ -3,8 +3,41 @@ import CoreNFC
 
 // MARK: - NFC Service for Handshake
 
-/// Service for NFC-based handshake to initiate BLE connection
-/// This implements the NFC handover mechanism similar to ISO 18013-5
+/// Service for NFC-based handshake to initiate BLE connection.
+/// This implements the NFC handover mechanism as defined in ISO 18013-5.
+///
+/// ## iOS の技術的制約
+///
+/// ISO 18013-5 では NFC-to-BLE ハンドオーバーが規定されている:
+///   - Reader が NFC session を開始
+///   - Holder の端末が NDEF タグとして DeviceEngagement (CBOR) を提供
+///   - Reader が DeviceEngagement から BLE UUID を抽出し BLE 接続
+///
+/// しかし、iOS では以下の制約がある:
+///
+/// ### 実現可能なこと (CoreNFC)
+/// - `NFCNDEFReaderSession`: 外部 NFC タグの NDEF 読み取り
+/// - `NFCTagReaderSession`: ISO 7816/14443/15693 タグの読み取り
+/// - NDEF メッセージの作成 (データ構造としてのみ)
+///
+/// ### 実現不可能なこと
+/// - **NFC タグエミュレーション (HCE)**: iPhone を NDEF タグとして振る舞わせること
+///   - Apple Wallet のみが Secure Element 経由で HCE を使用可能
+///   - `CardSession` (iOS 17.4+) は EEA 限定の決済用途のみ
+///   - サードパーティアプリでは Reader 側のみ利用可能
+///
+/// ### Apple ID Verifier API (ProximityReader) の仕組み
+/// Apple の ProximityReader framework は内部的に:
+/// 1. Enhanced Contactless Polling (ECP) で ISO 18013 用 NFC ポーリングを実施
+/// 2. Apple Wallet がシステムレベルで NDEF タグとして DeviceEngagement を返す
+/// 3. NFC から BLE にハンドオーバーし、暗号化されたデータ転送を実行
+/// → これは全て Apple のプロプライエタリ実装であり、サードパーティ API では再現不可。
+///
+/// ### 本ワークショップでの対応
+/// - Reader 側の NFC コード (`startReaderSession`, `parseHandoverMessage` 等) は
+///   ISO 18013-5 準拠のリファレンス実装として残す
+/// - Holder 側の `createHandoverMessage` も NDEF メッセージ構造の学習用として残す
+/// - 実際の接続は BLE 直接接続 (`BLEService`) を使用
 class NFCService: NSObject, ObservableObject {
     static let shared = NFCService()
 

@@ -31,15 +31,19 @@ We'll test the most common scenario: verifying someone is over 21.
 
 ### Step 2: Initiate Connection
 
+> Note: ISO 18013-5 の本来のフローでは、ここで NFC タップ (Device Engagement) が行われます。
+> iOS では NFC タグエミュレーション (HCE) が Apple Wallet 専用のため、
+> BLE 直接接続を使用します。詳細は <doc:NFCHandshake> を参照してください。
+
 **On Device A (Reader)**
 1. Tap "Start Reading"
-2. The app shows "Ready to Read" with animated rings
-3. Wait for connection
+2. The app shows "Ready to Read" with animated rings (BLE scanning)
+3. Wait for BLE connection
 
 **On Device B (Holder)**
 1. Tap "Present ID"
 2. The app shows "Ready to Present" and starts BLE advertising
-3. Wait for the Reader to connect
+3. Wait for the Reader to connect via BLE
 
 ### Step 3: Handle Request
 
@@ -163,18 +167,25 @@ Typical timing for the complete flow:
 Congratulations! You've built a working pseudo ID verification system.
 
 To extend this workshop:
-- Add NFC handshake for device engagement
-- Implement proper COSE signing
-- Add issuer certificate verification
+- Implement proper COSE signing with certificate chain verification
+- Add issuer certificate verification (X.509)
 - Create a real credential issuance flow
+- Explore Apple's `ProximityReader` framework (requires entitlement)
+- Investigate NFC & SE Platform (iOS 18.1+) for advanced NFC access
+
+> Note: NFC タグエミュレーション (HCE) による Device Engagement は
+> Apple Wallet 専用のため、サードパーティアプリには追加できません。
+> Apple ID Verifier API (`ProximityReader`) を使用する場合は
+> Apple との個別契約と専用 entitlement が必要です。
 
 ## Summary
 
 You've learned:
 1. ISO 18013-5 mdoc structure
 2. CBOR encoding/decoding
-3. BLE communication patterns
-4. Selective disclosure
-5. Biometric authentication
+3. NFC-to-BLE ハンドオーバーの仕組みと iOS の技術的制約
+4. BLE communication patterns
+5. Selective disclosure
+6. Biometric authentication
 
 These concepts apply directly to real mobile identity implementations.
