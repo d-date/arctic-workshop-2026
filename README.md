@@ -48,7 +48,7 @@ ISO 18013-5 and Apple's ID Verifier API define the following flow:
 | Feature | Status on iOS | This Workshop |
 |---------|---------------|---------------|
 | NFC Tag **Reading** (Reader) | Possible with `NFCNDEFReaderSession` | Reference implementation provided |
-| NFC Tag **Emulation** (Holder) | **Apple Wallet exclusive** — no HCE | **Substituted with direct BLE connection** |
+| NFC Tag **Emulation** (Holder) | HCE available since iOS 18.2 via NFC & SE Platform, but requires entitlement request to Apple; unclear if general developers can obtain approval | **Substituted with direct BLE connection** |
 | `CardSession` (iOS 17.4+) | EEA only / payment use only | Out of scope |
 | Apple ID Verifier API | `ProximityReader` framework / dedicated entitlement required | Concepts explained |
 
@@ -193,7 +193,7 @@ This workshop teaches **what is and isn't possible** on iOS for NFC-BLE identity
 
 ### What iOS Cannot Do (Explained in Documentation)
 
-- **NFC Tag Emulation (HCE)** — Apple Wallet exclusive
+- **NFC Tag Emulation (HCE)** — Available since iOS 18.2 but requires entitlement request; general developer availability uncertain
 - **`ProximityReader` without entitlement** — requires Apple contract
 - **Cross-app NFC tag emulation** — no public API exists
 
@@ -201,7 +201,7 @@ This workshop teaches **what is and isn't possible** on iOS for NFC-BLE identity
 
 - **Apple ID Verifier API** (`ProximityReader` framework)
 - **Enhanced Contactless Polling** (ECP)
-- **NFC & SE Platform** (iOS 18.1+)
+- **NFC & SE Platform** (iOS 18.2+ for HCE, requires entitlement request)
 - **`CardSession`** (iOS 17.4+, EEA only)
 
 ## Files to Complete

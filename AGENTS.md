@@ -24,14 +24,15 @@ Build a pseudo ID verification system based on ISO 18013-5 (mDL) using two iPhon
 
 ### iOS Technical Constraints (Important)
 
-- **NFC tag emulation (HCE) is not available for third-party apps**
-  - Only Apple Wallet can make an iPhone act as an NDEF tag
+- **NFC tag emulation (HCE) requires a special entitlement request**
+  - iOS 18.2 introduced HCE support via the NFC & SE Platform, but it requires an entitlement request to Apple and it is unclear whether general developers can obtain approval
   - This workshop uses direct BLE connection as a substitute
   - Apple's ID Verifier API (ProximityReader) implements NFC-to-BLE handover internally, but it is a proprietary API requiring a Reader-side entitlement
 - **CoreNFC Reader mode is available** (`NFCNDEFReaderSession`)
   - Reading external NFC tags is possible
   - However, it cannot recognize another iPhone as an NFC tag
-- HCE-based contactless (`CardSession`, iOS 17.4+) is available in the EEA only and does not cover NDEF emulation for ID purposes
+- `CardSession` (iOS 17.4+) is available in the EEA only for payment use cases
+- HCE via NFC & SE Platform (iOS 18.2+) requires an entitlement request; availability for general developers is uncertain
 
 ## Architecture
 

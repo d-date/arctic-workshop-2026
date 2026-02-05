@@ -15,8 +15,10 @@ import CoreNFC
 ///
 /// ### What CoreNFC CANNOT do
 /// - **NFC tag emulation (HCE)**: Making an iPhone act as an NDEF tag
-///   - Only Apple Wallet can use HCE via the Secure Element
-///   - Third-party apps can only use the Reader side
+///   - iOS 18.2 introduced HCE support via the NFC & SE Platform,
+///     but it requires an entitlement request to Apple
+///   - It is unclear whether general developers can obtain approval
+///   - Third-party apps can only use the Reader side without the entitlement
 ///
 /// ### How Apple's ID Verifier API (ProximityReader) works
 /// Apple's ProximityReader framework internally:

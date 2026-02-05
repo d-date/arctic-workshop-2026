@@ -66,7 +66,7 @@ The NFC handover message consists of three NDEF records:
 
 | Capability | Reason | Alternative |
 |-----------|--------|-------------|
-| **NFC Tag Emulation (HCE)** | Reserved for Apple Wallet / Secure Element | Direct BLE connection |
+| **NFC Tag Emulation (HCE)** | Available since iOS 18.2 via NFC & SE Platform, but requires entitlement request to Apple; unclear if general developers can obtain approval | Direct BLE connection |
 | **Making an iPhone respond as an NDEF tag** | No public API available | BLE advertising |
 | **Detecting another iPhone with `NFCTagReaderSession`** | An iPhone is not an NFC tag | BLE |
 
@@ -111,13 +111,15 @@ The `CardSession` API introduced in iOS 17.4 enables HCE-based contactless trans
 - Does not support ISO 18013-5 NDEF DeviceEngagement
 - Not available outside the EEA, including Japan
 
-### About NFC & SE Platform (iOS 18.1+)
+### About NFC & SE Platform and HCE (iOS 18.2+)
 
-The NFC & SE Platform introduced in iOS 18.1 expands NFC access, but:
+iOS 18.2 introduced HCE (Host Card Emulation) support via the NFC & SE Platform, which could theoretically enable an iPhone to act as an NDEF tag. However:
 
+- **Requires an entitlement request to Apple** — it is unclear whether general developers can obtain approval
 - Available in limited regions only
 - Requires an individual agreement and review with Apple
 - Primarily intended for specific use cases such as transit and ID cards
+- Even if approved, implementing ISO 18013-5 NFC Device Engagement via HCE would require significant additional work beyond what CoreNFC provides
 
 ---
 

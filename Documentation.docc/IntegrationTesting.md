@@ -171,10 +171,10 @@ To extend this workshop:
 - Add issuer certificate verification (X.509)
 - Create a real credential issuance flow
 - Explore Apple's `ProximityReader` framework (requires entitlement)
-- Investigate NFC & SE Platform (iOS 18.1+) for advanced NFC access
+- Investigate NFC & SE Platform (iOS 18.2+) for HCE support (requires entitlement request)
 
-> Note: Device Engagement via NFC tag emulation (HCE) is
-> exclusive to Apple Wallet and cannot be added to third-party apps.
+> Note: iOS 18.2 introduced HCE support via the NFC & SE Platform, but it requires
+> an entitlement request to Apple and it is unclear whether general developers can obtain approval.
 > Using the Apple ID Verifier API (`ProximityReader`)
 > requires an individual agreement with Apple and a dedicated entitlement.
 
