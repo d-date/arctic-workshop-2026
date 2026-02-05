@@ -1,19 +1,19 @@
 # NFC Handshake
 
-ISO 18013-5 の NFC-to-BLE ハンドオーバーの仕組みと、iOS の技術的制約を理解する。
+Understand the ISO 18013-5 NFC-to-BLE handover mechanism and iOS technical constraints.
 
 ## Overview
 
-ISO 18013-5 では、NFC ハンドシェイクによって Reader と Holder の間でセキュアな接続を確立します。Apple の ID Verifier API (Tap to Pay 風の体験) もこのプロトコルに基づいています。
+In ISO 18013-5, an NFC handshake establishes a secure connection between the Reader and the Holder. Apple's ID Verifier API (a Tap-to-Pay-like experience) is also based on this protocol.
 
-本チャプターでは以下を学びます:
+In this chapter, you will learn:
 
-1. **ISO 18013-5 の NFC ハンドオーバー仕様** — どのように動作するのか
-2. **iOS の技術的制約** — なぜサードパーティアプリでは実現できないのか
-3. **Apple ID Verifier API の仕組み** — Apple がどのように制約を回避しているか
-4. **Reader 側 NFC コードの実装** — CoreNFC で実現可能な部分
+1. **ISO 18013-5 NFC Handover Specification** — How it works
+2. **iOS Technical Constraints** — Why third-party apps cannot implement this
+3. **How the Apple ID Verifier API Works** — How Apple works around the constraints
+4. **Reader-Side NFC Code Implementation** — What CAN be done with CoreNFC
 
-### ISO 18013-5: NFC Device Engagement フロー
+### ISO 18013-5: NFC Device Engagement Flow
 
 ```
 Reader                              Holder
@@ -24,107 +24,107 @@ Reader                              Holder
    │                                   │
    │ 2. Read NDEF Message              │
    │◄──────────────────────────────────│
-   │   Contains:                       │  ← Holder が NDEF タグとして応答
-   │   - Handover Select record ("Hs") │     (NFC タグエミュレーション / HCE)
+   │   Contains:                       │
+   │   - Handover Select record ("Hs") │
    │   - BLE OOB data (Service UUID)   │
    │   - Device Engagement (CBOR)      │
-   │                                   │
-   │ 3. Parse Device Engagement        │
+   │                                   │  ← Holder responds as an NDEF tag
+   │ 3. Parse Device Engagement        │     (NFC tag emulation / HCE)
    │   → Extract BLE UUID              │
    │                                   │
    │ 4. Connect via BLE using UUID     │
    │───────────────────────────────────►
 ```
 
-### NDEF メッセージの構造
+### NDEF Message Structure
 
-NFC ハンドオーバーメッセージは3つの NDEF レコードで構成されます:
+The NFC handover message consists of three NDEF records:
 
-| # | レコード | フォーマット | 説明 |
-|---|---------|------------|------|
-| 1 | Handover Select | NFC Well-Known ("Hs") | ハンドオーバーの種別と参照 |
-| 2 | BLE Carrier Config | MIME type | BLE OOB データ (Service UUID, LE Role) |
-| 3 | Device Engagement | NFC External | CBOR エンコードされた DeviceEngagement |
+| # | Record | Format | Description |
+|---|--------|--------|-------------|
+| 1 | Handover Select | NFC Well-Known ("Hs") | Handover type and reference |
+| 2 | BLE Carrier Config | MIME type | BLE OOB data (Service UUID, LE Role) |
+| 3 | Device Engagement | NFC External | CBOR-encoded DeviceEngagement |
 
 ---
 
-## iOS の技術的制約
+## iOS Technical Constraints
 
-> Important: このセクションは本ワークショップの重要な学習ポイントです。
-> iOS で ID 検証アプリを構築する際、何が可能で何が不可能かを正確に理解することが不可欠です。
+> Important: This section is a key learning point of this workshop.
+> When building an ID verification app on iOS, it is essential to understand precisely what CAN and what CANNOT be done.
 
-### CoreNFC で実現可能なこと
+### What CAN be done with CoreNFC
 
-| API | 機能 | 利用可能 |
-|-----|------|---------|
-| `NFCNDEFReaderSession` | NDEF タグの読み取り | iOS 11+ |
-| `NFCTagReaderSession` | ISO 7816/14443/15693 タグの読み取り | iOS 13+ |
-| `NFCNDEFPayload` | NDEF メッセージの作成 (データ構造として) | iOS 11+ |
-| NDEF タグへの書き込み | 外部 NFC タグへのデータ書き込み | iOS 13+ |
+| API | Capability | Available |
+|-----|-----------|-----------|
+| `NFCNDEFReaderSession` | Reading NDEF tags | iOS 11+ |
+| `NFCTagReaderSession` | Reading ISO 7816/14443/15693 tags | iOS 13+ |
+| `NFCNDEFPayload` | Creating NDEF messages (as a data structure) | iOS 11+ |
+| Writing to NDEF tags | Writing data to external NFC tags | iOS 13+ |
 
-### CoreNFC で実現不可能なこと
+### What CANNOT be done with CoreNFC
 
-| 機能 | 理由 | 代替手段 |
-|------|------|---------|
-| **NFC タグエミュレーション (HCE)** | Apple Wallet / Secure Element 専用 | BLE 直接接続 |
-| **iPhone を NDEF タグとして応答させる** | 公開 API なし | BLE advertising |
-| **`NFCTagReaderSession` で他の iPhone を検出** | iPhone は NFC タグではない | BLE |
+| Capability | Reason | Alternative |
+|-----------|--------|-------------|
+| **NFC Tag Emulation (HCE)** | Reserved for Apple Wallet / Secure Element | Direct BLE connection |
+| **Making an iPhone respond as an NDEF tag** | No public API available | BLE advertising |
+| **Detecting another iPhone with `NFCTagReaderSession`** | An iPhone is not an NFC tag | BLE |
 
-### Apple の ID Verifier API はなぜ動作するのか
+### Why does Apple's ID Verifier API work?
 
-Apple の `ProximityReader` framework (ID Verifier API) は以下を内部的に実装しています:
+Apple's `ProximityReader` framework (ID Verifier API) internally implements the following:
 
 ```
-ProximityReader (Reader 側)
+ProximityReader (Reader side)
 ├── Enhanced Contactless Polling (ECP)
-│   → ISO 18013 用の専用 NFC ポーリングを実施
-│   → GymKit や他の NFC 用途と区別するための独自プロトコル
+│   → Performs dedicated NFC polling for ISO 18013
+│   → Proprietary protocol to distinguish from GymKit and other NFC uses
 │
-├── NFCNDEFReaderSession (内部使用)
-│   → Holder の DeviceEngagement を NDEF 経由で取得
+├── NFCNDEFReaderSession (used internally)
+│   → Retrieves the Holder's DeviceEngagement via NDEF
 │
-└── BLE Data Transfer (内部使用)
-    → NFC から得た BLE UUID で自動接続
-    → 暗号化されたセッション確立
+└── BLE Data Transfer (used internally)
+    → Automatically connects using the BLE UUID obtained from NFC
+    → Establishes an encrypted session
 
-Apple Wallet (Holder 側)
+Apple Wallet (Holder side)
 ├── Secure Element
-│   → iPhone を NFC タグとして振る舞わせる (HCE)
-│   → DeviceEngagement を NDEF レスポンスとして返す
+│   → Makes the iPhone behave as an NFC tag (HCE)
+│   → Returns DeviceEngagement as an NDEF response
 │
 └── iOS System UI
-    → ユーザーに開示リクエストを表示
-    → Face ID / Touch ID で認証
+    → Displays the disclosure request to the user
+    → Authenticates with Face ID / Touch ID
 ```
 
-**この全体が Apple のプロプライエタリ実装** であり:
-- Reader 側: `ProximityReader` framework + 専用 entitlement (`com.apple.developer.proximity-reader.identity.read`) が必要
-- Holder 側: Apple Wallet 限定 — サードパーティアプリでは NDEF タグとしての応答不可
-- ECP は非公開プロトコル
+**This entire system is Apple's proprietary implementation**:
+- Reader side: Requires `ProximityReader` framework + dedicated entitlement (`com.apple.developer.proximity-reader.identity.read`)
+- Holder side: Limited to Apple Wallet -- third-party apps cannot respond as NDEF tags
+- ECP is a non-public protocol
 
-### `CardSession` (iOS 17.4+) について
+### About `CardSession` (iOS 17.4+)
 
-iOS 17.4 で導入された `CardSession` API は HCE-based contactless transactions を可能にしますが:
+The `CardSession` API introduced in iOS 17.4 enables HCE-based contactless transactions, but:
 
-- **EEA (欧州経済領域) 限定**
-- **決済用途向け** (EMV contactless payments)
-- ISO 18013-5 の NDEF DeviceEngagement には対応していない
-- 日本を含む EEA 外では利用不可
+- **Limited to the EEA (European Economic Area)**
+- **Designed for payment use cases** (EMV contactless payments)
+- Does not support ISO 18013-5 NDEF DeviceEngagement
+- Not available outside the EEA, including Japan
 
-### NFC & SE Platform (iOS 18.1+) について
+### About NFC & SE Platform (iOS 18.1+)
 
-iOS 18.1 で導入された NFC & SE Platform は NFC アクセスを拡大しますが:
+The NFC & SE Platform introduced in iOS 18.1 expands NFC access, but:
 
-- 限定地域のみ
-- Apple との個別契約・審査が必要
-- 主にトランジット・ID カード等の特定用途
+- Available in limited regions only
+- Requires an individual agreement and review with Apple
+- Primarily intended for specific use cases such as transit and ID cards
 
 ---
 
-## Step 1: Reader 側 NFC コードの実装 (リファレンス)
+## Step 1: Reader-Side NFC Code Implementation (Reference)
 
-以下のコードは CoreNFC で実現可能な Reader 側の実装です。
-外部 NFC タグから DeviceEngagement を読み取る場合に使用できます。
+The following code is a reader-side implementation of what CAN be done with CoreNFC.
+It can be used to read DeviceEngagement from an external NFC tag.
 
 ```swift
 import Foundation
@@ -153,7 +153,7 @@ class NFCService: NSObject, ObservableObject {
 }
 ```
 
-### Step 2: NFC Reader Session の開始
+### Step 2: Starting an NFC Reader Session
 
 ```swift
 extension NFCService {
@@ -186,10 +186,10 @@ extension NFCService {
 }
 ```
 
-> Note: このコードは外部 NFC タグを読み取る場合に動作します。
-> 他の iPhone を NFC タグとして検出することはできません。
+> Note: This code works when reading external NFC tags.
+> It cannot detect another iPhone as an NFC tag.
 
-### Step 3: Delegate メソッドの実装
+### Step 3: Implementing Delegate Methods
 
 ```swift
 extension NFCService: NFCNDEFReaderSessionDelegate {
@@ -239,7 +239,7 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
 }
 ```
 
-### Step 4: Handover メッセージのパース
+### Step 4: Parsing the Handover Message
 
 ```swift
 extension NFCService {
@@ -297,10 +297,10 @@ extension NFCService {
 }
 ```
 
-### Step 5: Handover メッセージの作成 (学習用)
+### Step 5: Creating a Handover Message (For learning purposes)
 
-以下のコードは NDEF ハンドオーバーメッセージの構造を学ぶためのリファレンス実装です。
-実際のアプリでは iPhone を NFC タグにできないため、このメッセージを NFC 経由で提供することはできません。
+The following code is a reference implementation for learning the structure of NDEF handover messages.
+In a real app, since an iPhone cannot act as an NFC tag, this message cannot be delivered via NFC.
 
 ```swift
 extension NFCService {
@@ -365,26 +365,26 @@ extension NFCService {
 }
 ```
 
-### 本ワークショップでの接続方法
+### Connection Method Used in This Workshop
 
-NFC タグエミュレーションの代わりに、BLE 直接接続を使用します:
+Instead of NFC tag emulation, we use a direct BLE connection:
 
 ```swift
 // ReaderViewModel.swift
 func startReading() {
-    // ISO 18013-5 の本来のフロー:
+    // Original ISO 18013-5 flow:
     //   nfcService.startReaderSession()
-    //   → NFC で DeviceEngagement を取得
-    //   → BLE UUID を抽出して接続
+    //   -> Obtain DeviceEngagement via NFC
+    //   -> Extract BLE UUID and connect
     //
-    // iOS の技術的制約により BLE 直接接続を使用:
+    // Using direct BLE connection due to iOS technical constraints:
     state = .scanning
     bleService.startCentralMode()
 }
 ```
 
-> Note: NFC タグエミュレーション以外の全ステップ (BLE 接続、CBOR エンコード/デコード、
-> 選択的属性開示、生体認証) は ISO 18013-5 に準拠した実装です。
+> Note: All steps other than NFC tag emulation (BLE connection, CBOR encoding/decoding,
+> selective attribute disclosure, biometric authentication) are implemented in compliance with ISO 18013-5.
 
 ### Error Types
 

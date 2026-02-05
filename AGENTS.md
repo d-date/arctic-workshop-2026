@@ -1,56 +1,62 @@
 # AGENTS.md - AI Assistant Guidelines for PseudoIDVerifier Workshop
 
+## Language Policy
+
+- **All source code comments, documentation (Documentation.docc), and README must be written in English.**
+- AGENTS.md itself must also be in English.
+- Commit messages should be in English.
+
 ## Project Overview
 
-ARCTIC Conference 2026 のハンズオンワークショップ教材。
-ISO 18013-5 (mDL) に基づく擬似 ID 検証システムを、2台の iPhone を使って構築する。
+Hands-on workshop material for ARCTIC Conference 2026.
+Build a pseudo ID verification system based on ISO 18013-5 (mDL) using two iPhones.
 
 ### Key Flow: NFC Tap → BLE → Selective Disclosure → Biometric → CBOR Response → Decode
 
 ```
-[1] Reader Phone: "Tap to Verify" UI → BLE scanning 開始
-[2] Presentment Phone: BLE advertising 開始 → Reader と BLE 接続確立
-[3] Reader → Presentment: DeviceRequest 送信 (CBOR)
-[4] Presentment: 選択的開示 UI 表示 → Face ID / Touch ID で認証
-[5] Presentment → Reader: DeviceResponse 送信 (CBOR + filtered mdoc)
-[6] Reader: CBOR デコード → Key-Value 表示
+[1] Reader Phone: "Tap to Verify" UI → Start BLE scanning
+[2] Presentment Phone: Start BLE advertising → Establish BLE connection with Reader
+[3] Reader → Presentment: Send DeviceRequest (CBOR)
+[4] Presentment: Show selective disclosure UI → Authenticate with Face ID / Touch ID
+[5] Presentment → Reader: Send DeviceResponse (CBOR + filtered mdoc)
+[6] Reader: Decode CBOR → Display Key-Value pairs
 ```
 
-### iOS の技術的制約（重要）
+### iOS Technical Constraints (Important)
 
-- **NFC タグエミュレーション (HCE) はサードパーティアプリでは不可能**
-  - Apple Wallet のみが iPhone を NDEF タグとして振る舞わせることができる
-  - 本ワークショップでは BLE による直接接続で代替
-  - Apple の ID Verifier API (ProximityReader) は NFC-to-BLE ハンドオーバーを内部的に実装するが、プロプライエタリ API であり、Reader 側の entitlement が必要
-- **CoreNFC の Reader モードは利用可能** (`NFCNDEFReaderSession`)
-  - 外部 NFC タグの読み取りは可能
-  - ただし、もう一方の iPhone を NFC タグとして認識することはできない
-- EEA 限定で HCE-based contactless (`CardSession`, iOS 17.4+) は開放されたが、ID 用途の NDEF エミュレーションは対象外
+- **NFC tag emulation (HCE) is not available for third-party apps**
+  - Only Apple Wallet can make an iPhone act as an NDEF tag
+  - This workshop uses direct BLE connection as a substitute
+  - Apple's ID Verifier API (ProximityReader) implements NFC-to-BLE handover internally, but it is a proprietary API requiring a Reader-side entitlement
+- **CoreNFC Reader mode is available** (`NFCNDEFReaderSession`)
+  - Reading external NFC tags is possible
+  - However, it cannot recognize another iPhone as an NFC tag
+- HCE-based contactless (`CardSession`, iOS 17.4+) is available in the EEA only and does not cover NDEF emulation for ID purposes
 
 ## Architecture
 
-- **Two-project structure**: `initial/` (TODO付きスケルトン) と `completed/` (リファレンス実装)
-- **Documentation.docc/**: DocC チュートリアル (9チャプター)
+- **Two-project structure**: `initial/` (skeleton with TODOs) and `completed/` (reference implementation)
+- **Documentation.docc/**: DocC tutorials (9 chapters)
 - **Frameworks**: SwiftUI, CoreBluetooth, CoreNFC, LocalAuthentication, CryptoKit, SwiftCBOR
-- **Target**: iOS 17+, 実機2台必須 (Simulator は BLE/NFC 非対応)
+- **Target**: iOS 17+, two physical devices required (Simulator does not support BLE/NFC)
 
 ## Code Conventions
 
-- Swift style: `// MARK: -` でセクション分割、明示的アクセス制御
-- Services: singleton パターン (`.shared`)
-- ViewModels: `@MainActor` `ObservableObject` class
-- State machines: enum (`ReaderState`, `PresentmentState`, `BLEConnectionState`)
-- Error types: `LocalizedError` に準拠
-- CBOR: SwiftCBOR ライブラリ (`CBOR.map`, `CBOR.array` パターン)
-- ISO 18013-5 命名規約: mdoc, IssuerSigned, DeviceSigned, DeviceEngagement
+- Swift style: `// MARK: -` section dividers, explicit access control
+- Services: singleton pattern (`.shared`)
+- ViewModels: `@MainActor` `ObservableObject` classes
+- State machines: enums (`ReaderState`, `PresentmentState`, `BLEConnectionState`)
+- Error types: conform to `LocalizedError`
+- CBOR: SwiftCBOR library (`CBOR.map`, `CBOR.array` patterns)
+- ISO 18013-5 naming conventions: mdoc, IssuerSigned, DeviceSigned, DeviceEngagement
 
 ## Workshop Conventions
 
-- `initial/` ファイルでは `fatalError("Not implemented - Complete this in Chapter N")` で TODO を表現
-- `completed/` は完全なリファレンス実装
-- Documentation.docc のチャプターはフロー順に構成
-- ダミークレデンシャルを使用（実際の発行フローなし）
-- 暗号検証は教育目的で簡略化
+- `initial/` files use `fatalError("Not implemented - Complete this in Chapter N")` for TODOs
+- `completed/` is the full reference implementation
+- Documentation.docc chapters are ordered to follow the flow sequence
+- Dummy credentials are used (no real issuance flow)
+- Cryptographic verification is simplified for educational purposes
 
 ## File Organization
 
@@ -64,8 +70,8 @@ Views/       ContentView.swift, ReaderView.swift, PresentmentView.swift,
 
 ## When Modifying Code
 
-- `initial/` と `completed/` の構造を常に同期すること
-- コードフローを変更したら Documentation.docc も更新
-- `initial/` の TODO パターンにはチャプター番号を参照させる
-- 2台の実機でテスト（Simulator は BLE/NFC 非対応）
-- NFC 関連のコードを変更する場合、技術的制約セクションの内容と矛盾しないこと
+- Always keep `initial/` and `completed/` structurally in sync
+- Update Documentation.docc when changing code flow
+- Reference chapter numbers in `initial/` TODO patterns
+- Test on two physical devices (Simulator does not support BLE/NFC)
+- When modifying NFC-related code, ensure it does not contradict the technical constraints section

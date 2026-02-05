@@ -369,18 +369,18 @@ class PresentmentViewModel: ObservableObject {
     func startPresenting() {
         // TODO: Implement presentment flow
         //
-        // ## iOS の技術的制約
+        // ## iOS Technical Constraints
         //
-        // ISO 18013-5 の本来のフロー:
-        //   1. Holder が DeviceEngagement を CBOR エンコードし NDEF メッセージとして準備
-        //   2. Holder の iPhone が NFC タグとして DeviceEngagement を提供 (HCE)
-        //   3. Reader が NFC で DeviceEngagement を読み取り、BLE UUID を抽出
-        //   4. BLE 接続確立
+        // The intended ISO 18013-5 flow:
+        //   1. Holder CBOR-encodes DeviceEngagement and prepares it as an NDEF message
+        //   2. Holder's iPhone provides DeviceEngagement as an NFC tag (HCE)
+        //   3. Reader reads DeviceEngagement via NFC and extracts the BLE UUID
+        //   4. BLE connection established
         //
-        // iOS では NFC タグエミュレーション (HCE) が Apple Wallet 専用のため、
-        // 本ワークショップでは BLE advertising で直接接続する。
+        // On iOS, NFC tag emulation (HCE) is exclusive to Apple Wallet,
+        // so this workshop uses direct BLE advertising for connection.
         //
-        // ## 実装手順
+        // ## Implementation steps
         //
         // 1. Set state to .advertising
         // 2. Set up BLE callback: bleService.onRequestReceived

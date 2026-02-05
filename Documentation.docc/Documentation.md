@@ -35,16 +35,16 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
          │ 6. Receive DeviceResponse (CBOR)     │
          │◄─────────────────────────────────────│
          │                                      │
-         │ 7. Decode CBOR → Key-Value 表示      │
+         │ 7. Decode CBOR → Display Key-Values   │
          ▼                                      ▼
 ```
 
-> Important: Step 1 (NFC タップ) は iOS ではサードパーティアプリで実現できません。
-> NFC タグエミュレーション (HCE) は Apple Wallet 専用です。
-> 本ワークショップでは BLE 直接接続を使用し、NFC の概念は学習教材として解説します。
-> 詳細は <doc:NFCHandshake> を参照してください。
+> Important: Step 1 (NFC tap) cannot be implemented in third-party apps on iOS.
+> NFC tag emulation (HCE) is exclusive to Apple Wallet.
+> This workshop uses direct BLE connection, while NFC concepts are covered as learning material.
+> See <doc:NFCHandshake> for details.
 
-### 本ワークショップの実際のフロー
+### Actual Flow in This Workshop
 
 ```
 ┌─────────────────┐                    ┌──────────────────┐
@@ -64,7 +64,7 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
          │                        5. Face ID Auth│
          │ 6. Receive DeviceResponse (CBOR)     │
          │◄─────────────────────────────────────│
-         │ 7. Decode CBOR → Key-Value 表示      │
+         │ 7. Decode CBOR → Display Key-Values   │
          ▼                                      ▼
 ```
 
@@ -80,7 +80,7 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
 - <doc:UnderstandingMDoc>
 - <doc:CBOREncodingDecoding>
 
-### Connection: NFC-to-BLE Handover (理想と現実)
+### Connection: NFC-to-BLE Handover (Ideal vs Reality)
 
 - <doc:NFCHandshake>
 - <doc:BLETransport>

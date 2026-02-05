@@ -4,14 +4,14 @@ Implement Bluetooth Low Energy communication for data transfer.
 
 ## Overview
 
-ISO 18013-5 では NFC ハンドオーバー後に BLE でデータ転送を行います。本ワークショップでは iOS の技術的制約 (NFC タグエミュレーション不可) により、BLE 直接接続を使用しますが、BLE transport 層自体は ISO 18013-5 に準拠した実装です。
+In ISO 18013-5, data transfer occurs over BLE after the NFC handover. Due to iOS technical constraints (NFC tag emulation is unavailable), this workshop uses direct BLE connection, but the BLE transport layer itself is an ISO 18013-5 compliant implementation.
 
-Reader は BLE **Central**、Holder は BLE **Peripheral** として動作します。
+The Reader operates as a BLE **Central**, and the Holder operates as a BLE **Peripheral**.
 
-> Note: ISO 18013-5 の本来のフローでは、BLE サービス UUID は NFC DeviceEngagement から取得します。
-> 本ワークショップでは固定の UUID を使用して直接接続しますが、
-> データ構造 (`DeviceRequest`, `DeviceResponse`) は同一です。
-> NFC の詳細は <doc:NFCHandshake> を参照してください。
+> Note: In the intended ISO 18013-5 flow, the BLE service UUID is obtained from the NFC DeviceEngagement.
+> This workshop uses a fixed UUID for direct connection,
+> but the data structures (`DeviceRequest`, `DeviceResponse`) are the same.
+> See <doc:NFCHandshake> for NFC details.
 
 ### BLE Roles
 

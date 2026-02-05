@@ -31,9 +31,9 @@ We'll test the most common scenario: verifying someone is over 21.
 
 ### Step 2: Initiate Connection
 
-> Note: ISO 18013-5 の本来のフローでは、ここで NFC タップ (Device Engagement) が行われます。
-> iOS では NFC タグエミュレーション (HCE) が Apple Wallet 専用のため、
-> BLE 直接接続を使用します。詳細は <doc:NFCHandshake> を参照してください。
+> Note: In the intended ISO 18013-5 flow, an NFC tap (Device Engagement) would occur here.
+> Since NFC tag emulation (HCE) is exclusive to Apple Wallet on iOS,
+> direct BLE connection is used. See <doc:NFCHandshake> for details.
 
 **On Device A (Reader)**
 1. Tap "Start Reading"
@@ -173,17 +173,17 @@ To extend this workshop:
 - Explore Apple's `ProximityReader` framework (requires entitlement)
 - Investigate NFC & SE Platform (iOS 18.1+) for advanced NFC access
 
-> Note: NFC タグエミュレーション (HCE) による Device Engagement は
-> Apple Wallet 専用のため、サードパーティアプリには追加できません。
-> Apple ID Verifier API (`ProximityReader`) を使用する場合は
-> Apple との個別契約と専用 entitlement が必要です。
+> Note: Device Engagement via NFC tag emulation (HCE) is
+> exclusive to Apple Wallet and cannot be added to third-party apps.
+> Using the Apple ID Verifier API (`ProximityReader`)
+> requires an individual agreement with Apple and a dedicated entitlement.
 
 ## Summary
 
 You've learned:
 1. ISO 18013-5 mdoc structure
 2. CBOR encoding/decoding
-3. NFC-to-BLE ハンドオーバーの仕組みと iOS の技術的制約
+3. NFC-to-BLE handover mechanics and iOS technical constraints
 4. BLE communication patterns
 5. Selective disclosure
 6. Biometric authentication

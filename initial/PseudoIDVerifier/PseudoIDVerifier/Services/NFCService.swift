@@ -6,28 +6,28 @@ import CoreNFC
 /// Service for NFC-based handshake to initiate BLE connection.
 /// This implements the NFC handover mechanism as defined in ISO 18013-5.
 ///
-/// ## iOS の技術的制約
+/// ## iOS Technical Constraints
 ///
-/// ### 実現可能なこと (CoreNFC)
-/// - `NFCNDEFReaderSession`: 外部 NFC タグの NDEF 読み取り (Reader 側)
-/// - `NFCTagReaderSession`: ISO 7816/14443/15693 タグの読み取り
-/// - NDEF メッセージの作成 (データ構造としてのみ)
+/// ### What CoreNFC CAN do
+/// - `NFCNDEFReaderSession`: Read NDEF from external NFC tags (Reader side)
+/// - `NFCTagReaderSession`: Read ISO 7816/14443/15693 tags
+/// - Create NDEF messages (as data structures only)
 ///
-/// ### 実現不可能なこと
-/// - **NFC タグエミュレーション (HCE)**: iPhone を NDEF タグとして振る舞わせること
-///   - Apple Wallet のみが Secure Element 経由で HCE を使用可能
-///   - サードパーティアプリでは Reader 側のみ利用可能
+/// ### What CoreNFC CANNOT do
+/// - **NFC tag emulation (HCE)**: Making an iPhone act as an NDEF tag
+///   - Only Apple Wallet can use HCE via the Secure Element
+///   - Third-party apps can only use the Reader side
 ///
-/// ### Apple ID Verifier API (ProximityReader) の仕組み
-/// Apple の ProximityReader framework は内部的に:
-/// 1. Enhanced Contactless Polling (ECP) で ISO 18013 用 NFC ポーリングを実施
-/// 2. Apple Wallet がシステムレベルで NDEF タグとして DeviceEngagement を返す
-/// 3. NFC → BLE ハンドオーバーで暗号化データ転送
-/// → サードパーティ API では再現不可。
+/// ### How Apple's ID Verifier API (ProximityReader) works
+/// Apple's ProximityReader framework internally:
+/// 1. Uses Enhanced Contactless Polling (ECP) for ISO 18013 NFC polling
+/// 2. Apple Wallet returns DeviceEngagement as an NDEF tag at the system level
+/// 3. Hands over from NFC to BLE for encrypted data transfer
+/// → Cannot be reproduced via third-party APIs.
 ///
-/// ### 本ワークショップでの対応
-/// - このファイルの Reader 側 NFC コードは ISO 18013-5 準拠のリファレンス実装
-/// - 実際の接続は BLE 直接接続 (`BLEService`) を使用
+/// ### Approach in this workshop
+/// - Reader-side NFC code in this file is an ISO 18013-5 compliant reference implementation
+/// - Actual connection uses direct BLE (`BLEService`)
 class NFCService: NSObject, ObservableObject {
     static let shared = NFCService()
 

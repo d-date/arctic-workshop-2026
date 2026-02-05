@@ -44,16 +44,16 @@ The holder chooses which attributes to share. For example, when buying alcohol, 
 
 #### Device Engagement
 
-ISO 18013-5 では、データ転送前に NFC 経由でデバイス間の接続情報を交換します:
+In ISO 18013-5, connection information is exchanged between devices via NFC before data transfer:
 
-1. Reader が NFC タグ/メッセージを Holder から読み取る
-2. BLE サービス UUID を抽出
-3. BLE 経由でデータ転送
+1. The Reader reads an NFC tag/message from the Holder
+2. Extracts the BLE service UUID
+3. Transfers data via BLE
 
-> Important: iOS ではサードパーティアプリで NFC タグエミュレーション (HCE) ができないため、
-> Holder 側を NDEF タグとして振る舞わせることは不可能です。
-> 本ワークショップでは BLE 直接接続を使用します。
-> 詳細は <doc:NFCHandshake> を参照してください。
+> Important: Since NFC tag emulation (HCE) is not available to third-party apps on iOS,
+> making the Holder side act as an NDEF tag is not possible.
+> This workshop uses direct BLE connection.
+> See <doc:NFCHandshake> for details.
 
 ### Workshop Structure
 
@@ -62,7 +62,7 @@ ISO 18013-5 では、データ転送前に NFC 経由でデバイス間の接続
 | 1 | Introduction | Understanding the architecture |
 | 2 | Project Setup | Xcode project with dependencies |
 | 3 | Data Layer | mdoc structures and CBOR encoding |
-| 4 | NFC Handshake | ISO 18013-5 NFC 仕様 + iOS 制約の理解 |
+| 4 | NFC Handshake | Understanding ISO 18013-5 NFC spec + iOS constraints |
 | 5 | BLE Transport | CoreBluetooth central/peripheral |
 | 6 | Selective Disclosure | Request/response with LocalAuth |
 | 7 | Integration | End-to-end testing |

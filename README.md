@@ -30,36 +30,36 @@ ISO 18013-5 and Apple's ID Verifier API define the following flow:
 [3] │  Send Request    │═══ DeviceRequest ═════►│  Show Request    │
     │  (CBOR)          │                        │  (Disclosure UI) │
     │                  │                        │                  │
-[4] │                  │                        │  Face ID 認証     │
-    │                  │                        │  Touch ID 認証    │
+[4] │                  │                        │  Face ID Auth     │
+    │                  │                        │  Touch ID Auth    │
     │                  │                        │                  │
 [5] │  Receive         │◄══ DeviceResponse ════│  Send Response   │
     │  (CBOR + mdoc)   │                        │  (filtered mdoc) │
     │                  │                        │                  │
 [6] │  CBOR Decode     │                        │                  │
-    │  Key-Value 表示   │                        │                  │
+    │  Display Key-Values   │                        │                  │
     └──────────────────┘                        └──────────────────┘
 ```
 
-### iOS の技術的制約: なぜ NFC タップを再現できないのか
+### iOS Technical Constraints: Why NFC Tap Cannot Be Reproduced
 
-上記フローの **Step [1] NFC TAP** は、サードパーティアプリでは実現できません:
+**Step [1] NFC TAP** in the flow above cannot be implemented in third-party apps:
 
-| 機能 | iOS での状況 | 本ワークショップ |
-|------|-------------|----------------|
-| NFC タグ **読み取り** (Reader) | `NFCNDEFReaderSession` で可能 | リファレンス実装を提供 |
-| NFC タグ **エミュレーション** (Holder) | **Apple Wallet 専用** — HCE 不可 | **BLE 直接接続で代替** |
-| `CardSession` (iOS 17.4+) | EEA 限定 / 決済用途のみ | 対象外 |
-| Apple ID Verifier API | `ProximityReader` framework / 専用 entitlement 必要 | 概念を解説 |
+| Feature | Status on iOS | This Workshop |
+|---------|---------------|---------------|
+| NFC Tag **Reading** (Reader) | Possible with `NFCNDEFReaderSession` | Reference implementation provided |
+| NFC Tag **Emulation** (Holder) | **Apple Wallet exclusive** — no HCE | **Substituted with direct BLE connection** |
+| `CardSession` (iOS 17.4+) | EEA only / payment use only | Out of scope |
+| Apple ID Verifier API | `ProximityReader` framework / dedicated entitlement required | Concepts explained |
 
-**Apple の ID Verifier API が動作する理由:**
-1. Reader 側: `ProximityReader` が Enhanced Contactless Polling (ECP) で NFC ポーリング
-2. Holder 側: Apple Wallet がシステムレベルで NDEF タグとして `DeviceEngagement` を返す
-3. 両者とも Apple のプロプライエタリ実装 — サードパーティでは再現不可
+**Why Apple's ID Verifier API works:**
+1. Reader side: `ProximityReader` performs NFC polling via Enhanced Contactless Polling (ECP)
+2. Holder side: Apple Wallet returns `DeviceEngagement` as an NDEF tag at the system level
+3. Both are Apple's proprietary implementation -- cannot be reproduced by third parties
 
-### 本ワークショップの実際のフロー
+### Actual Flow in This Workshop
 
-NFC タグエミュレーションの代わりに、BLE 直接接続を使用します:
+Instead of NFC tag emulation, we use direct BLE connection:
 
 ```
          Reader Phone                              Presentment Phone
@@ -75,18 +75,18 @@ NFC タグエミュレーションの代わりに、BLE 直接接続を使用し
 [3] │  Send Request    │═══ DeviceRequest ═════►│  Show Request    │
     │  (CBOR)          │                        │  (Disclosure UI) │
     │                  │                        │                  │
-[4] │                  │                        │  Face ID 認証     │
+[4] │                  │                        │  Face ID Auth     │
     │                  │                        │                  │
 [5] │  Receive         │◄══ DeviceResponse ════│  Send Response   │
     │  (CBOR + mdoc)   │                        │  (filtered mdoc) │
     │                  │                        │                  │
 [6] │  CBOR Decode     │                        │                  │
-    │  Key-Value 表示   │                        │                  │
+    │  Display Key-Values   │                        │                  │
     └──────────────────┘                        └──────────────────┘
 ```
 
-> NFC タグエミュレーション以外の全ステップ (BLE 接続、CBOR エンコード/デコード、
-> 選択的属性開示、生体認証) は ISO 18013-5 に準拠した実装です。
+> All steps other than NFC tag emulation (BLE connection, CBOR encoding/decoding,
+> selective attribute disclosure, biometric authentication) are implemented in compliance with ISO 18013-5.
 
 ## Project Structure
 
@@ -126,7 +126,7 @@ arctic-workshop-2026/
 
 1. **Understanding mDL** - Learn ISO 18013-5 data structures
 2. **CBOR Encoding** - Implement binary serialization
-3. **NFC Handshake** - Understand device engagement (iOS 制約の学習を含む)
+3. **NFC Handshake** - Understand device engagement (includes learning iOS constraints)
 4. **BLE Transport** - Build the communication layer
 5. **Selective Disclosure** - Implement privacy-preserving data sharing
 6. **Biometric Authentication** - Add Face ID/Touch ID approval
@@ -163,13 +163,13 @@ This workshop simulates the ISO 18013-5 standard for mobile driving licenses (mD
 | `MDoc` | Mobile document data structure |
 | `CBORService` | CBOR encoding/decoding |
 | `BLEService` | Bluetooth communication (Central & Peripheral) |
-| `NFCService` | NFC handover (Reader 側リファレンス実装 / iOS HCE 制約あり) |
+| `NFCService` | NFC handover (Reader-side reference implementation / iOS HCE constraint) |
 | `AuthenticationService` | Biometric approval (Face ID / Touch ID) |
 | `CryptoService` | ECDSA signing, ECDH key agreement |
 
 ### Communication Flow
 
-1. Reader starts BLE scanning (Tap to Pay 風 UI)
+1. Reader starts BLE scanning (Tap to Pay style UI)
 2. Holder starts BLE advertising
 3. Devices connect over BLE
 4. Reader sends `DeviceRequest` (CBOR)
@@ -210,7 +210,7 @@ In the `initial/` project, look for `fatalError("TODO:")` comments:
 
 - `Services/CBORService.swift` - CBOR encoding/decoding
 - `Services/BLEService.swift` - BLE communication
-- `Services/NFCService.swift` - NFC handover (Reader 側リファレンス実装)
+- `Services/NFCService.swift` - NFC handover (Reader-side reference implementation)
 - `Services/AuthenticationService.swift` - Biometric auth
 
 ## Resources
