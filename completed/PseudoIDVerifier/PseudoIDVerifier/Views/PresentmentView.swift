@@ -388,6 +388,19 @@ class PresentmentViewModel: ObservableObject {
     }
 
     func startPresenting() {
+        // The intended ISO 18013-5 flow:
+        //   1. Holder CBOR-encodes DeviceEngagement and prepares it as an NDEF message
+        //   2. Holder's iPhone provides DeviceEngagement as an NFC tag (HCE)
+        //   3. Reader reads DeviceEngagement via NFC and extracts the BLE UUID
+        //   4. BLE connection established
+        //
+        // iOS technical constraint:
+        //   NFC tag emulation (HCE) is exclusive to Apple Wallet.
+        //   Third-party apps cannot make an iPhone act as an NDEF tag.
+        //   Apple's ID Verifier API (ProximityReader) works around this constraint,
+        //   but requires a dedicated entitlement.
+        //
+        // This workshop uses direct BLE advertising for connection.
         state = .advertising
         bleService.startPeripheralMode()
     }

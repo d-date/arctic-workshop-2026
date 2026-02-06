@@ -369,11 +369,23 @@ class PresentmentViewModel: ObservableObject {
     func startPresenting() {
         // TODO: Implement presentment flow
         //
-        // Steps:
+        // ## iOS Technical Constraints
+        //
+        // The intended ISO 18013-5 flow:
+        //   1. Holder CBOR-encodes DeviceEngagement and prepares it as an NDEF message
+        //   2. Holder's iPhone provides DeviceEngagement as an NFC tag (HCE)
+        //   3. Reader reads DeviceEngagement via NFC and extracts the BLE UUID
+        //   4. BLE connection established
+        //
+        // On iOS, NFC tag emulation (HCE) is exclusive to Apple Wallet,
+        // so this workshop uses direct BLE advertising for connection.
+        //
+        // ## Implementation steps
+        //
         // 1. Set state to .advertising
-        // 2. Start BLE peripheral mode
-        // 3. Set up callback for when request is received
-        // 4. On request, set state to .requestReceived
+        // 2. Set up BLE callback: bleService.onRequestReceived
+        // 3. Start BLE peripheral mode: bleService.startPeripheralMode()
+        // 4. On request received, set state to .requestReceived
 
         fatalError("Not implemented - Complete this in Chapter 7")
     }

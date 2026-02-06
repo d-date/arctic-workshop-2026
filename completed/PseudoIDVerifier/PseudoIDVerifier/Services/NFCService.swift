@@ -3,8 +3,43 @@ import CoreNFC
 
 // MARK: - NFC Service for Handshake
 
-/// Service for NFC-based handshake to initiate BLE connection
-/// This implements the NFC handover mechanism similar to ISO 18013-5
+/// Service for NFC-based handshake to initiate BLE connection.
+/// This implements the NFC handover mechanism as defined in ISO 18013-5.
+///
+/// ## iOS Technical Constraints
+///
+/// ISO 18013-5 specifies NFC-to-BLE handover:
+///   - Reader starts an NFC session
+///   - Holder's device provides DeviceEngagement (CBOR) as an NDEF tag
+///   - Reader extracts the BLE UUID from DeviceEngagement and connects via BLE
+///
+/// However, iOS has the following constraints:
+///
+/// ### What CoreNFC CAN do
+/// - `NFCNDEFReaderSession`: Read NDEF from external NFC tags
+/// - `NFCTagReaderSession`: Read ISO 7816/14443/15693 tags
+/// - Create NDEF messages (as data structures only)
+///
+/// ### What CoreNFC CANNOT do
+/// - **NFC tag emulation (HCE)**: Making an iPhone act as an NDEF tag
+///   - iOS 18.2 introduced HCE support via the NFC & SE Platform,
+///     but it requires an entitlement request to Apple
+///   - It is unclear whether general developers can obtain approval
+///   - `CardSession` (iOS 17.4+) is EEA-only and limited to payment use cases
+///   - Third-party apps can only use the Reader side without the entitlement
+///
+/// ### How Apple's ID Verifier API (ProximityReader) works
+/// Apple's ProximityReader framework internally:
+/// 1. Uses Enhanced Contactless Polling (ECP) for ISO 18013 NFC polling
+/// 2. Apple Wallet returns DeviceEngagement as an NDEF tag at the system level
+/// 3. Hands over from NFC to BLE for encrypted data transfer
+/// → This is entirely Apple's proprietary implementation and cannot be reproduced via third-party APIs.
+///
+/// ### Approach in this workshop
+/// - Reader-side NFC code (`startReaderSession`, `parseHandoverMessage`, etc.)
+///   is kept as an ISO 18013-5 compliant reference implementation
+/// - Holder-side `createHandoverMessage` is kept for learning NDEF message structure
+/// - Actual connection uses direct BLE (`BLEService`)
 class NFCService: NSObject, ObservableObject {
     static let shared = NFCService()
 

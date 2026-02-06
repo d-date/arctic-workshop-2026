@@ -4,7 +4,14 @@ Implement Bluetooth Low Energy communication for data transfer.
 
 ## Overview
 
-After the NFC handshake, devices communicate over BLE. The Reader acts as a BLE **Central** and the Holder acts as a BLE **Peripheral**.
+In ISO 18013-5, data transfer occurs over BLE after the NFC handover. Due to iOS technical constraints (NFC tag emulation is unavailable), this workshop uses direct BLE connection, but the BLE transport layer itself is an ISO 18013-5 compliant implementation.
+
+The Reader operates as a BLE **Central**, and the Holder operates as a BLE **Peripheral**.
+
+> Note: In the intended ISO 18013-5 flow, the BLE service UUID is obtained from the NFC DeviceEngagement.
+> This workshop uses a fixed UUID for direct connection,
+> but the data structures (`DeviceRequest`, `DeviceResponse`) are the same.
+> See <doc:NFCHandshake> for NFC details.
 
 ### BLE Roles
 

@@ -44,11 +44,16 @@ The holder chooses which attributes to share. For example, when buying alcohol, 
 
 #### Device Engagement
 
-Before transferring data, devices exchange connection information via NFC:
+In ISO 18013-5, connection information is exchanged between devices via NFC before data transfer:
 
-1. Reader reads NFC tag/message from holder
-2. Extracts BLE service UUID
-3. Connects via BLE for data transfer
+1. The Reader reads an NFC tag/message from the Holder
+2. Extracts the BLE service UUID
+3. Transfers data via BLE
+
+> Important: Since NFC tag emulation (HCE) is not available to third-party apps on iOS,
+> making the Holder side act as an NDEF tag is not possible.
+> This workshop uses direct BLE connection.
+> See <doc:NFCHandshake> for details.
 
 ### Workshop Structure
 
@@ -57,7 +62,7 @@ Before transferring data, devices exchange connection information via NFC:
 | 1 | Introduction | Understanding the architecture |
 | 2 | Project Setup | Xcode project with dependencies |
 | 3 | Data Layer | mdoc structures and CBOR encoding |
-| 4 | NFC Handshake | CoreNFC implementation |
+| 4 | NFC Handshake | Understanding ISO 18013-5 NFC spec + iOS constraints |
 | 5 | BLE Transport | CoreBluetooth central/peripheral |
 | 6 | Selective Disclosure | Request/response with LocalAuth |
 | 7 | Integration | End-to-end testing |

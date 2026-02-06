@@ -1,37 +1,132 @@
 # NFC Handshake
 
-Implement NFC-based device engagement for initiating connections.
+Understand the ISO 18013-5 NFC-to-BLE handover mechanism and iOS technical constraints.
 
 ## Overview
 
-In ISO 18013-5, the NFC handshake establishes the initial connection between devices. The Reader reads an NDEF message from the Holder containing BLE connection information.
+In ISO 18013-5, an NFC handshake establishes a secure connection between the Reader and the Holder. Apple's ID Verifier API (a Tap-to-Pay-like experience) is also based on this protocol.
 
-> Note: For this workshop, we simplify the flow by going directly to BLE. This chapter explains how the full NFC handshake would work.
+In this chapter, you will learn:
 
-### Device Engagement Flow
+1. **ISO 18013-5 NFC Handover Specification** — How it works
+2. **iOS Technical Constraints** — Why third-party apps cannot implement this
+3. **How the Apple ID Verifier API Works** — How Apple works around the constraints
+4. **Reader-Side NFC Code Implementation** — What CAN be done with CoreNFC
+
+### ISO 18013-5: NFC Device Engagement Flow
 
 ```
 Reader                              Holder
    │                                   │
    │ 1. Start NFC Session              │
+   │   (NFCNDEFReaderSession)          │
    │───────────────────────────────────│
    │                                   │
    │ 2. Read NDEF Message              │
    │◄──────────────────────────────────│
    │   Contains:                       │
-   │   - Handover Select record        │
+   │   - Handover Select record ("Hs") │
    │   - BLE OOB data (Service UUID)   │
    │   - Device Engagement (CBOR)      │
-   │                                   │
-   │ 3. Parse Device Engagement        │
+   │                                   │  ← Holder responds as an NDEF tag
+   │ 3. Parse Device Engagement        │     (NFC tag emulation / HCE)
+   │   → Extract BLE UUID              │
    │                                   │
    │ 4. Connect via BLE using UUID     │
    │───────────────────────────────────►
 ```
 
-### Step 1: Create NFCService
+### NDEF Message Structure
 
-Create `Services/NFCService.swift`:
+The NFC handover message consists of three NDEF records:
+
+| # | Record | Format | Description |
+|---|--------|--------|-------------|
+| 1 | Handover Select | NFC Well-Known ("Hs") | Handover type and reference |
+| 2 | BLE Carrier Config | MIME type | BLE OOB data (Service UUID, LE Role) |
+| 3 | Device Engagement | NFC External | CBOR-encoded DeviceEngagement |
+
+---
+
+## iOS Technical Constraints
+
+> Important: This section is a key learning point of this workshop.
+> When building an ID verification app on iOS, it is essential to understand precisely what CAN and what CANNOT be done.
+
+### What CAN be done with CoreNFC
+
+| API | Capability | Available |
+|-----|-----------|-----------|
+| `NFCNDEFReaderSession` | Reading NDEF tags | iOS 11+ |
+| `NFCTagReaderSession` | Reading ISO 7816/14443/15693 tags | iOS 13+ |
+| `NFCNDEFPayload` | Creating NDEF messages (as a data structure) | iOS 11+ |
+| Writing to NDEF tags | Writing data to external NFC tags | iOS 13+ |
+
+### What CANNOT be done with CoreNFC
+
+| Capability | Reason | Alternative |
+|-----------|--------|-------------|
+| **NFC Tag Emulation (HCE)** | Available since iOS 18.2 via NFC & SE Platform, but requires entitlement request to Apple; unclear if general developers can obtain approval | Direct BLE connection |
+| **Making an iPhone respond as an NDEF tag** | No public API available | BLE advertising |
+| **Detecting another iPhone with `NFCTagReaderSession`** | An iPhone is not an NFC tag | BLE |
+
+### Why does Apple's ID Verifier API work?
+
+Apple's `ProximityReader` framework (ID Verifier API) internally implements the following:
+
+```
+ProximityReader (Reader side)
+├── Enhanced Contactless Polling (ECP)
+│   → Performs dedicated NFC polling for ISO 18013
+│   → Proprietary protocol to distinguish from GymKit and other NFC uses
+│
+├── NFCNDEFReaderSession (used internally)
+│   → Retrieves the Holder's DeviceEngagement via NDEF
+│
+└── BLE Data Transfer (used internally)
+    → Automatically connects using the BLE UUID obtained from NFC
+    → Establishes an encrypted session
+
+Apple Wallet (Holder side)
+├── Secure Element
+│   → Makes the iPhone behave as an NFC tag (HCE)
+│   → Returns DeviceEngagement as an NDEF response
+│
+└── iOS System UI
+    → Displays the disclosure request to the user
+    → Authenticates with Face ID / Touch ID
+```
+
+**This entire system is Apple's proprietary implementation**:
+- Reader side: Requires `ProximityReader` framework + dedicated entitlement (`com.apple.developer.proximity-reader.identity.read`)
+- Holder side: Limited to Apple Wallet -- third-party apps cannot respond as NDEF tags
+- ECP is a non-public protocol
+
+### About `CardSession` (iOS 17.4+)
+
+The `CardSession` API introduced in iOS 17.4 enables HCE-based contactless transactions, but:
+
+- **Limited to the EEA (European Economic Area)**
+- **Designed for payment use cases** (EMV contactless payments)
+- Does not support ISO 18013-5 NDEF DeviceEngagement
+- Not available outside the EEA, including Japan
+
+### About NFC & SE Platform and HCE (iOS 18.2+)
+
+iOS 18.2 introduced HCE (Host Card Emulation) support via the NFC & SE Platform, which could theoretically enable an iPhone to act as an NDEF tag. However:
+
+- **Requires an entitlement request to Apple** — it is unclear whether general developers can obtain approval
+- Available in limited regions only
+- Requires an individual agreement and review with Apple
+- Primarily intended for specific use cases such as transit and ID cards
+- Even if approved, implementing ISO 18013-5 NFC Device Engagement via HCE would require significant additional work beyond what CoreNFC provides
+
+---
+
+## Step 1: Reader-Side NFC Code Implementation (Reference)
+
+The following code is a reader-side implementation of what CAN be done with CoreNFC.
+It can be used to read DeviceEngagement from an external NFC tag.
 
 ```swift
 import Foundation
@@ -50,7 +145,7 @@ class NFCService: NSObject, ObservableObject {
     var onEngagementReceived: ((DeviceEngagement, Data) -> Void)?
     var onError: ((NFCError) -> Void)?
 
-    // Constants
+    // ISO 18013-5 defined constants
     private let bleMimeType = "application/vnd.bluetooth.le.oob"
     private let deviceEngagementType = "iso.org:18013:deviceengagement"
 
@@ -60,7 +155,7 @@ class NFCService: NSObject, ObservableObject {
 }
 ```
 
-### Step 2: Implement Reader Mode
+### Step 2: Starting an NFC Reader Session
 
 ```swift
 extension NFCService {
@@ -93,7 +188,10 @@ extension NFCService {
 }
 ```
 
-### Step 3: Implement Delegate Methods
+> Note: This code works when reading external NFC tags.
+> It cannot detect another iPhone as an NFC tag.
+
+### Step 3: Implementing Delegate Methods
 
 ```swift
 extension NFCService: NFCNDEFReaderSessionDelegate {
@@ -143,7 +241,7 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
 }
 ```
 
-### Step 4: Parse Handover Message
+### Step 4: Parsing the Handover Message
 
 ```swift
 extension NFCService {
@@ -201,7 +299,10 @@ extension NFCService {
 }
 ```
 
-### Step 5: Create Handover Message (Holder Side)
+### Step 5: Creating a Handover Message (For learning purposes)
+
+The following code is a reference implementation for learning the structure of NDEF handover messages.
+In a real app, since an iPhone cannot act as an NFC tag, this message cannot be delivered via NFC.
 
 ```swift
 extension NFCService {
@@ -266,6 +367,27 @@ extension NFCService {
 }
 ```
 
+### Connection Method Used in This Workshop
+
+Instead of NFC tag emulation, we use a direct BLE connection:
+
+```swift
+// ReaderViewModel.swift
+func startReading() {
+    // Original ISO 18013-5 flow:
+    //   nfcService.startReaderSession()
+    //   -> Obtain DeviceEngagement via NFC
+    //   -> Extract BLE UUID and connect
+    //
+    // Using direct BLE connection due to iOS technical constraints:
+    state = .scanning
+    bleService.startCentralMode()
+}
+```
+
+> Note: All steps other than NFC tag emulation (BLE connection, CBOR encoding/decoding,
+> selective attribute disclosure, biometric authentication) are implemented in compliance with ISO 18013-5.
+
 ### Error Types
 
 ```swift
@@ -290,37 +412,6 @@ enum NFCError: LocalizedError {
 }
 ```
 
-### Workshop Simplification
-
-For this workshop, we skip NFC and connect directly via BLE:
-
-```swift
-// In ReaderViewModel
-func startReading() {
-    state = .scanning
-
-    // Full implementation would do:
-    // nfcService.startReaderSession()
-
-    // Workshop simplification - go directly to BLE:
-    state = .connecting
-    bleService.startCentralMode()
-}
-```
-
-This is because:
-1. NFC tag emulation requires entitlements not available to all developers
-2. Testing NFC requires specific hardware setup
-3. BLE demonstrates the same data transfer concepts
-
-### Real-World Implementation
-
-In production:
-1. Holder emulates an NFC tag with Device Engagement
-2. Reader reads the tag to get BLE connection info
-3. Reader connects via BLE using the received UUID
-4. Data transfer proceeds over BLE
-
 ## Next Steps
 
-Continue to <doc:BLETransport> to implement the BLE communication layer.
+Continue to <doc:BLETransport> to implement the BLE communication layer that handles the actual data transfer.

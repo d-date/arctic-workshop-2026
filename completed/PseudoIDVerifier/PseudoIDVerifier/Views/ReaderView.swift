@@ -368,12 +368,27 @@ class ReaderViewModel: ObservableObject {
 
     enum ReaderState {
         case idle
-        case scanning
-        case connecting
+        case scanning        // BLE scanning (Tap to Pay style UI)
+        case connecting      // BLE connecting
         case waitingForResponse
         case success([String: Any])
         case error(String)
     }
+
+    // MARK: - iOS Technical Constraints (NFC)
+    //
+    // In Apple's ID Verifier API (ProximityReader), the Reader starts an NFC session and
+    // the Holder's iPhone responds as an NDEF tag with DeviceEngagement (NFC-to-BLE handover).
+    // However, NFC tag emulation (HCE) is exclusive to Apple Wallet, so third-party apps
+    // cannot make the Holder side act as an NDEF tag.
+    //
+    // Therefore, this workshop:
+    // - Uses direct BLE connection (equivalent to ISO 18013-5 BLE engagement)
+    // - Recreates a Tap to Pay style UI experience
+    // - Uses the same ISO 18013-5 compliant CBOR structure for DeviceEngagement
+    //
+    // Reference: Apple's ID Verifier API internally implements
+    // NFC engagement + BLE data transfer via the ProximityReader framework.
 
     init() {
         setupCallbacks()
@@ -414,14 +429,19 @@ class ReaderViewModel: ObservableObject {
     }
 
     func startReading() {
+        // The intended ISO 18013-5 flow:
+        //   1. Reader starts NFCNDEFReaderSession
+        //   2. Holder's iPhone responds as an NDEF tag with DeviceEngagement
+        //   3. Reader extracts BLE UUID from DeviceEngagement and connects via BLE
+        //
+        // However, on iOS, NFC tag emulation (HCE) is exclusive to Apple Wallet,
+        // so third-party apps cannot make the Holder act as an NDEF tag.
+        // Apple's ID Verifier API (ProximityReader framework) implements this internally,
+        // but requires a special entitlement and an agreement with Apple.
+        //
+        // This workshop uses direct BLE connection instead,
+        // while recreating a Tap to Pay style UI experience.
         state = .scanning
-
-        // For workshop simplicity, we skip NFC and go directly to BLE
-        // In a real implementation, you would start NFC first:
-        // nfcService.startReaderSession()
-
-        // Start BLE scanning directly
-        state = .connecting
         bleService.startCentralMode()
     }
 
