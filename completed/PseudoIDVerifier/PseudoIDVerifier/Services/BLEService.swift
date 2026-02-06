@@ -1,17 +1,19 @@
 import Foundation
+import Observation
 import CoreBluetooth
 
 // MARK: - BLE Service for Data Transfer
 
 /// Service for BLE-based data transfer between Reader and Holder
 /// Implements the BLE transport layer similar to ISO 18013-5
-class BLEService: NSObject, ObservableObject {
+@Observable
+class BLEService: NSObject {
     static let shared = BLEService()
 
-    // MARK: - Published State
+    // MARK: - Observable State
 
-    @Published var connectionState: BLEConnectionState = .disconnected
-    @Published var error: BLEError?
+    var connectionState: BLEConnectionState = .disconnected
+    var error: BLEError?
 
     // MARK: - UUIDs
 
@@ -29,36 +31,36 @@ class BLEService: NSObject, ObservableObject {
 
     // MARK: - Core Bluetooth Objects
 
-    private var centralManager: CBCentralManager?
-    private var peripheralManager: CBPeripheralManager?
+    @ObservationIgnored private var centralManager: CBCentralManager?
+    @ObservationIgnored private var peripheralManager: CBPeripheralManager?
 
-    private var connectedPeripheral: CBPeripheral?
-    private var connectedCentral: CBCentral?
+    @ObservationIgnored private var connectedPeripheral: CBPeripheral?
+    @ObservationIgnored private var connectedCentral: CBCentral?
 
     // MARK: - Characteristics (for peripheral mode)
 
-    private var stateCharacteristic: CBMutableCharacteristic?
-    private var client2ServerCharacteristic: CBMutableCharacteristic?
-    private var server2ClientCharacteristic: CBMutableCharacteristic?
+    @ObservationIgnored private var stateCharacteristic: CBMutableCharacteristic?
+    @ObservationIgnored private var client2ServerCharacteristic: CBMutableCharacteristic?
+    @ObservationIgnored private var server2ClientCharacteristic: CBMutableCharacteristic?
 
     // MARK: - Discovered Characteristics (for central mode)
 
-    private var discoveredStateCharacteristic: CBCharacteristic?
-    private var discoveredClient2ServerCharacteristic: CBCharacteristic?
-    private var discoveredServer2ClientCharacteristic: CBCharacteristic?
+    @ObservationIgnored private var discoveredStateCharacteristic: CBCharacteristic?
+    @ObservationIgnored private var discoveredClient2ServerCharacteristic: CBCharacteristic?
+    @ObservationIgnored private var discoveredServer2ClientCharacteristic: CBCharacteristic?
 
     // MARK: - Data Buffers
 
-    private var receivedData = Data()
-    private var dataToSend = Data()
-    private var sendDataIndex = 0
+    @ObservationIgnored private var receivedData = Data()
+    @ObservationIgnored private var dataToSend = Data()
+    @ObservationIgnored private var sendDataIndex = 0
 
     // MARK: - Callbacks
 
-    var onRequestReceived: ((DeviceRequest) -> Void)?
-    var onResponseReceived: ((DeviceResponse) -> Void)?
-    var onConnected: (() -> Void)?
-    var onDisconnected: (() -> Void)?
+    @ObservationIgnored var onRequestReceived: ((DeviceRequest) -> Void)?
+    @ObservationIgnored var onResponseReceived: ((DeviceResponse) -> Void)?
+    @ObservationIgnored var onConnected: (() -> Void)?
+    @ObservationIgnored var onDisconnected: (() -> Void)?
 
     // MARK: - Constants
 

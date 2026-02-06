@@ -1,12 +1,13 @@
 import SwiftUI
 import Dependencies
+import Observation
 
 // MARK: - Presentment View (Holder Mode)
 
 /// Main view for the Presentment/Holder mode
 /// This is where the holder presents their credential
 struct PresentmentView: View {
-    @StateObject private var viewModel = PresentmentViewModel()
+    @State private var viewModel = PresentmentViewModel()
 
     var body: some View {
         ZStack {
@@ -49,7 +50,7 @@ struct PresentmentView: View {
 // MARK: - Idle State View
 
 private struct IdleView: View {
-    @ObservedObject var viewModel: PresentmentViewModel
+    var viewModel: PresentmentViewModel
 
     var body: some View {
         VStack(spacing: 30) {
@@ -179,7 +180,7 @@ private struct CredentialCard: View {
 // MARK: - Advertising View
 
 private struct AdvertisingView: View {
-    @ObservedObject var viewModel: PresentmentViewModel
+    var viewModel: PresentmentViewModel
     @State private var animationPhase = 0.0
 
     var body: some View {
@@ -266,7 +267,7 @@ private struct SendingView: View {
 // MARK: - Success View
 
 private struct SuccessView: View {
-    @ObservedObject var viewModel: PresentmentViewModel
+    var viewModel: PresentmentViewModel
 
     var body: some View {
         VStack(spacing: 20) {
@@ -306,7 +307,7 @@ private struct SuccessView: View {
 
 private struct ErrorView: View {
     let message: String
-    @ObservedObject var viewModel: PresentmentViewModel
+    var viewModel: PresentmentViewModel
 
     var body: some View {
         VStack(spacing: 20) {
@@ -344,15 +345,16 @@ private struct ErrorView: View {
 // MARK: - Presentment View Model
 
 @MainActor
-class PresentmentViewModel: ObservableObject {
-    @Published var state: PresentmentState = .idle
-    @Published var credential: MDoc
+@Observable
+class PresentmentViewModel {
+    var state: PresentmentState = .idle
+    var credential: MDoc
 
-    @Dependency(\.bleService) var bleService
-    @Dependency(\.authenticationService) var authService
-    private let cborService = CBORService.shared
+    @ObservationIgnored @Dependency(\.bleService) var bleService
+    @ObservationIgnored @Dependency(\.authenticationService) var authService
+    @ObservationIgnored private let cborService = CBORService.shared
 
-    private var pendingRequest: DeviceRequest?
+    @ObservationIgnored private var pendingRequest: DeviceRequest?
 
     enum PresentmentState {
         case idle
