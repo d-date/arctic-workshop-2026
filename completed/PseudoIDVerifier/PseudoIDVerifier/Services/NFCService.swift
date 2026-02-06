@@ -40,7 +40,7 @@ import CoreNFC
 ///   is kept as an ISO 18013-5 compliant reference implementation
 /// - Holder-side `createHandoverMessage` is kept for learning NDEF message structure
 /// - Actual connection uses direct BLE (`BLEService`)
-class NFCService: NSObject, ObservableObject {
+class NFCService: NSObject, ObservableObject, NFCServiceProtocol {
     static let shared = NFCService()
 
     // MARK: - Published State
@@ -120,34 +120,31 @@ class NFCService: NSObject, ObservableObject {
         // 1. Handover Select record
         // Simplified handover select record for workshop
         let hsPayload = Data([0x15, 0xD1, 0x02, 0x04, 0x61, 0x63, 0x00, 0x01, 0x30]) // ac record referencing '0'
-        if let hsRecord = NFCNDEFPayload(
+        let hsRecord = NFCNDEFPayload(
             format: .nfcWellKnown,
             type: Data(handoverSelectType.utf8),
             identifier: Data(),
             payload: hsPayload
-        ) {
-            records.append(hsRecord)
-        }
+        )
+        records.append(hsRecord)
 
         // 2. BLE Carrier Configuration record
-        if let bleRecord = NFCNDEFPayload(
+        let bleRecord = NFCNDEFPayload(
             format: .media,
             type: Data(bleMimeType.utf8),
             identifier: Data("0".utf8),
             payload: bleOOBData
-        ) {
-            records.append(bleRecord)
-        }
+        )
+        records.append(bleRecord)
 
         // 3. Device Engagement record (external type)
-        if let deRecord = NFCNDEFPayload(
+        let deRecord = NFCNDEFPayload(
             format: .nfcExternal,
             type: Data(deviceEngagementType.utf8),
             identifier: Data(),
             payload: engagementData
-        ) {
-            records.append(deRecord)
-        }
+        )
+        records.append(deRecord)
 
         guard !records.isEmpty else { return nil }
         return NFCNDEFMessage(records: records)

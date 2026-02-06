@@ -5,7 +5,7 @@ import CoreBluetooth
 
 /// Service for BLE-based data transfer between Reader and Holder
 /// Implements the BLE transport layer similar to ISO 18013-5
-class BLEService: NSObject, ObservableObject {
+class BLEService: NSObject, ObservableObject, BLEServiceProtocol {
     static let shared = BLEService()
 
     // MARK: - Published State

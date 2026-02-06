@@ -1,4 +1,5 @@
 import SwiftUI
+import Dependencies
 
 // MARK: - Reader View (Verifier Mode)
 
@@ -362,8 +363,8 @@ class ReaderViewModel: ObservableObject {
     @Published var state: ReaderState = .idle
     @Published var selectedScenario: VerificationScenario = .ageVerification21
 
-    private let nfcService = NFCService.shared
-    private let bleService = BLEService.shared
+    @Dependency(\.nfcService) private var nfcService
+    @Dependency(\.bleService) private var bleService
     private let cborService = CBORService.shared
 
     enum ReaderState {

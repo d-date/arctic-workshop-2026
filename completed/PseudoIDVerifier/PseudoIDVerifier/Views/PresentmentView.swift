@@ -1,4 +1,5 @@
 import SwiftUI
+import Dependencies
 
 // MARK: - Presentment View (Holder Mode)
 
@@ -232,9 +233,11 @@ private struct AdvertisingView: View {
 // MARK: - Authenticating View
 
 private struct AuthenticatingView: View {
+    @Dependency(\.authenticationService) var authService
+
     var body: some View {
         VStack(spacing: 20) {
-            Image(systemName: AuthenticationService.shared.biometricType.systemImageName)
+            Image(systemName: authService.biometricType.systemImageName)
                 .font(.system(size: 60))
                 .foregroundStyle(.blue)
 
@@ -345,8 +348,8 @@ class PresentmentViewModel: ObservableObject {
     @Published var state: PresentmentState = .idle
     @Published var credential: MDoc
 
-    private let bleService = BLEService.shared
-    private let authService = AuthenticationService.shared
+    @Dependency(\.bleService) private var bleService
+    @Dependency(\.authenticationService) private var authService
     private let cborService = CBORService.shared
 
     private var pendingRequest: DeviceRequest?

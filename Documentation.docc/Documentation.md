@@ -107,6 +107,8 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
 
 - <doc:IntegrationTesting>
 
+
 ### Bonus (Optional)
 
 - <doc:NFCHandshake>
+- <doc:SimulatorTesting>
