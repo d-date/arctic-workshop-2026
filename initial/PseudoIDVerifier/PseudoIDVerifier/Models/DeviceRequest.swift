@@ -208,32 +208,34 @@ enum MDLElementIdentifier: String, CaseIterable {
     }
 }
 
-// MARK: - TODO: Implement CBOR encoding/decoding
+// MARK: - CBOR Convenience (delegates to CBORService)
+//
+// > Note: These convenience methods delegate to CBORService.shared.
+// > After completing <doc:CBOREncodingDecoding>, you can use:
+// >   CBORService.shared.encode(request:)
+// >   CBORService.shared.decodeRequest(from:)
+// > or uncomment these wrappers.
 
 extension DeviceRequest {
-    /// Encode the request to CBOR format
+    /// Encode the request to CBOR format (delegates to CBORService)
     func toCBOR() -> Data {
-        // TODO: Implement CBOR encoding
-        fatalError("Not implemented - Complete this in Chapter 3")
+        CBORService.shared.encode(request: self)
     }
 
-    /// Decode a request from CBOR format
+    /// Decode a request from CBOR format (delegates to CBORService)
     static func fromCBOR(_ data: Data) -> DeviceRequest? {
-        // TODO: Implement CBOR decoding
-        fatalError("Not implemented - Complete this in Chapter 3")
+        CBORService.shared.decodeRequest(from: data)
     }
 }
 
 extension DeviceResponse {
-    /// Encode the response to CBOR format
+    /// Encode the response to CBOR format (delegates to CBORService)
     func toCBOR() -> Data {
-        // TODO: Implement CBOR encoding
-        fatalError("Not implemented - Complete this in Chapter 3")
+        CBORService.shared.encode(response: self)
     }
 
-    /// Decode a response from CBOR format
+    /// Decode a response from CBOR format (delegates to CBORService)
     static func fromCBOR(_ data: Data) -> DeviceResponse? {
-        // TODO: Implement CBOR decoding
-        fatalError("Not implemented - Complete this in Chapter 3")
+        CBORService.shared.decodeResponse(from: data)
     }
 }

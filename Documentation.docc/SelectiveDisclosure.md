@@ -114,9 +114,34 @@ enum VerificationScenario: CaseIterable, Identifiable {
 }
 ```
 
-### Step 3: Implement Selective Filtering
+### Step 3: Implement Selective Filtering and Attribute Extraction
+
+> **Initial project**: Find the `📋 PASTE: Step 3` markers in `Services/CBORService.swift`.
+
+First, add the `extractAttributes` helper, then the `createSelectiveResponse` method.
 
 Add to `CBORService`:
+
+```swift
+extension CBORService {
+    /// Extract specific attributes from an mdoc
+    func extractAttributes(from mdoc: MDoc, attributes: [String]) -> [String: Any] {
+        var result: [String: Any] = [:]
+
+        for (_, items) in mdoc.issuerSigned.nameSpaces {
+            for item in items {
+                if attributes.contains(item.elementIdentifier) {
+                    result[item.elementIdentifier] = item.elementValue
+                }
+            }
+        }
+
+        return result
+    }
+}
+```
+
+Then add the selective response method:
 
 ```swift
 extension CBORService {

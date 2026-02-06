@@ -68,6 +68,20 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
          ▼                                      ▼
 ```
 
+## Workshop Timeline (2.5 hours)
+
+| Time | Section | What You'll Do |
+|------|---------|---------------|
+| 0:00–0:15 | Getting Started + Setup | ISO 18013-5 concepts, open the initial project |
+| 0:15–0:45 | Understanding MDoc + CBOR Step 1–2 | Review models, implement encode(mdoc) and decodeMDoc |
+| 0:45–1:15 | CBOR Step 3–4 | encode(request), decodeRequest, encode(response), decodeResponse |
+| 1:15–1:30 | **Break** | |
+| 1:30–2:00 | BLE Transport | Implement BLEService (central, peripheral, chunking) |
+| 2:00–2:15 | Selective Disclosure + Biometric Auth | createSelectiveResponse + authenticateForDisclosure |
+| 2:15–2:30 | Integration Testing | Wire up ViewModels + test on two devices |
+
+> **Tip**: The initial project has `📋 PASTE` markers showing exactly where to paste code from each chapter.
+
 ## Topics
 
 ### Essentials
@@ -82,7 +96,6 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
 
 ### Connection: NFC-to-BLE Handover (Ideal vs Reality)
 
-- <doc:NFCHandshake>
 - <doc:BLETransport>
 
 ### Security & Privacy
@@ -93,3 +106,7 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
 ### Putting It Together
 
 - <doc:IntegrationTesting>
+
+### Bonus (Optional)
+
+- <doc:NFCHandshake>

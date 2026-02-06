@@ -65,242 +65,288 @@ class BLEService: NSObject, ObservableObject {
     /// Maximum data length per BLE write (MTU - 3)
     private let maxChunkSize = 512
 
+    /// Header byte: 0x01 = more chunks follow
+    private let headerMoreData: UInt8 = 0x01
+
+    /// Header byte: 0x00 = last chunk
+    private let headerLastChunk: UInt8 = 0x00
+
     private override init() {
         super.init()
     }
 
-    // MARK: - Central Mode (Reader/Verifier)
+    // ┌──────────────────────────────────────────────────────┐
+    // │  Central Mode (Reader/Verifier)                      │
+    // │  📖 See: BLETransport > Step 2                       │
+    // └──────────────────────────────────────────────────────┘
+
+    // MARK: - 📋 PASTE: <doc:BLETransport> Step 2 — startCentralMode
 
     /// Start scanning for peripherals advertising the mdoc service
     /// - Parameter targetUUID: Optional specific peripheral UUID to connect to
     func startCentralMode(targetUUID: UUID? = nil) {
-        // TODO: Implement central mode startup
+        // ✏️ Paste your implementation here
         //
         // Steps:
-        // 1. Create CBCentralManager with self as delegate
-        // 2. Wait for centralManagerDidUpdateState to confirm powered on
-        // 3. Start scanning for peripherals with serviceUUID
-        //
-        // Hint:
-        // centralManager = CBCentralManager(delegate: self, queue: nil)
+        // 1. Reset receivedData
+        // 2. Create CBCentralManager with self as delegate
+        // 3. Update connectionState to .scanning
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
+
+    // MARK: - 📋 PASTE: <doc:BLETransport> Step 2 — stopCentralMode
 
     /// Stop central mode and disconnect
     func stopCentralMode() {
-        // TODO: Implement cleanup
+        // ✏️ Paste your implementation here
         //
         // Steps:
         // 1. Stop scanning
         // 2. Disconnect from peripheral if connected
         // 3. Set centralManager to nil
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
+
+    // MARK: - 📋 PASTE: <doc:BLETransport> Step 2 — sendRequest
 
     /// Send a device request to the connected peripheral (holder)
     /// - Parameter request: The request to send
     func sendRequest(_ request: DeviceRequest) {
-        // TODO: Implement request sending
+        // ✏️ Paste your implementation here
         //
         // Steps:
         // 1. Encode the request to CBOR using CBORService
-        // 2. Write to the client2Server characteristic
-        // 3. Handle chunking if data exceeds MTU
+        // 2. Send in chunks to the client2Server characteristic
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
 
-    // MARK: - Peripheral Mode (Holder/Presentment)
+    // ┌──────────────────────────────────────────────────────┐
+    // │  Peripheral Mode (Holder/Presentment)                │
+    // │  📖 See: BLETransport > Step 3                       │
+    // └──────────────────────────────────────────────────────┘
+
+    // MARK: - 📋 PASTE: <doc:BLETransport> Step 3 — startPeripheralMode
 
     /// Start peripheral mode to advertise and accept connections
     func startPeripheralMode() {
-        // TODO: Implement peripheral mode startup
+        // ✏️ Paste your implementation here
         //
         // Steps:
-        // 1. Create CBPeripheralManager with self as delegate
-        // 2. Wait for peripheralManagerDidUpdateState
-        // 3. Create the service with characteristics
-        // 4. Add the service
-        // 5. Start advertising
-        //
-        // Characteristics setup:
-        // - state: read, notify
-        // - client2Server: write, write without response
-        // - server2Client: read, notify
+        // 1. Reset receivedData
+        // 2. Create CBPeripheralManager with self as delegate
+        //    (setupService will be called after state becomes .poweredOn)
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 3")
     }
+
+    // MARK: - 📋 PASTE: <doc:BLETransport> Step 3 — stopPeripheralMode
 
     /// Stop peripheral mode
     func stopPeripheralMode() {
-        // TODO: Implement cleanup
+        // ✏️ Paste your implementation here
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 3")
     }
+
+    // MARK: - 📋 PASTE: <doc:BLETransport> Step 3 — sendResponse
 
     /// Send a device response to the connected central (reader)
     /// - Parameter response: The response to send
     func sendResponse(_ response: DeviceResponse) {
-        // TODO: Implement response sending
+        // ✏️ Paste your implementation here
         //
         // Steps:
         // 1. Encode the response to CBOR
-        // 2. Update the server2Client characteristic
-        // 3. Handle chunking for large responses
+        // 2. Send in chunks via server2Client characteristic
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 3")
     }
 
-    // MARK: - Data Transfer Helpers
+    // ┌──────────────────────────────────────────────────────┐
+    // │  Data Transfer Helpers                               │
+    // │  📖 See: BLETransport > Step 4                       │
+    // └──────────────────────────────────────────────────────┘
 
-    /// Send data in chunks to handle BLE MTU limits
-    private func sendDataInChunks(_ data: Data, to characteristic: CBMutableCharacteristic) {
-        // TODO: Implement chunked data transfer
+    // MARK: - 📋 PASTE: <doc:BLETransport> Step 4 — sendDataInChunks (Central)
+
+    /// Send data in chunks to a peripheral characteristic
+    private func sendDataInChunks(_ data: Data, toPeripheral peripheral: CBPeripheral, characteristic: CBCharacteristic) {
+        // ✏️ Paste your implementation here
         //
-        // BLE has a maximum transmission unit (MTU) limit
-        // Large mdoc responses need to be split into chunks
+        // BLE has a maximum transmission unit (MTU) limit.
+        // Large mdoc responses need to be split into chunks.
         //
         // Approach:
-        // 1. Split data into chunks of maxChunkSize
-        // 2. Add a header byte indicating if more data follows
-        // 3. Send each chunk via updateValue
+        // 1. Split data into chunks of (maxChunkSize - 1) bytes
+        // 2. Prepend header byte: headerMoreData (0x01) or headerLastChunk (0x00)
+        // 3. Write each chunk via peripheral.writeValue
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 4")
     }
+
+    // MARK: - 📋 PASTE: <doc:BLETransport> Step 4 — sendDataInChunks (Peripheral)
+
+    /// Send data in chunks via peripheral manager
+    private func sendDataInChunks(_ data: Data, toCharacteristic characteristic: CBMutableCharacteristic, central: CBCentral) {
+        // ✏️ Paste your implementation here
+        // Same chunking logic, but uses peripheralManager?.updateValue
+
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 4")
+    }
+
+    // MARK: - 📋 PASTE: <doc:BLETransport> Step 4 — reassembleChunkedData
 
     /// Reassemble chunked data
     private func reassembleChunkedData(_ chunk: Data) -> Data? {
-        // TODO: Implement data reassembly
+        // ✏️ Paste your implementation here
         //
         // Check the header byte to know if more chunks are expected
-        // Append to receivedData buffer
-        // Return complete data when all chunks received
+        // Append payload to receivedData buffer
+        // Return complete data when header == headerLastChunk
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 4")
     }
 
-    // MARK: - Service Setup (Peripheral Mode)
+    // ┌──────────────────────────────────────────────────────┐
+    // │  Service Setup (Peripheral Mode)                     │
+    // │  📖 See: BLETransport > Step 3                       │
+    // └──────────────────────────────────────────────────────┘
+
+    // MARK: - 📋 PASTE: <doc:BLETransport> Step 3 — setupService
 
     private func setupService() {
-        // TODO: Create and configure the BLE service
+        // ✏️ Paste your implementation here
         //
         // Create characteristics:
-        // stateCharacteristic = CBMutableCharacteristic(
-        //     type: Self.stateCharacteristicUUID,
-        //     properties: [.read, .notify],
-        //     value: nil,
-        //     permissions: [.readable]
-        // )
+        // - stateCharacteristic: [.read, .notify] / [.readable]
+        // - client2ServerCharacteristic: [.write, .writeWithoutResponse] / [.writeable]
+        // - server2ClientCharacteristic: [.read, .notify] / [.readable]
         //
         // Create service and add characteristics:
         // let service = CBMutableService(type: Self.serviceUUID, primary: true)
         // service.characteristics = [...]
         // peripheralManager?.add(service)
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 3")
     }
 }
 
-// MARK: - CBCentralManagerDelegate
+// ┌──────────────────────────────────────────────────────┐
+// │  CBCentralManagerDelegate                            │
+// │  📖 See: BLETransport > Step 2                       │
+// └──────────────────────────────────────────────────────┘
+
+// MARK: - 📋 PASTE: <doc:BLETransport> Step 2 — CBCentralManagerDelegate
 
 extension BLEService: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        // TODO: Handle central manager state changes
+        // ✏️ Paste your implementation here
         //
         // When state is .poweredOn, start scanning:
         // central.scanForPeripherals(withServices: [Self.serviceUUID], options: nil)
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                        advertisementData: [String: Any], rssi RSSI: NSNumber) {
-        // TODO: Handle discovered peripheral
+        // ✏️ Paste your implementation here
         //
         // Steps:
         // 1. Store reference to peripheral
         // 2. Stop scanning
         // 3. Connect to peripheral
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        // TODO: Handle successful connection
+        // ✏️ Paste your implementation here
         //
         // Steps:
         // 1. Set peripheral delegate to self
         // 2. Discover services
-        // 3. Update connection state
+        // 3. Update connection state and call onConnected
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        // TODO: Handle connection failure
+        // ✏️ Paste your implementation here
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
 
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        // TODO: Handle disconnection
+        // ✏️ Paste your implementation here
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
 }
 
-// MARK: - CBPeripheralDelegate
+// ┌──────────────────────────────────────────────────────┐
+// │  CBPeripheralDelegate (Central mode discovery)       │
+// │  📖 See: BLETransport > Step 2                       │
+// └──────────────────────────────────────────────────────┘
+
+// MARK: - 📋 PASTE: <doc:BLETransport> Step 2 — CBPeripheralDelegate
 
 extension BLEService: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        // TODO: Handle discovered services
+        // ✏️ Paste your implementation here
         //
         // Find our service and discover its characteristics
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        // TODO: Handle discovered characteristics
+        // ✏️ Paste your implementation here
         //
-        // Store references to the characteristics
+        // Store references to discovered characteristics
         // Subscribe to notifications for server2Client
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        // TODO: Handle incoming data (response from holder)
+        // ✏️ Paste your implementation here
         //
         // 1. Reassemble chunks if needed
         // 2. Decode CBOR to DeviceResponse
         // 3. Call onResponseReceived callback
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
 
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        // TODO: Handle write confirmation
+        // ✏️ Paste your implementation here
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 2")
     }
 }
 
-// MARK: - CBPeripheralManagerDelegate
+// ┌──────────────────────────────────────────────────────┐
+// │  CBPeripheralManagerDelegate                         │
+// │  📖 See: BLETransport > Step 3                       │
+// └──────────────────────────────────────────────────────┘
+
+// MARK: - 📋 PASTE: <doc:BLETransport> Step 3 — CBPeripheralManagerDelegate
 
 extension BLEService: CBPeripheralManagerDelegate {
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        // TODO: Handle peripheral manager state changes
+        // ✏️ Paste your implementation here
         //
-        // When state is .poweredOn, setup service and start advertising
+        // When state is .poweredOn, call setupService()
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 3")
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
-        // TODO: Handle service addition
+        // ✏️ Paste your implementation here
         //
         // If successful, start advertising:
         // peripheral.startAdvertising([
@@ -308,28 +354,28 @@ extension BLEService: CBPeripheralManagerDelegate {
         //     CBAdvertisementDataLocalNameKey: "PseudoIDVerifier"
         // ])
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 3")
     }
 
     func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
-        // TODO: Handle advertising start
+        // ✏️ Paste your implementation here
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 3")
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral,
                           didSubscribeTo characteristic: CBCharacteristic) {
-        // TODO: Handle central subscription
+        // ✏️ Paste your implementation here
         //
         // Store reference to connected central
         // Update connection state
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 3")
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager,
                           didReceiveWrite requests: [CBATTRequest]) {
-        // TODO: Handle incoming write request (request from reader)
+        // ✏️ Paste your implementation here
         //
         // 1. Read data from client2Server characteristic
         // 2. Reassemble chunks if needed
@@ -337,7 +383,7 @@ extension BLEService: CBPeripheralManagerDelegate {
         // 4. Call onRequestReceived callback
         // 5. Respond to the write request
 
-        fatalError("Not implemented - Complete this in Chapter 5")
+        fatalError("Not implemented — Paste code from <doc:BLETransport> Step 3")
     }
 }
 

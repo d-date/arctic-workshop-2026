@@ -61,32 +61,32 @@ struct DeviceAuth {
     let deviceSignature: Data?
 }
 
-// MARK: - TODO: Implement CBOR encoding/decoding
+// MARK: - CBOR Convenience (delegates to CBORService)
+//
+// > Note: These convenience methods delegate to CBORService.shared.
+// > You do NOT need to implement them separately.
+// > After completing <doc:CBOREncodingDecoding>, you can use:
+// >   CBORService.shared.encode(mdoc:)
+// >   CBORService.shared.decodeMDoc(from:)
+// > or uncomment these wrappers.
 
 extension MDoc {
-    /// Encode the mdoc to CBOR format
-    /// - Returns: CBOR-encoded data
+    /// Encode the mdoc to CBOR format (delegates to CBORService)
     func toCBOR() -> Data {
-        // TODO: Implement CBOR encoding using SwiftCBOR
-        // Hint: Use CBOR.encode() to convert the structure
-        fatalError("Not implemented - Complete this in Chapter 3")
+        CBORService.shared.encode(mdoc: self)
     }
 
-    /// Decode an mdoc from CBOR format
-    /// - Parameter data: CBOR-encoded data
-    /// - Returns: Decoded MDoc
+    /// Decode an mdoc from CBOR format (delegates to CBORService)
     static func fromCBOR(_ data: Data) -> MDoc? {
-        // TODO: Implement CBOR decoding using SwiftCBOR
-        // Hint: Use CBOR.decode() and extract the fields
-        fatalError("Not implemented - Complete this in Chapter 3")
+        CBORService.shared.decodeMDoc(from: data)
     }
 }
 
 extension IssuerSignedItem {
-    /// Encode the item to CBOR format (tagged as per ISO 18013-5)
+    /// Encode the item to CBOR format (handled internally by CBORService)
     func toCBOR() -> Data {
-        // TODO: Implement CBOR encoding
-        // The item should be encoded as a CBOR map with tag 24
-        fatalError("Not implemented - Complete this in Chapter 3")
+        // IssuerSignedItem encoding is handled as a private method
+        // inside CBORService.encodeIssuerSignedItem(_:)
+        fatalError("Use CBORService.shared.encode(mdoc:) instead")
     }
 }

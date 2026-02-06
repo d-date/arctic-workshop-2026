@@ -2,6 +2,12 @@ import Foundation
 import CoreNFC
 
 // MARK: - NFC Service for Handshake
+// ┌──────────────────────────────────────────────────────────┐
+// │  ⚠️ OPTIONAL: This entire file is not required for the  │
+// │  core workshop path. The workshop uses BLE-only mode.    │
+// │  Implement this only if you have extra time.             │
+// │  📖 See: <doc:NFCHandshake>                              │
+// └──────────────────────────────────────────────────────────┘
 
 /// Service for NFC-based handshake to initiate BLE connection.
 /// This implements the NFC handover mechanism as defined in ISO 18013-5.
@@ -82,14 +88,14 @@ class NFCService: NSObject, ObservableObject {
         //     invalidateAfterFirstRead: true
         // )
 
-        fatalError("Not implemented - Complete this in Chapter 4")
+        fatalError("Optional — See <doc:NFCHandshake> (not required for BLE-only workshop path)")
     }
 
     /// Stop the current reader session
     func stopReaderSession() {
         // TODO: Invalidate the reader session
 
-        fatalError("Not implemented - Complete this in Chapter 4")
+        fatalError("Optional — See <doc:NFCHandshake> (not required for BLE-only workshop path)")
     }
 
     // MARK: - Tag Writing (Holder/Presentment)
@@ -109,7 +115,7 @@ class NFCService: NSObject, ObservableObject {
         //
         // For BLE OOB data format, see Bluetooth Core Specification Supplement
 
-        fatalError("Not implemented - Complete this in Chapter 4")
+        fatalError("Optional — See <doc:NFCHandshake> (not required for BLE-only workshop path)")
     }
 
     /// Create BLE OOB (Out of Band) data for NFC handover
@@ -126,7 +132,7 @@ class NFCService: NSObject, ObservableObject {
         //
         // For this workshop, we'll use a simplified format
 
-        fatalError("Not implemented - Complete this in Chapter 4")
+        fatalError("Optional — See <doc:NFCHandshake> (not required for BLE-only workshop path)")
     }
 
     // MARK: - Parsing
@@ -143,7 +149,7 @@ class NFCService: NSObject, ObservableObject {
         // 3. Extract the device engagement record
         // 4. Decode the device engagement from CBOR
 
-        fatalError("Not implemented - Complete this in Chapter 4")
+        fatalError("Optional — See <doc:NFCHandshake> (not required for BLE-only workshop path)")
     }
 }
 
@@ -159,7 +165,7 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
         // 3. Call onEngagementReceived callback
         // 4. Update published state
 
-        fatalError("Not implemented - Complete this in Chapter 4")
+        fatalError("Optional — See <doc:NFCHandshake> (not required for BLE-only workshop path)")
     }
 
     func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: Error) {

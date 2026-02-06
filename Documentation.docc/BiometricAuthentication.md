@@ -14,7 +14,9 @@ Before sharing any data, the holder must explicitly approve the request. We use 
 
 ### Step 1: Create AuthenticationService
 
-Create `Services/AuthenticationService.swift`:
+> **Initial project**: Open `Services/AuthenticationService.swift`. The scaffolding (properties, error types, biometry extension) is already provided. Find the `📋 PASTE: Step 1` markers for the two methods you need to implement.
+
+Paste the following into `Services/AuthenticationService.swift`:
 
 ```swift
 import Foundation

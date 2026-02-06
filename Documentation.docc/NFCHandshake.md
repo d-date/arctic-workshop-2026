@@ -4,6 +4,8 @@ Understand the ISO 18013-5 NFC-to-BLE handover mechanism and iOS technical const
 
 ## Overview
 
+> Warning: **This chapter is optional (Bonus).** The core workshop uses BLE-only and does not require NFC. Complete this only if you have extra time.
+
 In ISO 18013-5, an NFC handshake establishes a secure connection between the Reader and the Holder. Apple's ID Verifier API (a Tap-to-Pay-like experience) is also based on this protocol.
 
 In this chapter, you will learn:

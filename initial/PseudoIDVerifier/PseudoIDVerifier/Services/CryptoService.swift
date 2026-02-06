@@ -88,7 +88,7 @@ class CryptoService {
         //
         // For this workshop, we'll create a simplified version
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Bonus — Advanced cryptography (not required for core workshop)")
     }
 
     // MARK: - Verification Operations
@@ -132,7 +132,7 @@ class CryptoService {
         // 3. Reconstruct the Sig_structure
         // 4. Verify the signature
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Bonus — Advanced cryptography (not required for core workshop)")
     }
 
     // MARK: - Session Key Operations
@@ -153,7 +153,7 @@ class CryptoService {
         // let sharedSecret = try privateKey.sharedSecretFromKeyAgreement(with: peerPublicKey)
         // let sessionKey = sharedSecret.hkdfDerivedSymmetricKey(...)
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Bonus — Advanced cryptography (not required for core workshop)")
     }
 
     /// Encrypt data using the session key

@@ -1,4 +1,5 @@
 import Foundation
+import SwiftCBOR
 
 // MARK: - CBOR Encoding/Decoding Service
 
@@ -8,14 +9,18 @@ class CBORService {
 
     private init() {}
 
-    // MARK: - TODO: Implement CBOR Encoding
+    // ┌──────────────────────────────────────────────────────┐
+    // │  CBOR Encoding                                       │
+    // │  📖 See: CBOREncodingDecoding > Step 1, Step 3–4     │
+    // └──────────────────────────────────────────────────────┘
+
+    // MARK: - 📋 PASTE: <doc:CBOREncodingDecoding> Step 1 — encode(mdoc:)
 
     /// Encode an mdoc to CBOR format
     /// - Parameter mdoc: The mdoc to encode
     /// - Returns: CBOR-encoded data
     func encode(mdoc: MDoc) -> Data {
-        // TODO: Implement using SwiftCBOR
-        //
+        // ✏️ Paste your implementation here
         // The mdoc structure should be encoded as:
         // {
         //   "docType": "org.iso.18013.5.1.mDL",
@@ -25,69 +30,72 @@ class CBORService {
         //   },
         //   "deviceSigned": { ... }  // optional
         // }
-        //
-        // Hint: Use CBOR map with string keys
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Not implemented — Paste code from <doc:CBOREncodingDecoding> Step 1")
     }
+
+    // MARK: - 📋 PASTE: <doc:CBOREncodingDecoding> Step 1 — Private helpers
+
+    /// Encode an IssuerSignedItem to CBOR bytes
+    /// ✏️ Paste your implementation here
+    private func encodeIssuerSignedItem(_ item: IssuerSignedItem) -> [UInt8] {
+        fatalError("Not implemented — Paste code from <doc:CBOREncodingDecoding> Step 1")
+    }
+
+    /// Encode any Swift value to CBOR
+    /// ✏️ Paste your implementation here
+    private func encodeToCBOR(_ value: Any) -> CBOR {
+        fatalError("Not implemented — Paste code from <doc:CBOREncodingDecoding> Step 1")
+    }
+
+    // MARK: - 📋 PASTE: <doc:CBOREncodingDecoding> Step 3 — encode(request:)
 
     /// Encode a DeviceRequest to CBOR format
     /// - Parameter request: The request to encode
     /// - Returns: CBOR-encoded data
     func encode(request: DeviceRequest) -> Data {
-        // TODO: Implement using SwiftCBOR
-        //
-        // The request structure should be encoded as:
-        // {
-        //   "version": "1.0",
-        //   "docRequests": [
-        //     {
-        //       "itemsRequest": {
-        //         "docType": "org.iso.18013.5.1.mDL",
-        //         "nameSpaces": {
-        //           "org.iso.18013.5.1": {
-        //             "age_over_21": false,
-        //             ...
-        //           }
-        //         }
-        //       }
-        //     }
-        //   ]
-        // }
+        // ✏️ Paste your implementation here
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Not implemented — Paste code from <doc:CBOREncodingDecoding> Step 3")
     }
+
+    // MARK: - 📋 PASTE: <doc:CBOREncodingDecoding> Step 4 — encode(response:)
 
     /// Encode a DeviceResponse to CBOR format
     /// - Parameter response: The response to encode
     /// - Returns: CBOR-encoded data
     func encode(response: DeviceResponse) -> Data {
-        // TODO: Implement using SwiftCBOR
+        // ✏️ Paste your implementation here
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Not implemented — Paste code from <doc:CBOREncodingDecoding> Step 4")
     }
+
+    // MARK: - 📋 Optional: encode(engagement:) — NFC Chapter
 
     /// Encode a DeviceEngagement to CBOR format
     /// - Parameter engagement: The engagement to encode
     /// - Returns: CBOR-encoded data
+    ///
+    /// > Note: This is only needed if you implement the NFC chapter.
+    /// > The core workshop path (BLE-only) does not require this method.
     func encode(engagement: DeviceEngagement) -> Data {
-        // TODO: Implement using SwiftCBOR
-        //
-        // DeviceEngagement is encoded as a CBOR array:
-        // [version, security, deviceRetrievalMethods, serverRetrievalMethods]
-        //
-        // Note: In ISO 18013-5, DeviceEngagement uses numeric keys in a map
+        // ✏️ Optional — See <doc:NFCHandshake> if implementing NFC
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Not implemented — Optional: See <doc:NFCHandshake>")
     }
 
-    // MARK: - TODO: Implement CBOR Decoding
+    // ┌──────────────────────────────────────────────────────┐
+    // │  CBOR Decoding                                       │
+    // │  📖 See: CBOREncodingDecoding > Step 2, Step 4       │
+    // └──────────────────────────────────────────────────────┘
+
+    // MARK: - 📋 PASTE: <doc:CBOREncodingDecoding> Step 2 — decodeMDoc(from:)
 
     /// Decode CBOR data to an mdoc
     /// - Parameter data: CBOR-encoded data
     /// - Returns: Decoded mdoc, or nil if decoding fails
     func decodeMDoc(from data: Data) -> MDoc? {
-        // TODO: Implement using SwiftCBOR
+        // ✏️ Paste your implementation here
         //
         // Steps:
         // 1. Decode the CBOR data to get the top-level map
@@ -95,37 +103,62 @@ class CBORService {
         // 3. Extract "issuerSigned" map and decode IssuerSigned
         // 4. Extract "deviceSigned" map if present
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Not implemented — Paste code from <doc:CBOREncodingDecoding> Step 2")
     }
+
+    // MARK: - 📋 PASTE: <doc:CBOREncodingDecoding> Step 2 — Private decode helpers
+
+    /// Decode an IssuerSignedItem from CBOR bytes
+    /// ✏️ Paste your implementation here
+    private func decodeIssuerSignedItem(_ data: Data) -> IssuerSignedItem? {
+        fatalError("Not implemented — Paste code from <doc:CBOREncodingDecoding> Step 2")
+    }
+
+    /// Decode CBOR value to Swift value
+    /// ✏️ Paste your implementation here
+    private func decodeFromCBOR(_ cbor: CBOR?) -> Any? {
+        fatalError("Not implemented — Paste code from <doc:CBOREncodingDecoding> Step 2")
+    }
+
+    // MARK: - 📋 PASTE: <doc:CBOREncodingDecoding> Step 4 — decodeRequest / decodeResponse
 
     /// Decode CBOR data to a DeviceRequest
     /// - Parameter data: CBOR-encoded data
     /// - Returns: Decoded request, or nil if decoding fails
     func decodeRequest(from data: Data) -> DeviceRequest? {
-        // TODO: Implement using SwiftCBOR
+        // ✏️ Paste your implementation here
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Not implemented — Paste code from <doc:CBOREncodingDecoding> Step 4")
     }
 
     /// Decode CBOR data to a DeviceResponse
     /// - Parameter data: CBOR-encoded data
     /// - Returns: Decoded response, or nil if decoding fails
     func decodeResponse(from data: Data) -> DeviceResponse? {
-        // TODO: Implement using SwiftCBOR
+        // ✏️ Paste your implementation here
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Not implemented — Paste code from <doc:CBOREncodingDecoding> Step 4")
     }
+
+    // MARK: - 📋 Optional: decodeEngagement(from:) — NFC Chapter
 
     /// Decode CBOR data to a DeviceEngagement
     /// - Parameter data: CBOR-encoded data
     /// - Returns: Decoded engagement, or nil if decoding fails
+    ///
+    /// > Note: This is only needed if you implement the NFC chapter.
     func decodeEngagement(from data: Data) -> DeviceEngagement? {
-        // TODO: Implement using SwiftCBOR
+        // ✏️ Optional — See <doc:NFCHandshake> if implementing NFC
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Not implemented — Optional: See <doc:NFCHandshake>")
     }
 
-    // MARK: - Helper Methods
+    // ┌──────────────────────────────────────────────────────┐
+    // │  Selective Disclosure Helpers                         │
+    // │  📖 See: SelectiveDisclosure > Step 3                │
+    // └──────────────────────────────────────────────────────┘
+
+    // MARK: - 📋 PASTE: <doc:SelectiveDisclosure> Step 3 — extractAttributes
 
     /// Extract specific attributes from an mdoc
     /// - Parameters:
@@ -133,15 +166,17 @@ class CBORService {
     ///   - attributes: Array of attribute identifiers to extract
     /// - Returns: Dictionary of attribute identifier to value
     func extractAttributes(from mdoc: MDoc, attributes: [String]) -> [String: Any] {
-        // TODO: Implement attribute extraction
+        // ✏️ Paste your implementation here
         //
         // Steps:
         // 1. Iterate through the nameSpaces in issuerSigned
         // 2. For each IssuerSignedItem, check if elementIdentifier is in requested attributes
         // 3. If so, add to result dictionary
 
-        fatalError("Not implemented - Complete this in Chapter 3")
+        fatalError("Not implemented — Paste code from <doc:SelectiveDisclosure> Step 3")
     }
+
+    // MARK: - 📋 PASTE: <doc:SelectiveDisclosure> Step 3 — createSelectiveResponse
 
     /// Create a selective disclosure response from an mdoc
     /// - Parameters:
@@ -149,24 +184,25 @@ class CBORService {
     ///   - request: The request specifying which attributes to include
     /// - Returns: A new mdoc containing only the requested attributes
     func createSelectiveResponse(from mdoc: MDoc, for request: DeviceRequest) -> MDoc {
-        // TODO: Implement selective disclosure
+        // ✏️ Paste your implementation here
         //
         // This is the core of selective disclosure:
         // Only include the IssuerSignedItems that match the requested attributes
 
-        fatalError("Not implemented - Complete this in Chapter 6")
+        fatalError("Not implemented — Paste code from <doc:SelectiveDisclosure> Step 3")
     }
 }
 
-// MARK: - CBOR Diagnostic Utilities
+// MARK: - 📋 Bonus: CBOR Diagnostic Utilities
 
 extension CBORService {
     /// Convert CBOR data to a human-readable diagnostic string
     /// - Parameter data: CBOR-encoded data
     /// - Returns: Diagnostic string representation
+    ///
+    /// > Tip: Implement this for debugging. It helps visualize CBOR structures.
     func diagnosticString(from data: Data) -> String {
-        // TODO: Implement diagnostic output for debugging
-        // This is useful for workshop participants to understand the CBOR structure
+        // ✏️ Bonus — See <doc:CBOREncodingDecoding> "CBOR Diagnostic Output"
 
         return "CBOR diagnostic not implemented"
     }
