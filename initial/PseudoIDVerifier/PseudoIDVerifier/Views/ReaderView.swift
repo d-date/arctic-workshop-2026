@@ -355,6 +355,11 @@ private struct ErrorView: View {
     }
 }
 
+// ┌──────────────────────────────────────────────────────┐
+// │  Reader View Model                                   │
+// │  📖 See: IntegrationTesting > "Implement ViewModels" │
+// └──────────────────────────────────────────────────────┘
+
 // MARK: - Reader View Model
 
 @MainActor
@@ -375,8 +380,28 @@ class ReaderViewModel: ObservableObject {
         case error(String)
     }
 
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 1 — init + setupCallbacks
+
+    init() {
+        // ✏️ Add setupCallbacks() call here after implementing the method below
+    }
+
+    /// Set up BLE and NFC callbacks to handle connection events and responses.
+    /// ✏️ Paste your implementation here
+    private func setupCallbacks() {
+        // Steps:
+        // 1. bleService.onConnected → send request, set state to .waitingForResponse
+        // 2. bleService.onResponseReceived → call handleResponse
+        // 3. nfcService.onEngagementReceived → call handleEngagementReceived (optional for BLE-only)
+        // 4. nfcService.onError → set state to .error
+
+        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 1")
+    }
+
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 2 — startReading
+
     func startReading() {
-        // TODO: Implement reading flow
+        // ✏️ Paste your implementation here
         //
         // ## iOS Technical Constraints
         //
@@ -391,23 +416,45 @@ class ReaderViewModel: ObservableObject {
         //
         // ## Implementation steps
         //
-        // 1. Set state to .scanning
-        // 2. Set up BLE callbacks (onConnected, onResponseReceived)
-        // 3. Start BLE central mode: bleService.startCentralMode()
-        // 4. On BLE connection, send DeviceRequest
-        // 5. Set state to .waitingForResponse
-        // 6. On response, decode and display attributes
+        // 1. Set state to .connecting
+        // 2. Call bleService.startCentralMode()
 
-        fatalError("Not implemented - Complete this in Chapter 7")
+        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 2")
     }
 
-    func cancelReading() {
-        // TODO: Cancel NFC session and reset state
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 2 — handleEngagementReceived
 
-        fatalError("Not implemented - Complete this in Chapter 7")
+    /// Handle NFC engagement (optional, only needed for NFC path)
+    private func handleEngagementReceived(_ engagement: DeviceEngagement, bleData: Data) {
+        fatalError("Not implemented — Optional: NFC engagement handling")
+    }
+
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 3 — handleResponse
+
+    /// Handle DeviceResponse from the holder
+    private func handleResponse(_ response: DeviceResponse) {
+        // ✏️ Paste your implementation here
+        //
+        // Steps:
+        // 1. Check response.status == 0
+        // 2. Extract first document
+        // 3. Build attributes dictionary from issuerSigned items
+        // 4. Set state to .success(attributes)
+        // 5. Stop BLE central mode
+
+        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 3")
+    }
+
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 2 — cancelReading
+
+    func cancelReading() {
+        // ✏️ Paste your implementation here
+
+        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 2")
     }
 
     func reset() {
+        bleService.stopCentralMode()
         state = .idle
     }
 }

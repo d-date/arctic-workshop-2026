@@ -15,7 +15,9 @@ CBOR (Concise Binary Object Representation) is a binary data format used by ISO 
 
 ### Step 1: Create CBORService
 
-Create `Services/CBORService.swift`:
+> **Initial project**: Open `Services/CBORService.swift` and find the `📋 PASTE: Step 1` markers.
+
+Paste the following into `Services/CBORService.swift`:
 
 ```swift
 import Foundation
@@ -92,6 +94,8 @@ class CBORService {
 ```
 
 ### Step 2: Implement Decoding
+
+> **Initial project**: Find the `📋 PASTE: Step 2` markers in `Services/CBORService.swift`.
 
 Add decoding methods to `CBORService`:
 
@@ -187,6 +191,8 @@ extension CBORService {
 
 ### Step 3: Encode DeviceRequest
 
+> **Initial project**: Find the `📋 PASTE: Step 3` marker in `Services/CBORService.swift`.
+
 Add request encoding:
 
 ```swift
@@ -222,6 +228,199 @@ extension CBORService {
         map[.utf8String("docRequests")] = .array(docRequestsArray)
 
         return Data(CBOR.map(map).encode())
+    }
+}
+```
+
+### Step 4: Encode/Decode DeviceResponse and DecodeRequest
+
+These methods complete the round-trip: the Holder encodes a `DeviceResponse`, and the Reader decodes it.
+
+> **Initial project**: Find the `📋 PASTE: Step 4` markers in `Services/CBORService.swift`.
+
+```swift
+extension CBORService {
+    /// Encode a DeviceResponse to CBOR format
+    func encode(response: DeviceResponse) -> Data {
+        var map: [CBOR: CBOR] = [:]
+
+        map[.utf8String("version")] = .utf8String(response.version)
+        map[.utf8String("status")] = .unsignedInt(UInt64(response.status))
+
+        if let documents = response.documents {
+            var docsArray: [CBOR] = []
+            for doc in documents {
+                var docMap: [CBOR: CBOR] = [:]
+                docMap[.utf8String("docType")] = .utf8String(doc.docType)
+
+                // Encode issuerSigned
+                var issuerSignedMap: [CBOR: CBOR] = [:]
+                var nameSpacesMap: [CBOR: CBOR] = [:]
+                for (namespace, items) in doc.issuerSigned.nameSpaces {
+                    var itemsArray: [CBOR] = []
+                    for item in items {
+                        let itemCBOR = encodeIssuerSignedItem(item)
+                        itemsArray.append(.tagged(
+                            CBOR.Tag(rawValue: 24),
+                            .byteString(itemCBOR)
+                        ))
+                    }
+                    nameSpacesMap[.utf8String(namespace)] = .array(itemsArray)
+                }
+                issuerSignedMap[.utf8String("nameSpaces")] = .map(nameSpacesMap)
+                issuerSignedMap[.utf8String("issuerAuth")] = .byteString(
+                    Array(doc.issuerSigned.issuerAuth)
+                )
+                docMap[.utf8String("issuerSigned")] = .map(issuerSignedMap)
+
+                // Encode deviceSigned
+                var deviceSignedMap: [CBOR: CBOR] = [:]
+                deviceSignedMap[.utf8String("nameSpaces")] = .byteString(
+                    Array(doc.deviceSigned.nameSpaces)
+                )
+                var deviceAuthMap: [CBOR: CBOR] = [:]
+                if let mac = doc.deviceSigned.deviceAuth.deviceMac {
+                    deviceAuthMap[.utf8String("deviceMac")] = .byteString(Array(mac))
+                }
+                if let sig = doc.deviceSigned.deviceAuth.deviceSignature {
+                    deviceAuthMap[.utf8String("deviceSignature")] = .byteString(Array(sig))
+                }
+                deviceSignedMap[.utf8String("deviceAuth")] = .map(deviceAuthMap)
+                docMap[.utf8String("deviceSigned")] = .map(deviceSignedMap)
+
+                docsArray.append(.map(docMap))
+            }
+            map[.utf8String("documents")] = .array(docsArray)
+        }
+
+        return Data(CBOR.map(map).encode())
+    }
+
+    /// Decode CBOR data to a DeviceRequest
+    func decodeRequest(from data: Data) -> DeviceRequest? {
+        guard let cbor = try? CBOR.decode(Array(data)),
+              case .map(let map) = cbor,
+              case .utf8String(let version) = map[.utf8String("version")],
+              case .array(let docRequestsArray) = map[.utf8String("docRequests")] else {
+            return nil
+        }
+
+        var docRequests: [DocRequest] = []
+        for drCBOR in docRequestsArray {
+            guard case .map(let drMap) = drCBOR,
+                  case .map(let irMap) = drMap[.utf8String("itemsRequest")],
+                  case .utf8String(let docType) = irMap[.utf8String("docType")],
+                  case .map(let nsMap) = irMap[.utf8String("nameSpaces")] else {
+                continue
+            }
+
+            var nameSpaces: [String: [String: Bool]] = [:]
+            for (nsKey, nsValue) in nsMap {
+                guard case .utf8String(let namespace) = nsKey,
+                      case .map(let elementsMap) = nsValue else {
+                    continue
+                }
+                var elements: [String: Bool] = [:]
+                for (elemKey, elemValue) in elementsMap {
+                    if case .utf8String(let elemId) = elemKey,
+                       case .boolean(let retain) = elemValue {
+                        elements[elemId] = retain
+                    }
+                }
+                nameSpaces[namespace] = elements
+            }
+
+            var readerAuth: Data? = nil
+            if case .byteString(let authBytes) = drMap[.utf8String("readerAuth")] {
+                readerAuth = Data(authBytes)
+            }
+
+            let itemsRequest = ItemsRequest(docType: docType, nameSpaces: nameSpaces)
+            docRequests.append(DocRequest(itemsRequest: itemsRequest, readerAuth: readerAuth))
+        }
+
+        return DeviceRequest(version: version, docRequests: docRequests)
+    }
+
+    /// Decode CBOR data to a DeviceResponse
+    func decodeResponse(from data: Data) -> DeviceResponse? {
+        guard let cbor = try? CBOR.decode(Array(data)),
+              case .map(let map) = cbor,
+              case .utf8String(let version) = map[.utf8String("version")],
+              case .unsignedInt(let status) = map[.utf8String("status")] else {
+            return nil
+        }
+
+        var documents: [Document]? = nil
+        if case .array(let docsArray) = map[.utf8String("documents")] {
+            var docs: [Document] = []
+            for docCBOR in docsArray {
+                guard case .map(let docMap) = docCBOR,
+                      case .utf8String(let docType) = docMap[.utf8String("docType")],
+                      case .map(let issuerSignedMap) = docMap[.utf8String("issuerSigned")],
+                      case .map(let deviceSignedMap) = docMap[.utf8String("deviceSigned")] else {
+                    continue
+                }
+
+                // Parse issuerSigned
+                var nameSpaces: [String: [IssuerSignedItem]] = [:]
+                if case .map(let nsMap) = issuerSignedMap[.utf8String("nameSpaces")] {
+                    for (nsKey, nsValue) in nsMap {
+                        guard case .utf8String(let namespace) = nsKey,
+                              case .array(let itemsArray) = nsValue else { continue }
+                        var items: [IssuerSignedItem] = []
+                        for itemCBOR in itemsArray {
+                            if case .tagged(_, let inner) = itemCBOR,
+                               case .byteString(let itemBytes) = inner,
+                               let item = decodeIssuerSignedItem(Data(itemBytes)) {
+                                items.append(item)
+                            }
+                        }
+                        nameSpaces[namespace] = items
+                    }
+                }
+                var issuerAuth = Data()
+                if case .byteString(let authBytes) = issuerSignedMap[.utf8String("issuerAuth")] {
+                    issuerAuth = Data(authBytes)
+                }
+                let issuerSigned = IssuerSigned(nameSpaces: nameSpaces, issuerAuth: issuerAuth)
+
+                // Parse deviceSigned
+                var dsNameSpaces = Data()
+                if case .byteString(let nsBytes) = deviceSignedMap[.utf8String("nameSpaces")] {
+                    dsNameSpaces = Data(nsBytes)
+                }
+                var deviceMac: Data? = nil
+                var deviceSignature: Data? = nil
+                if case .map(let authMap) = deviceSignedMap[.utf8String("deviceAuth")] {
+                    if case .byteString(let macBytes) = authMap[.utf8String("deviceMac")] {
+                        deviceMac = Data(macBytes)
+                    }
+                    if case .byteString(let sigBytes) = authMap[.utf8String("deviceSignature")] {
+                        deviceSignature = Data(sigBytes)
+                    }
+                }
+                let deviceSigned = DeviceSigned(
+                    nameSpaces: dsNameSpaces,
+                    deviceAuth: DeviceAuth(deviceMac: deviceMac, deviceSignature: deviceSignature)
+                )
+
+                docs.append(Document(
+                    docType: docType,
+                    issuerSigned: issuerSigned,
+                    deviceSigned: deviceSigned,
+                    errors: nil
+                ))
+            }
+            documents = docs
+        }
+
+        return DeviceResponse(
+            version: version,
+            documents: documents,
+            documentErrors: nil,
+            status: Int(status)
+        )
     }
 }
 ```

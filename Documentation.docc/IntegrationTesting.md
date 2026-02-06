@@ -6,6 +6,215 @@ Test the complete verification flow between two devices.
 
 Now that all components are implemented, let's test the end-to-end flow between two iPhones.
 
+### Step 0: Implement ViewModels
+
+Before testing, you need to wire up the ViewModels that connect BLE, CBOR, and Authentication together.
+
+> **Initial project**: Open `Views/ReaderView.swift` and `Views/PresentmentView.swift`. Find the `📋 PASTE: ViewModel Step` markers in the ViewModel classes at the bottom of each file.
+
+#### ReaderViewModel (in ReaderView.swift)
+
+```swift
+// ViewModel Step 1: init + setupCallbacks
+init() {
+    setupCallbacks()
+}
+
+private func setupCallbacks() {
+    // Handle BLE connection
+    bleService.onConnected = { [weak self] in
+        Task { @MainActor in
+            guard let self = self else { return }
+            let request = self.selectedScenario.createRequest()
+            self.bleService.sendRequest(request)
+            self.state = .waitingForResponse
+        }
+    }
+
+    // Handle response from holder
+    bleService.onResponseReceived = { [weak self] response in
+        Task { @MainActor in
+            self?.handleResponse(response)
+        }
+    }
+
+    // Handle NFC engagement (optional — only if NFC implemented)
+    nfcService.onEngagementReceived = { [weak self] engagement, bleData in
+        Task { @MainActor in
+            self?.handleEngagementReceived(engagement, bleData: bleData)
+        }
+    }
+
+    nfcService.onError = { [weak self] error in
+        Task { @MainActor in
+            self?.state = .error(error.localizedDescription)
+        }
+    }
+}
+```
+
+```swift
+// ViewModel Step 2: startReading + cancelReading
+func startReading() {
+    state = .scanning
+
+    // For workshop: skip NFC, go directly to BLE
+    state = .connecting
+    bleService.startCentralMode()
+}
+
+func cancelReading() {
+    nfcService.stopReaderSession()
+    bleService.stopCentralMode()
+    state = .idle
+}
+```
+
+```swift
+// ViewModel Step 3: handleResponse
+private func handleResponse(_ response: DeviceResponse) {
+    guard response.status == 0,
+          let document = response.documents?.first else {
+        state = .error("Invalid response from holder")
+        bleService.stopCentralMode()
+        return
+    }
+
+    // Extract attributes from the response
+    var attributes: [String: Any] = [:]
+    for (_, items) in document.issuerSigned.nameSpaces {
+        for item in items {
+            attributes[item.elementIdentifier] = item.elementValue
+        }
+    }
+
+    state = .success(attributes)
+    bleService.stopCentralMode()
+}
+```
+
+#### PresentmentViewModel (in PresentmentView.swift)
+
+```swift
+// ViewModel Step 4: init + setupCallbacks
+init() {
+    self.credential = DummyCredentials.createSampleMDL()
+    setupCallbacks()
+}
+
+private func setupCallbacks() {
+    bleService.onRequestReceived = { [weak self] request in
+        Task { @MainActor in
+            self?.pendingRequest = request
+            self?.state = .requestReceived(request)
+        }
+    }
+
+    bleService.onDisconnected = { [weak self] in
+        Task { @MainActor in
+            if case .advertising = self?.state {
+                self?.state = .idle
+            }
+        }
+    }
+}
+```
+
+```swift
+// ViewModel Step 5: startPresenting + cancelPresenting
+func startPresenting() {
+    state = .advertising
+    bleService.startPeripheralMode()
+}
+
+func cancelPresenting() {
+    bleService.stopPeripheralMode()
+    state = .idle
+    pendingRequest = nil
+}
+```
+
+```swift
+// ViewModel Step 6: approveDisclosure + sendResponse + denyDisclosure
+func approveDisclosure() {
+    guard let request = pendingRequest else {
+        state = .error("No pending request")
+        return
+    }
+
+    state = .authenticating
+
+    authService.authenticateForDisclosure(
+        reason: "Approve sharing your ID information"
+    ) { [weak self] result in
+        Task { @MainActor in
+            switch result {
+            case .success:
+                self?.sendResponse(for: request)
+            case .failure(let error):
+                if case .userCancelled = error {
+                    self?.state = .requestReceived(request)
+                } else {
+                    self?.state = .error(error.localizedDescription)
+                }
+            }
+        }
+    }
+}
+
+private func sendResponse(for request: DeviceRequest) {
+    state = .sending
+
+    let selectiveMDoc = cborService.createSelectiveResponse(
+        from: credential, for: request
+    )
+
+    let deviceAuth = DeviceAuth(
+        deviceMac: nil,
+        deviceSignature: CryptoService.shared.devicePublicKeyData
+    )
+    let deviceSigned = DeviceSigned(
+        nameSpaces: Data(), deviceAuth: deviceAuth
+    )
+
+    let document = Document(
+        docType: selectiveMDoc.docType,
+        issuerSigned: selectiveMDoc.issuerSigned,
+        deviceSigned: deviceSigned,
+        errors: nil
+    )
+
+    let response = DeviceResponse(
+        version: "1.0",
+        documents: [document],
+        documentErrors: nil,
+        status: 0
+    )
+
+    bleService.sendResponse(response)
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+        self?.state = .success
+        self?.bleService.stopPeripheralMode()
+    }
+}
+
+func denyDisclosure() {
+    let response = DeviceResponse(
+        version: "1.0",
+        documents: nil,
+        documentErrors: nil,
+        status: 10  // General error - user denied
+    )
+    bleService.sendResponse(response)
+    bleService.stopPeripheralMode()
+    state = .idle
+    pendingRequest = nil
+}
+```
+
+---
+
 ### Prerequisites
 
 - Two iPhones running iOS 17+
@@ -172,11 +381,40 @@ To extend this workshop:
 - Create a real credential issuance flow
 - Explore Apple's `ProximityReader` framework (requires entitlement)
 - Investigate NFC & SE Platform (iOS 18.2+) for HCE support (requires entitlement request)
+- Explore **Remote Retrieval** — verify credentials via a Wallet API instead of device-to-device BLE
 
 > Note: iOS 18.2 introduced HCE support via the NFC & SE Platform, but it requires
 > an entitlement request to Apple and it is unclear whether general developers can obtain approval.
 > Using the Apple ID Verifier API (`ProximityReader`)
 > requires an individual agreement with Apple and a dedicated entitlement.
+
+#### Beyond This Workshop: Remote Retrieval
+
+ISO 18013-5 also defines a *server retrieval* flow where the Verifier obtains mdoc data from a remote server rather than directly from the Holder's device. The high-level flow looks like:
+
+```
+Holder          Wallet Server          Verifier
+  │                   │                   │
+  │ 1. Consent + Token│                   │
+  │──────────────────►│                   │
+  │                   │                   │
+  │                   │ 2. Token + Request │
+  │                   │◄──────────────────│
+  │                   │                   │
+  │                   │ 3. CBOR Response   │
+  │                   │──────────────────►│
+  │                   │   (HPKE encrypted) │
+  │                   │                   │
+  │                   │ 4. Decrypt + Parse │
+  │                   │                   │
+```
+
+Key concepts:
+- **HPKE (Hybrid Public Key Encryption)**: Protects the response in transit between Wallet Server and Verifier
+- The Verifier runs a local HTTPS server to receive the encrypted CBOR response
+- Decoding uses the same `CBORService` you built in this workshop
+
+This approach enables cross-device verification (e.g., web-based Verifiers) and is the foundation of the Verify with Wallet API pattern.
 
 ## Summary
 

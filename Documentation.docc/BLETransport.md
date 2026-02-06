@@ -36,7 +36,9 @@ static let server2ClientCharacteristicUUID = CBUUID(string: "0000FF04-...") // R
 
 ### Step 1: Create BLEService
 
-Create `Services/BLEService.swift`:
+> **Initial project**: Open `Services/BLEService.swift`. The scaffolding (UUIDs, properties, callbacks, enums) is already provided. Find the `📋 PASTE` markers for each step below.
+
+Review the existing scaffolding in `Services/BLEService.swift`:
 
 ```swift
 import Foundation
@@ -76,6 +78,8 @@ class BLEService: NSObject, ObservableObject {
 ```
 
 ### Step 2: Implement Central Mode (Reader)
+
+> **Initial project**: Find the `📋 PASTE: Step 2` markers in `Services/BLEService.swift`.
 
 ```swift
 extension BLEService {
@@ -135,6 +139,8 @@ extension BLEService: CBCentralManagerDelegate {
 ```
 
 ### Step 3: Implement Peripheral Mode (Holder)
+
+> **Initial project**: Find the `📋 PASTE: Step 3` markers in `Services/BLEService.swift`.
 
 ```swift
 extension BLEService {
@@ -230,6 +236,8 @@ extension BLEService: CBPeripheralManagerDelegate {
 ```
 
 ### Step 4: Handle Data Chunking
+
+> **Initial project**: Find the `📋 PASTE: Step 4` markers in `Services/BLEService.swift`.
 
 BLE has MTU limits. Implement chunking for large data:
 

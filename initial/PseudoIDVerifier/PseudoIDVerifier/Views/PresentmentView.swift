@@ -338,6 +338,11 @@ private struct ErrorView: View {
     }
 }
 
+// ┌──────────────────────────────────────────────────────┐
+// │  Presentment View Model                              │
+// │  📖 See: IntegrationTesting > "Implement ViewModels" │
+// └──────────────────────────────────────────────────────┘
+
 // MARK: - Presentment View Model
 
 @MainActor
@@ -364,10 +369,25 @@ class PresentmentViewModel: ObservableObject {
     init() {
         // Load dummy credential for workshop
         self.credential = DummyCredentials.createSampleMDL()
+        // ✏️ Add setupCallbacks() call here after implementing the method below
     }
 
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 4 — setupCallbacks
+
+    /// Set up BLE callbacks to handle incoming requests and disconnection.
+    /// ✏️ Paste your implementation here
+    private func setupCallbacks() {
+        // Steps:
+        // 1. bleService.onRequestReceived → store request, set state to .requestReceived
+        // 2. bleService.onDisconnected → reset to .idle if still advertising
+
+        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 4")
+    }
+
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 5 — startPresenting
+
     func startPresenting() {
-        // TODO: Implement presentment flow
+        // ✏️ Paste your implementation here
         //
         // ## iOS Technical Constraints
         //
@@ -387,39 +407,63 @@ class PresentmentViewModel: ObservableObject {
         // 3. Start BLE peripheral mode: bleService.startPeripheralMode()
         // 4. On request received, set state to .requestReceived
 
-        fatalError("Not implemented - Complete this in Chapter 7")
+        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 5")
     }
+
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 5 — cancelPresenting
 
     func cancelPresenting() {
-        // TODO: Stop BLE and reset state
+        // ✏️ Paste your implementation here
 
-        fatalError("Not implemented - Complete this in Chapter 7")
+        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 5")
     }
+
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 6 — approveDisclosure
 
     func approveDisclosure() {
-        // TODO: Implement disclosure approval
+        // ✏️ Paste your implementation here
         //
         // Steps:
-        // 1. Set state to .authenticating
-        // 2. Trigger biometric authentication
-        // 3. On success, set state to .sending
-        // 4. Create selective response from credential
-        // 5. Send response via BLE
-        // 6. Set state to .success
+        // 1. Check pendingRequest exists
+        // 2. Set state to .authenticating
+        // 3. Call authService.authenticateForDisclosure
+        // 4. On success → call sendResponse(for:)
+        // 5. On failure (userCancelled) → go back to .requestReceived
+        // 6. On failure (other) → set state to .error
 
-        fatalError("Not implemented - Complete this in Chapter 7")
+        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 6")
     }
 
-    func denyDisclosure() {
-        // TODO: Handle denial
-        // Send error response and reset
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 6 — sendResponse
 
-        fatalError("Not implemented - Complete this in Chapter 7")
+    /// Create selective disclosure response and send via BLE
+    /// ✏️ Paste your implementation here
+    private func sendResponse(for request: DeviceRequest) {
+        // Steps:
+        // 1. Set state to .sending
+        // 2. Call cborService.createSelectiveResponse
+        // 3. Create Document + DeviceResponse
+        // 4. Send via bleService.sendResponse
+        // 5. Transition to .success
+
+        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 6")
+    }
+
+    // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 6 — denyDisclosure
+
+    func denyDisclosure() {
+        // ✏️ Paste your implementation here
+        //
+        // Send error response (status: 10) and reset
+
+        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 6")
     }
 
     func reset() {
+        bleService.stopPeripheralMode()
         state = .idle
         pendingRequest = nil
+        authService.resetAuthentication()
     }
 }
 

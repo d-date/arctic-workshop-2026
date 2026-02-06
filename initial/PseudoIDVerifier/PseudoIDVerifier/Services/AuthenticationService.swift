@@ -18,6 +18,11 @@ class AuthenticationService: ObservableObject {
 
     private init() {}
 
+    // ┌──────────────────────────────────────────────────────┐
+    // │  Biometric Authentication                            │
+    // │  📖 See: BiometricAuthentication > Step 1            │
+    // └──────────────────────────────────────────────────────┘
+
     // MARK: - Biometric Authentication
 
     /// Check if biometric authentication is available
@@ -32,6 +37,8 @@ class AuthenticationService: ObservableObject {
         return context.biometryType
     }
 
+    // MARK: - 📋 PASTE: <doc:BiometricAuthentication> Step 1 — authenticateForDisclosure
+
     /// Authenticate user for disclosure approval
     /// - Parameters:
     ///   - reason: The reason shown to the user
@@ -40,36 +47,30 @@ class AuthenticationService: ObservableObject {
         reason: String = "Approve sharing your information",
         completion: @escaping (Result<Void, AuthError>) -> Void
     ) {
-        // TODO: Implement biometric authentication
+        // ✏️ Paste your implementation here
         //
         // Steps:
-        // 1. Create a new LAContext
-        // 2. Check if biometrics are available
-        // 3. If not, fall back to device passcode
+        // 1. Create a fresh LAContext
+        // 2. Set localizedFallbackTitle
+        // 3. Check if policy can be evaluated
         // 4. Call evaluatePolicy with localizedReason
         // 5. Handle the result on main thread
-        //
-        // Hint:
-        // context.evaluatePolicy(
-        //     .deviceOwnerAuthenticationWithBiometrics,
-        //     localizedReason: reason
-        // ) { success, error in
-        //     ...
-        // }
 
-        fatalError("Not implemented - Complete this in Chapter 6")
+        fatalError("Not implemented — Paste code from <doc:BiometricAuthentication> Step 1")
     }
+
+    // MARK: - 📋 PASTE: <doc:BiometricAuthentication> Step 1 — authenticate (async)
 
     /// Authenticate using async/await
     /// - Parameter reason: The reason shown to the user
     /// - Returns: true if authentication succeeded
     @MainActor
     func authenticate(reason: String = "Approve sharing your information") async throws -> Bool {
-        // TODO: Implement async authentication
+        // ✏️ Paste your implementation here
         //
-        // Wrap the completion-based method in withCheckedThrowingContinuation
+        // Wrap authenticateForDisclosure in withCheckedThrowingContinuation
 
-        fatalError("Not implemented - Complete this in Chapter 6")
+        fatalError("Not implemented — Paste code from <doc:BiometricAuthentication> Step 1")
     }
 
     /// Reset authentication state
