@@ -22,140 +22,92 @@ In Xcode, go to **File > Add Package Dependencies** and enter:
 https://github.com/pointfreeco/swift-dependencies.git
 ```
 
-Select **Up to Next Major Version** starting from `1.6.0`, then add the `Dependencies` product to the `PseudoIDVerifier` target.
+Select **Up to Next Major Version** starting from `1.6.0`, then add both the `Dependencies` and `DependenciesMacros` products to the `PseudoIDVerifier` target.
 
-## Step 2: Define Service Protocols
+## Step 2: Define Dependency Clients with @DependencyClient
 
-Create `Services/ServiceProtocols.swift` with a protocol for each hardware-dependent service:
+Create `Services/ServiceProtocols.swift` with a `@DependencyClient` struct for each hardware-dependent service. Instead of protocols, we use **structs with closure properties** — this is Point-Free's recommended pattern:
 
 ```swift
+import Dependencies
+import DependenciesMacros
 import Foundation
 import LocalAuthentication
 
-protocol BLEServiceProtocol: AnyObject {
-    var connectionState: BLEConnectionState { get }
-    var onRequestReceived: ((DeviceRequest) -> Void)? { get set }
-    var onResponseReceived: ((DeviceResponse) -> Void)? { get set }
-    var onConnected: (() -> Void)? { get set }
-    var onDisconnected: (() -> Void)? { get set }
-
-    func startCentralMode(targetUUID: UUID?)
-    func stopCentralMode()
-    func sendRequest(_ request: DeviceRequest)
-    func startPeripheralMode()
-    func stopPeripheralMode()
-    func sendResponse(_ response: DeviceResponse)
+@DependencyClient
+struct BLEServiceClient: Sendable {
+    var connectionState: @Sendable () -> BLEConnectionState = { .disconnected }
+    var setOnConnected: @Sendable (@escaping () -> Void) -> Void
+    var startCentralMode: @Sendable (_ targetUUID: UUID?) -> Void
+    var stopCentralMode: @Sendable () -> Void
+    var sendRequest: @Sendable (DeviceRequest) -> Void
+    var startPeripheralMode: @Sendable () -> Void
+    var stopPeripheralMode: @Sendable () -> Void
+    var sendResponse: @Sendable (DeviceResponse) -> Void
+    // ... additional callbacks omitted for brevity
 }
 
-protocol NFCServiceProtocol: AnyObject {
-    var isNFCAvailable: Bool { get }
-    var onEngagementReceived: ((DeviceEngagement, Data) -> Void)? { get set }
-    func startReaderSession()
-    func stopReaderSession()
-}
-
-protocol AuthenticationServiceProtocol: AnyObject {
-    var isBiometricAvailable: Bool { get }
-    var biometricType: LABiometryType { get }
-    func authenticateForDisclosure(
-        reason: String,
-        completion: @escaping (Result<Void, AuthError>) -> Void
-    )
-    func resetAuthentication()
+@DependencyClient
+struct AuthenticationServiceClient: Sendable {
+    var isBiometricAvailable: @Sendable () -> Bool = { false }
+    var biometricType: @Sendable () -> LABiometryType = { .none }
+    var authenticateForDisclosure: @Sendable (
+        _ reason: String,
+        _ completion: @escaping (Result<Void, AuthError>) -> Void
+    ) -> Void
+    var resetAuthentication: @Sendable () -> Void
 }
 ```
 
-Then make each existing service conform:
+The `@DependencyClient` macro automatically generates `testValue` with _unimplemented_ closures that fail in tests if called unexpectedly — no need to write separate mock classes.
 
-```swift
-class BLEService: NSObject, ObservableObject, BLEServiceProtocol { ... }
-class NFCService: NSObject, ObservableObject, NFCServiceProtocol { ... }
-class AuthenticationService: ObservableObject, AuthenticationServiceProtocol { ... }
-```
+> Note: `CBORService` and `CryptoService` do not depend on hardware and do not need dependency clients.
 
-> Note: `CBORService` and `CryptoService` do not depend on hardware and do not need protocols or mocks.
+## Step 3: Register liveValue and Simulator Mocks
 
-## Step 3: Create Mock Implementations
-
-Each mock simulates the real service's behavior with short delays.
-
-### MockBLEService
-
-The Reader-side mock auto-generates a `DeviceResponse` from `DummyCredentials` when `sendRequest(_:)` is called. The Presentment-side mock auto-generates an age verification `DeviceRequest` when `startPeripheralMode()` is called.
-
-```swift
-class MockBLEService: BLEServiceProtocol {
-    func startCentralMode(targetUUID: UUID? = nil) {
-        connectionState = .scanning
-        // Simulate connection after delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.connectionState = .connected
-            self.onConnected?()
-        }
-    }
-
-    func sendRequest(_ request: DeviceRequest) {
-        // Auto-generate response from DummyCredentials
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            let credential = DummyCredentials.createSampleMDL()
-            let selective = CBORService.shared.createSelectiveResponse(
-                from: credential, for: request
-            )
-            // ... build DeviceResponse and call onResponseReceived
-        }
-    }
-}
-```
-
-### MockAuthenticationService
-
-Always succeeds with simulated Face ID:
-
-```swift
-class MockAuthenticationService: AuthenticationServiceProtocol {
-    var biometricType: LABiometryType { .faceID }
-
-    func authenticateForDisclosure(reason: String,
-                                   completion: @escaping (Result<Void, AuthError>) -> Void) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            completion(.success(()))
-        }
-    }
-}
-```
-
-## Step 4: Register Dependencies with DependencyKey
-
-Create `Services/ServiceDependencies.swift`:
+Create `Services/ServiceDependencies.swift`. Each client struct conforms to `DependencyKey` and provides a `liveValue`:
 
 ```swift
 import Dependencies
 
-private enum BLEServiceKey: DependencyKey {
-    static var liveValue: any BLEServiceProtocol {
+extension BLEServiceClient: DependencyKey {
+    static var liveValue: BLEServiceClient {
         #if targetEnvironment(simulator)
-        MockBLEService()
+        .simulator
         #else
-        BLEService.shared
+        let service = BLEService.shared
+        return BLEServiceClient(
+            connectionState: { service.connectionState },
+            setOnConnected: { service.onConnected = $0 },
+            startCentralMode: { service.startCentralMode(targetUUID: $0) },
+            stopCentralMode: { service.stopCentralMode() },
+            sendRequest: { service.sendRequest($0) },
+            // ...
+        )
         #endif
     }
-    static var previewValue: any BLEServiceProtocol { MockBLEService() }
-    static var testValue: any BLEServiceProtocol { MockBLEService() }
+
+    static var previewValue: BLEServiceClient { .simulator }
+
+    static var simulator: BLEServiceClient {
+        // Closure-based mock with delays, no separate class needed
+        // ...
+    }
 }
 
 extension DependencyValues {
-    var bleService: any BLEServiceProtocol {
-        get { self[BLEServiceKey.self] }
-        set { self[BLEServiceKey.self] = newValue }
+    var bleService: BLEServiceClient {
+        get { self[BLEServiceClient.self] }
+        set { self[BLEServiceClient.self] = newValue }
     }
 }
 ```
 
-The `#if targetEnvironment(simulator)` check in `liveValue` automatically switches to mocks on the Simulator while using real implementations on a physical device.
+The `#if targetEnvironment(simulator)` check in `liveValue` automatically switches to simulator mocks on the Simulator while using real implementations on a physical device.
 
 Apply the same pattern for `nfcService` and `authenticationService`.
 
-## Step 5: Use @Dependency in ViewModels and Views
+## Step 4: Use @Dependency in ViewModels and Views
 
 Replace `SomeService.shared` with `@Dependency`:
 
@@ -164,24 +116,39 @@ Replace `SomeService.shared` with `@Dependency`:
 private let bleService = BLEService.shared
 
 // After
-@Dependency(\.bleService) private var bleService
+@Dependency(\.bleService) var bleService
 ```
 
-The protocol type ensures the ViewModel code works identically whether it receives a live or mock service.
+Since the dependency is a struct with closures, call sites use the closure properties directly:
+
+```swift
+// Register callbacks
+bleService.setOnConnected { [weak self] in
+    // Handle connection
+}
+
+// Call methods
+bleService.startCentralMode(nil)    // targetUUID is a positional arg
+bleService.sendRequest(request)
+
+// Access state via closure call
+let type = authService.biometricType()  // Note: () required
+```
 
 ## Architecture Summary
 
 ```
 ┌──────────────────────────────────────────────────┐
 │                  DependencyValues                │
-│  ┌────────────┐ ┌────────────┐ ┌──────────────┐ │
-│  │ bleService │ │ nfcService │ │ authService  │ │
-│  └─────┬──────┘ └─────┬──────┘ └──────┬───────┘ │
-│        │              │               │          │
-│    ┌───▼───┐      ┌───▼───┐      ┌────▼────┐    │
-│    │ Live  │      │ Live  │      │  Live   │    │  ← Real device
-│    │ Mock  │      │ Mock  │      │  Mock   │    │  ← Simulator
-│    └───────┘      └───────┘      └─────────┘    │
+│  ┌────────────────┐ ┌──────────────┐ ┌────────────────────┐
+│  │ BLEServiceClient│ │NFCServiceClient│ │AuthServiceClient│
+│  └───────┬────────┘ └──────┬───────┘ └────────┬───────────┘
+│          │                 │                   │
+│      ┌───▼───┐         ┌───▼───┐         ┌────▼────┐
+│      │ Live  │         │ Live  │         │  Live   │  ← Real device
+│      │.simul │         │.simul │         │ .simul  │  ← Simulator
+│      │ test  │         │ test  │         │  test   │  ← Tests (auto)
+│      └───────┘         └───────┘         └─────────┘
 └──────────────────────────────────────────────────┘
 ```
 
@@ -196,12 +163,13 @@ Both flows complete end-to-end without any real BLE, NFC, or biometric hardware.
 
 ## Next Steps
 
-With dependency injection in place, you can also write unit tests for the ViewModels by injecting custom mock configurations:
+With `@DependencyClient`, unit testing is straightforward. The macro generates `testValue` with unimplemented closures, so you only override what you need:
 
 ```swift
 @Test func readerReceivesVerifiedAttributes() async {
     await withDependencies {
-        $0.bleService = MockBLEService()
+        $0.bleService.startCentralMode = { _ in /* mock */ }
+        $0.bleService.sendRequest = { _ in /* mock */ }
     } operation: {
         let viewModel = ReaderViewModel()
         viewModel.startReading()

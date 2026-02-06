@@ -23,11 +23,9 @@
 		00000000000000000000000E /* SwiftCBOR in Frameworks */ = {isa = PBXBuildFile; productRef = 20000000000000000000000E /* SwiftCBOR */; };
 		00000000000000000000000F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000F /* Assets.xcassets */; };
 		000000000000000000000010 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000011 /* ServiceProtocols.swift */; };
-		000000000000000000000011 /* MockBLEService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000012 /* MockBLEService.swift */; };
-		000000000000000000000012 /* MockNFCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000013 /* MockNFCService.swift */; };
-		000000000000000000000013 /* MockAuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000014 /* MockAuthenticationService.swift */; };
 		000000000000000000000014 /* ServiceDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000015 /* ServiceDependencies.swift */; };
 		000000000000000000000015 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = 200000000000000000000010 /* Dependencies */; };
+		000000000000000000000016 /* DependenciesMacros in Frameworks */ = {isa = PBXBuildFile; productRef = 200000000000000000000011 /* DependenciesMacros */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,9 +46,6 @@
 		10000000000000000000000F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		100000000000000000000010 /* PseudoIDVerifier.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PseudoIDVerifier.entitlements; sourceTree = "<group>"; };
 		100000000000000000000011 /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProtocols.swift; sourceTree = "<group>"; };
-		100000000000000000000012 /* MockBLEService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBLEService.swift; sourceTree = "<group>"; };
-		100000000000000000000013 /* MockNFCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNFCService.swift; sourceTree = "<group>"; };
-		100000000000000000000014 /* MockAuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthenticationService.swift; sourceTree = "<group>"; };
 		100000000000000000000015 /* ServiceDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceDependencies.swift; sourceTree = "<group>"; };
 		300000000000000000000001 /* PseudoIDVerifier.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PseudoIDVerifier.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -62,6 +57,7 @@
 			files = (
 				00000000000000000000000E /* SwiftCBOR in Frameworks */,
 				000000000000000000000015 /* Dependencies in Frameworks */,
+				000000000000000000000016 /* DependenciesMacros in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -118,9 +114,6 @@
 				100000000000000000000009 /* CryptoService.swift */,
 				10000000000000000000000A /* AuthenticationService.swift */,
 				100000000000000000000011 /* ServiceProtocols.swift */,
-				100000000000000000000012 /* MockBLEService.swift */,
-				100000000000000000000013 /* MockNFCService.swift */,
-				100000000000000000000014 /* MockAuthenticationService.swift */,
 				100000000000000000000015 /* ServiceDependencies.swift */,
 			);
 			path = Services;
@@ -163,6 +156,7 @@
 			packageProductDependencies = (
 				20000000000000000000000E /* SwiftCBOR */,
 				200000000000000000000010 /* Dependencies */,
+				200000000000000000000011 /* DependenciesMacros */,
 			);
 			productName = PseudoIDVerifier;
 			productReference = 300000000000000000000001 /* PseudoIDVerifier.app */;
@@ -235,9 +229,6 @@
 				00000000000000000000000C /* PresentmentView.swift in Sources */,
 				00000000000000000000000D /* DisclosureRequestView.swift in Sources */,
 				000000000000000000000010 /* ServiceProtocols.swift in Sources */,
-				000000000000000000000011 /* MockBLEService.swift in Sources */,
-				000000000000000000000012 /* MockNFCService.swift in Sources */,
-				000000000000000000000013 /* MockAuthenticationService.swift in Sources */,
 				000000000000000000000014 /* ServiceDependencies.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -484,6 +475,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 20000000000000000000000F /* XCRemoteSwiftPackageReference "swift-dependencies" */;
 			productName = Dependencies;
+		};
+		200000000000000000000011 /* DependenciesMacros */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20000000000000000000000F /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = DependenciesMacros;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

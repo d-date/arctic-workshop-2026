@@ -363,8 +363,8 @@ class ReaderViewModel: ObservableObject {
     @Published var state: ReaderState = .idle
     @Published var selectedScenario: VerificationScenario = .ageVerification21
 
-    @Dependency(\.nfcService) private var nfcService
-    @Dependency(\.bleService) private var bleService
+    @Dependency(\.nfcService) var nfcService
+    @Dependency(\.bleService) var bleService
     private let cborService = CBORService.shared
 
     enum ReaderState {
@@ -397,7 +397,7 @@ class ReaderViewModel: ObservableObject {
 
     private func setupCallbacks() {
         // Handle BLE connection
-        bleService.onConnected = { [weak self] in
+        bleService.setOnConnected { [weak self] in
             Task { @MainActor in
                 guard let self = self else { return }
                 // Send the request after connection
@@ -408,21 +408,21 @@ class ReaderViewModel: ObservableObject {
         }
 
         // Handle response from holder
-        bleService.onResponseReceived = { [weak self] response in
+        bleService.setOnResponseReceived { [weak self] response in
             Task { @MainActor in
                 self?.handleResponse(response)
             }
         }
 
         // Handle NFC engagement received
-        nfcService.onEngagementReceived = { [weak self] engagement, bleData in
+        nfcService.setOnEngagementReceived { [weak self] engagement, bleData in
             Task { @MainActor in
                 self?.handleEngagementReceived(engagement, bleData: bleData)
             }
         }
 
         // Handle NFC error
-        nfcService.onError = { [weak self] error in
+        nfcService.setOnError { [weak self] error in
             Task { @MainActor in
                 self?.state = .error(error.localizedDescription)
             }
@@ -443,7 +443,7 @@ class ReaderViewModel: ObservableObject {
         // This workshop uses direct BLE connection instead,
         // while recreating a Tap to Pay style UI experience.
         state = .scanning
-        bleService.startCentralMode()
+        bleService.startCentralMode(nil)
     }
 
     private func handleEngagementReceived(_ engagement: DeviceEngagement, bleData: Data) {
@@ -452,9 +452,9 @@ class ReaderViewModel: ObservableObject {
         // Extract BLE UUID from engagement if available
         if let method = engagement.deviceRetrievalMethods.first(where: { $0.type == 2 }),
            let uuid = method.options.peripheralServerUUID {
-            bleService.startCentralMode(targetUUID: UUID(uuidString: uuid))
+            bleService.startCentralMode(UUID(uuidString: uuid))
         } else {
-            bleService.startCentralMode()
+            bleService.startCentralMode(nil)
         }
     }
 

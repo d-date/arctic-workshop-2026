@@ -67,8 +67,8 @@ struct DisclosureRequestView: View {
             VStack(spacing: 12) {
                 Button(action: onApprove) {
                     HStack {
-                        Image(systemName: authService.biometricType.systemImageName)
-                        Text("Approve with \(authService.biometricType.displayName)")
+                        Image(systemName: authService.biometricType().systemImageName)
+                        Text("Approve with \(authService.biometricType().displayName)")
                     }
                     .font(.headline)
                     .frame(maxWidth: .infinity)

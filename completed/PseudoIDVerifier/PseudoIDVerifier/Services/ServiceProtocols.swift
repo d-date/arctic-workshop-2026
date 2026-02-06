@@ -1,56 +1,63 @@
+import Dependencies
+import DependenciesMacros
 import Foundation
 import LocalAuthentication
 
-// MARK: - BLE Service Protocol
+// MARK: - BLE Service Client
 
-/// Protocol abstracting BLE operations for dependency injection
-protocol BLEServiceProtocol: AnyObject {
-    var connectionState: BLEConnectionState { get }
-    var error: BLEError? { get }
+/// Dependency client abstracting BLE operations for dependency injection.
+/// Uses closure-based endpoints following the Point-Free DependencyClient pattern.
+@DependencyClient
+struct BLEServiceClient: Sendable {
+    // MARK: - State Access
+    var connectionState: @Sendable () -> BLEConnectionState = { .disconnected }
+    var error: @Sendable () -> BLEError? = { nil }
 
-    var onRequestReceived: ((DeviceRequest) -> Void)? { get set }
-    var onResponseReceived: ((DeviceResponse) -> Void)? { get set }
-    var onConnected: (() -> Void)? { get set }
-    var onDisconnected: (() -> Void)? { get set }
+    // MARK: - Callback Registration
+    var setOnRequestReceived: @Sendable (@escaping (DeviceRequest) -> Void) -> Void
+    var setOnResponseReceived: @Sendable (@escaping (DeviceResponse) -> Void) -> Void
+    var setOnConnected: @Sendable (@escaping () -> Void) -> Void
+    var setOnDisconnected: @Sendable (@escaping () -> Void) -> Void
 
-    func startCentralMode(targetUUID: UUID?)
-    func stopCentralMode()
-    func sendRequest(_ request: DeviceRequest)
+    // MARK: - Central Mode (Reader)
+    var startCentralMode: @Sendable (_ targetUUID: UUID?) -> Void
+    var stopCentralMode: @Sendable () -> Void
+    var sendRequest: @Sendable (DeviceRequest) -> Void
 
-    func startPeripheralMode()
-    func stopPeripheralMode()
-    func sendResponse(_ response: DeviceResponse)
+    // MARK: - Peripheral Mode (Holder)
+    var startPeripheralMode: @Sendable () -> Void
+    var stopPeripheralMode: @Sendable () -> Void
+    var sendResponse: @Sendable (DeviceResponse) -> Void
 }
 
-extension BLEServiceProtocol {
-    func startCentralMode() { startCentralMode(targetUUID: nil) }
+// MARK: - NFC Service Client
+
+/// Dependency client abstracting NFC operations for dependency injection.
+@DependencyClient
+struct NFCServiceClient: Sendable {
+    var isScanning: @Sendable () -> Bool = { false }
+    var isNFCAvailable: @Sendable () -> Bool = { false }
+
+    var setOnEngagementReceived: @Sendable (@escaping (DeviceEngagement, Data) -> Void) -> Void
+    var setOnError: @Sendable (@escaping (NFCError) -> Void) -> Void
+
+    var startReaderSession: @Sendable () -> Void
+    var stopReaderSession: @Sendable () -> Void
 }
 
-// MARK: - NFC Service Protocol
+// MARK: - Authentication Service Client
 
-/// Protocol abstracting NFC operations for dependency injection
-protocol NFCServiceProtocol: AnyObject {
-    var isScanning: Bool { get }
-    var isNFCAvailable: Bool { get }
+/// Dependency client abstracting biometric authentication for dependency injection.
+@DependencyClient
+struct AuthenticationServiceClient: Sendable {
+    var isAuthenticated: @Sendable () -> Bool = { false }
+    var isBiometricAvailable: @Sendable () -> Bool = { false }
+    var biometricType: @Sendable () -> LABiometryType = { .none }
 
-    var onEngagementReceived: ((DeviceEngagement, Data) -> Void)? { get set }
-    var onError: ((NFCError) -> Void)? { get set }
+    var authenticateForDisclosure: @Sendable (
+        _ reason: String,
+        _ completion: @escaping (Result<Void, AuthError>) -> Void
+    ) -> Void
 
-    func startReaderSession()
-    func stopReaderSession()
-}
-
-// MARK: - Authentication Service Protocol
-
-/// Protocol abstracting biometric authentication for dependency injection
-protocol AuthenticationServiceProtocol: AnyObject {
-    var isAuthenticated: Bool { get }
-    var isBiometricAvailable: Bool { get }
-    var biometricType: LABiometryType { get }
-
-    func authenticateForDisclosure(
-        reason: String,
-        completion: @escaping (Result<Void, AuthError>) -> Void
-    )
-    func resetAuthentication()
+    var resetAuthentication: @Sendable () -> Void
 }

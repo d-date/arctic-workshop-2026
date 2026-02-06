@@ -4,7 +4,7 @@ import LocalAuthentication
 // MARK: - Authentication Service
 
 /// Service for handling biometric authentication for disclosure approval
-class AuthenticationService: ObservableObject, AuthenticationServiceProtocol {
+class AuthenticationService: ObservableObject {
     static let shared = AuthenticationService()
 
     // MARK: - Published State

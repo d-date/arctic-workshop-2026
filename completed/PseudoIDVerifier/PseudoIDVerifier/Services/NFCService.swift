@@ -40,7 +40,7 @@ import CoreNFC
 ///   is kept as an ISO 18013-5 compliant reference implementation
 /// - Holder-side `createHandoverMessage` is kept for learning NDEF message structure
 /// - Actual connection uses direct BLE (`BLEService`)
-class NFCService: NSObject, ObservableObject, NFCServiceProtocol {
+class NFCService: NSObject, ObservableObject {
     static let shared = NFCService()
 
     // MARK: - Published State
