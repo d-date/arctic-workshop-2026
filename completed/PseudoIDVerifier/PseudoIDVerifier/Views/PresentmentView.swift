@@ -1,4 +1,5 @@
 import SwiftUI
+import Dependencies
 
 // MARK: - Presentment View (Holder Mode)
 
@@ -232,9 +233,11 @@ private struct AdvertisingView: View {
 // MARK: - Authenticating View
 
 private struct AuthenticatingView: View {
+    @Dependency(\.authenticationService) var authService
+
     var body: some View {
         VStack(spacing: 20) {
-            Image(systemName: AuthenticationService.shared.biometricType.systemImageName)
+            Image(systemName: authService.biometricType().systemImageName)
                 .font(.system(size: 60))
                 .foregroundStyle(.blue)
 
@@ -345,8 +348,8 @@ class PresentmentViewModel: ObservableObject {
     @Published var state: PresentmentState = .idle
     @Published var credential: MDoc
 
-    private let bleService = BLEService.shared
-    private let authService = AuthenticationService.shared
+    @Dependency(\.bleService) var bleService
+    @Dependency(\.authenticationService) var authService
     private let cborService = CBORService.shared
 
     private var pendingRequest: DeviceRequest?
@@ -369,7 +372,7 @@ class PresentmentViewModel: ObservableObject {
 
     private func setupCallbacks() {
         // Handle request received from reader
-        bleService.onRequestReceived = { [weak self] request in
+        bleService.setOnRequestReceived { [weak self] request in
             Task { @MainActor in
                 self?.pendingRequest = request
                 self?.state = .requestReceived(request)
@@ -377,7 +380,7 @@ class PresentmentViewModel: ObservableObject {
         }
 
         // Handle disconnection
-        bleService.onDisconnected = { [weak self] in
+        bleService.setOnDisconnected { [weak self] in
             Task { @MainActor in
                 // Only reset if we're not already in success/error state
                 if case .advertising = self?.state {
@@ -421,7 +424,7 @@ class PresentmentViewModel: ObservableObject {
 
         // Trigger biometric authentication
         authService.authenticateForDisclosure(
-            reason: "Approve sharing your ID information"
+            "Approve sharing your ID information"
         ) { [weak self] result in
             Task { @MainActor in
                 switch result {

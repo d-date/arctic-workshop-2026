@@ -1,4 +1,5 @@
 import SwiftUI
+import Dependencies
 
 // MARK: - Disclosure Request View
 
@@ -10,6 +11,7 @@ struct DisclosureRequestView: View {
     let onApprove: () -> Void
     let onDeny: () -> Void
 
+    @Dependency(\.authenticationService) var authService
     @State private var showingAllAttributes = false
 
     var body: some View {
@@ -65,8 +67,8 @@ struct DisclosureRequestView: View {
             VStack(spacing: 12) {
                 Button(action: onApprove) {
                     HStack {
-                        Image(systemName: AuthenticationService.shared.biometricType.systemImageName)
-                        Text("Approve with \(AuthenticationService.shared.biometricType.displayName)")
+                        Image(systemName: authService.biometricType().systemImageName)
+                        Text("Approve with \(authService.biometricType().displayName)")
                     }
                     .font(.headline)
                     .frame(maxWidth: .infinity)
