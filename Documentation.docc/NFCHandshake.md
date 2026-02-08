@@ -147,7 +147,7 @@ class NFCService: NSObject {
 
     // Callbacks
     @ObservationIgnored var onEngagementReceived: ((DeviceEngagement, Data) -> Void)?
-    var onError: ((NFCError) -> Void)?
+    @ObservationIgnored var onError: ((NFCError) -> Void)?
 
     // ISO 18013-5 defined constants
     private let bleMimeType = "application/vnd.bluetooth.le.oob"
