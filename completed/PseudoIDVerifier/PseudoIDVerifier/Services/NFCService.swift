@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import CoreNFC
 
 // MARK: - NFC Service for Handshake
@@ -40,23 +41,24 @@ import CoreNFC
 ///   is kept as an ISO 18013-5 compliant reference implementation
 /// - Holder-side `createHandoverMessage` is kept for learning NDEF message structure
 /// - Actual connection uses direct BLE (`BLEService`)
-class NFCService: NSObject, ObservableObject {
+@Observable
+class NFCService: NSObject {
     static let shared = NFCService()
 
-    // MARK: - Published State
+    // MARK: - Observable State
 
-    @Published var isScanning = false
-    @Published var error: NFCError?
-    @Published var receivedEngagement: DeviceEngagement?
+    var isScanning = false
+    var error: NFCError?
+    var receivedEngagement: DeviceEngagement?
 
     // MARK: - NFC Session
 
-    private var readerSession: NFCNDEFReaderSession?
+    @ObservationIgnored private var readerSession: NFCNDEFReaderSession?
 
     // MARK: - Callbacks
 
-    var onEngagementReceived: ((DeviceEngagement, Data) -> Void)?
-    var onError: ((NFCError) -> Void)?
+    @ObservationIgnored var onEngagementReceived: ((DeviceEngagement, Data) -> Void)?
+    @ObservationIgnored var onError: ((NFCError) -> Void)?
 
     // MARK: - Constants
 

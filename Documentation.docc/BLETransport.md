@@ -49,34 +49,38 @@ Review the existing scaffolding in `Services/BLEService.swift`:
 
 ```swift
 import Foundation
+import Observation
 import CoreBluetooth
 
-class BLEService: NSObject, ObservableObject {
+@Observable
+class BLEService: NSObject {
     static let shared = BLEService()
 
-    @Published var connectionState: ConnectionState = .disconnected
+    var connectionState: ConnectionState = .disconnected
+    var error: TransportError?
 
     // UUIDs
     static let serviceUUID = CBUUID(string: "0000FF01-0000-1000-8000-00805F9B34FB")
-    static let client2ServerUUID = CBUUID(string: "0000FF03-0000-1000-8000-00805F9B34FB")
-    static let server2ClientUUID = CBUUID(string: "0000FF04-0000-1000-8000-00805F9B34FB")
+    static let stateCharacteristicUUID = CBUUID(string: "0000FF02-0000-1000-8000-00805F9B34FB")
+    static let client2ServerCharacteristicUUID = CBUUID(string: "0000FF03-0000-1000-8000-00805F9B34FB")
+    static let server2ClientCharacteristicUUID = CBUUID(string: "0000FF04-0000-1000-8000-00805F9B34FB")
 
-    // Managers
-    private var centralManager: CBCentralManager?
-    private var peripheralManager: CBPeripheralManager?
+    // Core Bluetooth Objects
+    @ObservationIgnored private var centralManager: CBCentralManager?
+    @ObservationIgnored private var peripheralManager: CBPeripheralManager?
 
     // Connected devices
-    private var connectedPeripheral: CBPeripheral?
-    private var connectedCentral: CBCentral?
+    @ObservationIgnored private var connectedPeripheral: CBPeripheral?
+    @ObservationIgnored private var connectedCentral: CBCentral?
 
     // Characteristics
-    private var client2ServerCharacteristic: CBMutableCharacteristic?
-    private var server2ClientCharacteristic: CBMutableCharacteristic?
+    @ObservationIgnored private var client2ServerCharacteristic: CBMutableCharacteristic?
+    @ObservationIgnored private var server2ClientCharacteristic: CBMutableCharacteristic?
 
     // Callbacks
-    var onRequestReceived: ((DeviceRequest) -> Void)?
-    var onResponseReceived: ((DeviceResponse) -> Void)?
-    var onConnected: (() -> Void)?
+    @ObservationIgnored var onRequestReceived: ((DeviceRequest) -> Void)?
+    @ObservationIgnored var onResponseReceived: ((DeviceResponse) -> Void)?
+    @ObservationIgnored var onConnected: (() -> Void)?
 
     private override init() {
         super.init()

@@ -1,20 +1,22 @@
 import Foundation
+import Observation
 import LocalAuthentication
 
 // MARK: - Authentication Service
 
 /// Service for handling biometric authentication for disclosure approval
-class AuthenticationService: ObservableObject {
+@Observable
+class AuthenticationService {
     static let shared = AuthenticationService()
 
-    // MARK: - Published State
+    // MARK: - Observable State
 
-    @Published var isAuthenticated = false
-    @Published var authenticationError: AuthError?
+    var isAuthenticated = false
+    var authenticationError: AuthError?
 
     // MARK: - LAContext
 
-    private var context = LAContext()
+    @ObservationIgnored private var context = LAContext()
 
     private init() {}
 

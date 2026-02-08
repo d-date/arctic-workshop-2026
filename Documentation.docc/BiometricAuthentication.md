@@ -20,15 +20,17 @@ Paste the following into `Services/AuthenticationService.swift`:
 
 ```swift
 import Foundation
+import Observation
 import LocalAuthentication
 
-class AuthenticationService: ObservableObject {
+@Observable
+class AuthenticationService {
     static let shared = AuthenticationService()
 
-    @Published var isAuthenticated = false
-    @Published var authenticationError: AuthError?
+    var isAuthenticated = false
+    var authenticationError: AuthError?
 
-    private var context = LAContext()
+    @ObservationIgnored private var context = LAContext()
 
     private init() {}
 

@@ -132,20 +132,22 @@ It can be used to read DeviceEngagement from an external NFC tag.
 
 ```swift
 import Foundation
+import Observation
 import CoreNFC
 
-class NFCService: NSObject, ObservableObject {
+@Observable
+class NFCService: NSObject {
     static let shared = NFCService()
 
-    @Published var isScanning = false
-    @Published var error: NFCError?
-    @Published var receivedEngagement: DeviceEngagement?
+    var isScanning = false
+    var error: NFCError?
+    var receivedEngagement: DeviceEngagement?
 
-    private var readerSession: NFCNDEFReaderSession?
+    @ObservationIgnored private var readerSession: NFCNDEFReaderSession?
 
     // Callbacks
-    var onEngagementReceived: ((DeviceEngagement, Data) -> Void)?
-    var onError: ((NFCError) -> Void)?
+    @ObservationIgnored var onEngagementReceived: ((DeviceEngagement, Data) -> Void)?
+    @ObservationIgnored var onError: ((NFCError) -> Void)?
 
     // ISO 18013-5 defined constants
     private let bleMimeType = "application/vnd.bluetooth.le.oob"
