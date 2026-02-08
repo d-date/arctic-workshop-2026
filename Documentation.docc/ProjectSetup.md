@@ -50,6 +50,19 @@ Add to Info.plist:
 <string>This app uses Bluetooth to transfer ID verification data between devices.</string>
 ```
 
+#### Multipeer Connectivity (Local Network)
+
+MPC uses Bonjour for peer discovery, which requires local network access. Add to Info.plist:
+
+```xml
+<key>NSLocalNetworkUsageDescription</key>
+<string>This app uses the local network to discover nearby devices for ID verification.</string>
+<key>NSBonjourServices</key>
+<array>
+    <string>_pseudo-id-vrfy._tcp</string>
+</array>
+```
+
 #### Face ID
 
 Add to Info.plist:

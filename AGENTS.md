@@ -11,11 +11,11 @@
 Hands-on workshop material for ARCTIC Conference 2026.
 Build a pseudo ID verification system based on ISO 18013-5 (mDL) using two iPhones.
 
-### Key Flow: NFC Tap → BLE → Selective Disclosure → Biometric → CBOR Response → Decode
+### Key Flow: CBOR → MPC (quick prototype) → BLE (ISO 18013-5) → Selective Disclosure → Biometric → Response
 
 ```
-[1] Reader Phone: "Tap to Verify" UI → Start BLE scanning
-[2] Presentment Phone: Start BLE advertising → Establish BLE connection with Reader
+[1] Reader Phone: Start browsing (MPC) or scanning (BLE)
+[2] Presentment Phone: Start advertising (MPC or BLE) → Establish connection with Reader
 [3] Reader → Presentment: Send DeviceRequest (CBOR)
 [4] Presentment: Show selective disclosure UI → Authenticate with Face ID / Touch ID
 [5] Presentment → Reader: Send DeviceResponse (CBOR + filtered mdoc)
@@ -37,16 +37,16 @@ Build a pseudo ID verification system based on ISO 18013-5 (mDL) using two iPhon
 ## Architecture
 
 - **Two-project structure**: `initial/` (skeleton with TODOs) and `completed/` (reference implementation)
-- **Documentation.docc/**: DocC tutorials (9 chapters)
-- **Frameworks**: SwiftUI, CoreBluetooth, CoreNFC, LocalAuthentication, CryptoKit, SwiftCBOR
-- **Target**: iOS 17+, two physical devices required (Simulator does not support BLE/NFC)
+- **Documentation.docc/**: DocC tutorials (10 chapters, including MPCTransport)
+- **Frameworks**: SwiftUI, MultipeerConnectivity, CoreBluetooth, CoreNFC, LocalAuthentication, CryptoKit, SwiftCBOR, swift-dependencies
+- **Target**: iOS 17+, two physical devices required (Simulator does not support BLE/NFC/MPC)
 
 ## Code Conventions
 
 - Swift style: `// MARK: -` section dividers, explicit access control
 - Services: singleton pattern (`.shared`)
 - ViewModels: `@MainActor` `ObservableObject` classes
-- State machines: enums (`ReaderState`, `PresentmentState`, `BLEConnectionState`)
+- State machines: enums (`ReaderState`, `PresentmentState`, `ConnectionState`)
 - Error types: conform to `LocalizedError`
 - CBOR: SwiftCBOR library (`CBOR.map`, `CBOR.array` patterns)
 - ISO 18013-5 naming conventions: mdoc, IssuerSigned, DeviceSigned, DeviceEngagement
@@ -63,8 +63,9 @@ Build a pseudo ID verification system based on ISO 18013-5 (mDL) using two iPhon
 
 ```
 Models/      MDoc.swift, DeviceRequest.swift, DummyCredentials.swift
-Services/    NFCService.swift, BLEService.swift, CBORService.swift,
-             AuthenticationService.swift, CryptoService.swift
+Services/    NFCService.swift, BLEService.swift, MPCService.swift, CBORService.swift,
+             AuthenticationService.swift, CryptoService.swift,
+             ServiceProtocols.swift, ServiceDependencies.swift
 Views/       ContentView.swift, ReaderView.swift, PresentmentView.swift,
              DisclosureRequestView.swift
 ```

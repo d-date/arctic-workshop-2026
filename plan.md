@@ -4,20 +4,20 @@
 
 ### completedプロジェクトの完成度評価
 
-**結論: 完成度200%を満たしている。ワークショップのボリュームは2.5時間を超えている（推定3.5-4時間）。**
+**結論: 完成度200%を満たしている。ワークショップのボリュームは3時間を超えている（推定3.5-4時間）。**
 
-- 全13ファイルが完全に動作する実装を持つ
+- 全14ファイル（MPCService.swift追加）が完全に動作する実装を持つ
 - CBORService: 709行 (encode/decode for mdoc, request, response, engagement + selective disclosure + diagnostics)
 - BLEService: 512行 (Central/Peripheral両モード + チャンキング + 全デリゲート)
 - AuthenticationService: 222行 (Face ID/Touch ID + async/await + エラーマッピング)
 - ViewModel: ReaderViewModel (110行) + PresentmentViewModel (148行) が完全実装
 - UI: 3つのView全てが動作するUI
 
-**充足感**: 2.5時間で人々はID Verifier単体で十分な充足感を得られる。むしろ、コンテンツが多すぎて時間内に終わらないリスクがある。
+**充足感**: 3時間で人々はID Verifier単体で十分な充足感を得られる。MPC→BLEのストーリー構成により、なぜISO 18013-5がBLEを選んだかの理解が深まる。
 
 ### Remote Retrieval の要否
 
-**結論: 不要。** 現在のID Verifierコンテンツだけで2.5時間を超えるボリュームがある。むしろ、コアパスを2.5時間に収まるようトリミングする方が重要。NFC章は既にスキップ扱い。Remote RetrievalはBonusセクションとしてドキュメントに言及する程度に留める。
+**結論: 不要。** 現在のID Verifierコンテンツだけで3時間を超えるボリュームがある。MPC + BLEの二段構成で充実。NFC章は既にスキップ扱い。Remote RetrievalはBonusセクションとしてドキュメントに言及する程度に留める。
 
 ---
 
@@ -119,13 +119,14 @@
 | 時間 | セクション | 内容 |
 |------|-----------|------|
 | 0:00-0:15 | Getting Started + Setup | 概念説明、プロジェクト確認 |
-| 0:15-0:45 | Understanding MDoc | モデル確認（既に実装済み） |
-|           | CBOR Encoding/Decoding | encode(mdoc), decodeMDoc |
-| 0:45-1:15 | CBOR continued | encode(request), decodeRequest, encode(response), decodeResponse |
+| 0:15-0:45 | Understanding MDoc + CBOR Step 1-2 | モデル確認、encode(mdoc), decodeMDoc |
+| 0:45-1:15 | CBOR Step 3-4 | encode(request/response), decodeRequest/Response |
 | 1:15-1:30 | -- 休憩 -- | |
-| 1:30-2:00 | BLE Transport | BLEService全メソッド実装 |
-| 2:00-2:15 | Selective Disclosure + Auth | createSelectiveResponse + authenticateForDisclosure |
-| 2:15-2:30 | Integration | ViewModel実装 + 2台でテスト |
+| 1:30-1:55 | MPC Transport | MPCService実装、デバイス間テスト |
+| 1:55-2:05 | MPC Limitations | MPCの限界 → BLEの動機付け |
+| 2:05-2:35 | BLE Transport | BLEService実装 (Central, Peripheral, chunking) |
+| 2:35-2:50 | Selective Disclosure + Auth | createSelectiveResponse + authenticateForDisclosure |
+| 2:50-3:00 | Integration | ViewModel実装 + 2台でテスト |
 ```
 
 #### 3-2. NFC章をOptional/Bonusとして明確化

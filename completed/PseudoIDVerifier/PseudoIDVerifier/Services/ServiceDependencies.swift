@@ -2,15 +2,24 @@ import Dependencies
 import DependenciesMacros
 import LocalAuthentication
 
-// MARK: - BLE Service Dependency
+// MARK: - Transport Service Dependency
 
-extension BLEServiceClient: DependencyKey {
-    static var liveValue: BLEServiceClient {
+extension TransportServiceClient: DependencyKey {
+    static var liveValue: TransportServiceClient {
         #if targetEnvironment(simulator)
         .simulator
+        #elseif USE_MPC
+        .mpc(MPCService.shared)
         #else
-        let service = BLEService.shared
-        return BLEServiceClient(
+        .ble(BLEService.shared)
+        #endif
+    }
+
+    static var previewValue: TransportServiceClient { .simulator }
+
+    /// BLE backing implementation using CoreBluetooth (ISO 18013-5 compliant transport)
+    static func ble(_ service: BLEService) -> TransportServiceClient {
+        TransportServiceClient(
             connectionState: { service.connectionState },
             error: { service.error },
             setOnRequestReceived: { service.onRequestReceived = $0 },
@@ -24,16 +33,31 @@ extension BLEServiceClient: DependencyKey {
             stopPeripheralMode: { service.stopPeripheralMode() },
             sendResponse: { service.sendResponse($0) }
         )
-        #endif
     }
 
-    static var previewValue: BLEServiceClient { .simulator }
+    /// MPC backing implementation using MultipeerConnectivity (quick prototype transport)
+    static func mpc(_ service: MPCService) -> TransportServiceClient {
+        TransportServiceClient(
+            connectionState: { service.connectionState },
+            error: { service.error },
+            setOnRequestReceived: { service.onRequestReceived = $0 },
+            setOnResponseReceived: { service.onResponseReceived = $0 },
+            setOnConnected: { service.onConnected = $0 },
+            setOnDisconnected: { service.onDisconnected = $0 },
+            startCentralMode: { _ in service.startBrowsing() },
+            stopCentralMode: { service.stopBrowsing() },
+            sendRequest: { service.sendRequest($0) },
+            startPeripheralMode: { service.startAdvertising() },
+            stopPeripheralMode: { service.stopAdvertising() },
+            sendResponse: { service.sendResponse($0) }
+        )
+    }
 
-    /// Simulator mock that simulates the full BLE flow with delays
-    static var simulator: BLEServiceClient {
+    /// Simulator mock that simulates the full transport flow with delays
+    static var simulator: TransportServiceClient {
         final class Storage: @unchecked Sendable {
-            var connectionState: BLEConnectionState = .disconnected
-            var error: BLEError?
+            var connectionState: ConnectionState = .disconnected
+            var error: TransportError?
             var onRequestReceived: ((DeviceRequest) -> Void)?
             var onResponseReceived: ((DeviceResponse) -> Void)?
             var onConnected: (() -> Void)?
@@ -44,7 +68,7 @@ extension BLEServiceClient: DependencyKey {
         let connectionDelay: TimeInterval = 1.0
         let transferDelay: TimeInterval = 0.5
 
-        return BLEServiceClient(
+        return TransportServiceClient(
             connectionState: { storage.connectionState },
             error: { storage.error },
             setOnRequestReceived: { storage.onRequestReceived = $0 },
@@ -122,9 +146,9 @@ extension BLEServiceClient: DependencyKey {
 }
 
 extension DependencyValues {
-    var bleService: BLEServiceClient {
-        get { self[BLEServiceClient.self] }
-        set { self[BLEServiceClient.self] = newValue }
+    var transportService: TransportServiceClient {
+        get { self[TransportServiceClient.self] }
+        set { self[TransportServiceClient.self] = newValue }
     }
 }
 

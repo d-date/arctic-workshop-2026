@@ -10,8 +10,8 @@ class BLEService: NSObject, ObservableObject {
 
     // MARK: - Published State
 
-    @Published var connectionState: BLEConnectionState = .disconnected
-    @Published var error: BLEError?
+    @Published var connectionState: ConnectionState = .disconnected
+    @Published var error: TransportError?
 
     // MARK: - UUIDs
 
@@ -389,18 +389,18 @@ extension BLEService: CBPeripheralManagerDelegate {
 
 // MARK: - Connection State
 
-enum BLEConnectionState {
+enum ConnectionState {
     case disconnected
     case scanning
     case connecting
     case connected
     case advertising
-    case error(BLEError)
+    case error(TransportError)
 }
 
 // MARK: - Error Types
 
-enum BLEError: LocalizedError {
+enum TransportError: LocalizedError {
     case bluetoothUnavailable
     case bluetoothPoweredOff
     case connectionFailed(String)

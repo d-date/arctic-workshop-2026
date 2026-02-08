@@ -8,7 +8,7 @@ The PseudoIDVerifier app relies on three hardware features that are unavailable 
 
 | Service | Hardware | Framework |
 |---------|----------|-----------|
-| `BLEService` | Bluetooth Low Energy | CoreBluetooth |
+| `BLEService` / `MPCService` | Bluetooth Low Energy / Multipeer Connectivity | CoreBluetooth / MultipeerConnectivity |
 | `NFCService` | NFC reader | CoreNFC |
 | `AuthenticationService` | Face ID / Touch ID | LocalAuthentication |
 
@@ -35,16 +35,19 @@ import Foundation
 import LocalAuthentication
 
 @DependencyClient
-struct BLEServiceClient: Sendable {
-    var connectionState: @Sendable () -> BLEConnectionState = { .disconnected }
+struct TransportServiceClient: Sendable {
+    var connectionState: @Sendable () -> ConnectionState = { .disconnected }
+    var error: @Sendable () -> TransportError? = { nil }
+    var setOnRequestReceived: @Sendable (@escaping (DeviceRequest) -> Void) -> Void
+    var setOnResponseReceived: @Sendable (@escaping (DeviceResponse) -> Void) -> Void
     var setOnConnected: @Sendable (@escaping () -> Void) -> Void
+    var setOnDisconnected: @Sendable (@escaping () -> Void) -> Void
     var startCentralMode: @Sendable (_ targetUUID: UUID?) -> Void
     var stopCentralMode: @Sendable () -> Void
     var sendRequest: @Sendable (DeviceRequest) -> Void
     var startPeripheralMode: @Sendable () -> Void
     var stopPeripheralMode: @Sendable () -> Void
     var sendResponse: @Sendable (DeviceResponse) -> Void
-    // ... additional callbacks omitted for brevity
 }
 
 @DependencyClient
@@ -70,35 +73,49 @@ Create `Services/ServiceDependencies.swift`. Each client struct conforms to `Dep
 ```swift
 import Dependencies
 
-extension BLEServiceClient: DependencyKey {
-    static var liveValue: BLEServiceClient {
+extension TransportServiceClient: DependencyKey {
+    static var liveValue: TransportServiceClient {
         #if targetEnvironment(simulator)
         .simulator
+        #elseif USE_MPC
+        .mpc(MPCService.shared)
         #else
-        let service = BLEService.shared
-        return BLEServiceClient(
-            connectionState: { service.connectionState },
-            setOnConnected: { service.onConnected = $0 },
-            startCentralMode: { service.startCentralMode(targetUUID: $0) },
-            stopCentralMode: { service.stopCentralMode() },
-            sendRequest: { service.sendRequest($0) },
-            // ...
-        )
+        .ble(BLEService.shared)
         #endif
     }
 
-    static var previewValue: BLEServiceClient { .simulator }
+    static var previewValue: TransportServiceClient { .simulator }
 
-    static var simulator: BLEServiceClient {
+    /// BLE backing implementation using CoreBluetooth
+    static func ble(_ service: BLEService) -> TransportServiceClient {
+        TransportServiceClient(
+            connectionState: { service.connectionState },
+            setOnConnected: { service.onConnected = $0 },
+            startCentralMode: { service.startCentralMode(targetUUID: $0) },
+            // ...
+        )
+    }
+
+    /// MPC backing implementation using MultipeerConnectivity
+    static func mpc(_ service: MPCService) -> TransportServiceClient {
+        TransportServiceClient(
+            connectionState: { service.connectionState },
+            setOnConnected: { service.onConnected = $0 },
+            startCentralMode: { _ in service.startBrowsing() },
+            // ...
+        )
+    }
+
+    static var simulator: TransportServiceClient {
         // Closure-based mock with delays, no separate class needed
         // ...
     }
 }
 
 extension DependencyValues {
-    var bleService: BLEServiceClient {
-        get { self[BLEServiceClient.self] }
-        set { self[BLEServiceClient.self] = newValue }
+    var transportService: TransportServiceClient {
+        get { self[TransportServiceClient.self] }
+        set { self[TransportServiceClient.self] = newValue }
     }
 }
 ```
@@ -112,24 +129,24 @@ Apply the same pattern for `nfcService` and `authenticationService`.
 Replace `SomeService.shared` with `@Dependency`:
 
 ```swift
-// Before
-private let bleService = BLEService.shared
+// Before (direct singleton reference)
+private let transportService = BLEService.shared
 
-// After
-@Dependency(\.bleService) var bleService
+// After (dependency injection — backs BLE, MPC, or simulator automatically)
+@Dependency(\.transportService) var transportService
 ```
 
-Since the dependency is a struct with closures, call sites use the closure properties directly:
+Since the dependency is a struct with closures, call sites use the closure properties directly. The same code works regardless of whether BLE, MPC, or the simulator mock is backing the transport:
 
 ```swift
 // Register callbacks
-bleService.setOnConnected { [weak self] in
+transportService.setOnConnected { [weak self] in
     // Handle connection
 }
 
 // Call methods
-bleService.startCentralMode(nil)    // targetUUID is a positional arg
-bleService.sendRequest(request)
+transportService.startCentralMode(nil)    // targetUUID is a positional arg
+transportService.sendRequest(request)
 
 // Access state via closure call
 let type = authService.biometricType()  // Note: () required
@@ -138,18 +155,19 @@ let type = authService.biometricType()  // Note: () required
 ## Architecture Summary
 
 ```
-┌──────────────────────────────────────────────────┐
-│                  DependencyValues                │
-│  ┌────────────────┐ ┌──────────────┐ ┌────────────────────┐
-│  │ BLEServiceClient│ │NFCServiceClient│ │AuthServiceClient│
-│  └───────┬────────┘ └──────┬───────┘ └────────┬───────────┘
-│          │                 │                   │
-│      ┌───▼───┐         ┌───▼───┐         ┌────▼────┐
-│      │ Live  │         │ Live  │         │  Live   │  ← Real device
-│      │.simul │         │.simul │         │ .simul  │  ← Simulator
-│      │ test  │         │ test  │         │  test   │  ← Tests (auto)
-│      └───────┘         └───────┘         └─────────┘
-└──────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                     DependencyValues                    │
+│  ┌──────────────────────┐ ┌──────────────┐ ┌──────────────────┐
+│  │TransportServiceClient│ │NFCServiceClient│ │AuthServiceClient│
+│  └──────────┬───────────┘ └──────┬───────┘ └────────┬─────────┘
+│             │                    │                   │
+│     ┌───────┼────────┐      ┌───▼───┐         ┌────▼────┐
+│     │       │        │      │ Live  │         │  Live   │
+│  ┌──▼──┐ ┌──▼──┐ ┌───▼──┐  │.simul │         │ .simul  │
+│  │.ble │ │.mpc │ │.simul│  │ test  │         │  test   │
+│  └─────┘ └─────┘ └──────┘  └───────┘         └─────────┘
+│   BLE     MPC    Simulator
+└─────────────────────────────────────────────────────────┘
 ```
 
 ## Running on the Simulator
@@ -168,8 +186,8 @@ With `@DependencyClient`, unit testing is straightforward. The macro generates `
 ```swift
 @Test func readerReceivesVerifiedAttributes() async {
     await withDependencies {
-        $0.bleService.startCentralMode = { _ in /* mock */ }
-        $0.bleService.sendRequest = { _ in /* mock */ }
+        $0.transportService.startCentralMode = { _ in /* mock */ }
+        $0.transportService.sendRequest = { _ in /* mock */ }
     } operation: {
         let viewModel = ReaderViewModel()
         viewModel.startReading()

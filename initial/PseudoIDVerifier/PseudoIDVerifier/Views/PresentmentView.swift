@@ -350,7 +350,7 @@ class PresentmentViewModel: ObservableObject {
     @Published var state: PresentmentState = .idle
     @Published var credential: MDoc
 
-    private let bleService = BLEService.shared
+    private let transportService = BLEService.shared
     private let authService = AuthenticationService.shared
     private let cborService = CBORService.shared
 
@@ -378,8 +378,8 @@ class PresentmentViewModel: ObservableObject {
     /// ✏️ Paste your implementation here
     private func setupCallbacks() {
         // Steps:
-        // 1. bleService.onRequestReceived → store request, set state to .requestReceived
-        // 2. bleService.onDisconnected → reset to .idle if still advertising
+        // 1. transportService.onRequestReceived → store request, set state to .requestReceived
+        // 2. transportService.onDisconnected → reset to .idle if still advertising
 
         fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 4")
     }
@@ -403,8 +403,8 @@ class PresentmentViewModel: ObservableObject {
         // ## Implementation steps
         //
         // 1. Set state to .advertising
-        // 2. Set up BLE callback: bleService.onRequestReceived
-        // 3. Start BLE peripheral mode: bleService.startPeripheralMode()
+        // 2. Set up BLE callback: transportService.onRequestReceived
+        // 3. Start BLE peripheral mode: transportService.startPeripheralMode()
         // 4. On request received, set state to .requestReceived
 
         fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 5")
@@ -443,7 +443,7 @@ class PresentmentViewModel: ObservableObject {
         // 1. Set state to .sending
         // 2. Call cborService.createSelectiveResponse
         // 3. Create Document + DeviceResponse
-        // 4. Send via bleService.sendResponse
+        // 4. Send via transportService.sendResponse
         // 5. Transition to .success
 
         fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 6")
@@ -460,7 +460,7 @@ class PresentmentViewModel: ObservableObject {
     }
 
     func reset() {
-        bleService.stopPeripheralMode()
+        transportService.stopPeripheralMode()
         state = .idle
         pendingRequest = nil
         authService.resetAuthentication()

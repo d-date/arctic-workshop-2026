@@ -383,7 +383,7 @@ func startReading() {
     //
     // Using direct BLE connection due to iOS technical constraints:
     state = .scanning
-    bleService.startCentralMode()
+    transportService.startCentralMode(nil)
 }
 ```
 
