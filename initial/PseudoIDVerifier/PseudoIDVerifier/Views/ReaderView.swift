@@ -1,11 +1,12 @@
 import SwiftUI
+import Observation
 
 // MARK: - Reader View (Verifier Mode)
 
 /// Main view for the Reader/Verifier mode
 /// This is where the verifier initiates ID verification requests
 struct ReaderView: View {
-    @StateObject private var viewModel = ReaderViewModel()
+    @State private var viewModel = ReaderViewModel()
 
     var body: some View {
         ZStack {
@@ -41,7 +42,7 @@ struct ReaderView: View {
 // MARK: - Idle State View
 
 private struct IdleView: View {
-    @ObservedObject var viewModel: ReaderViewModel
+    var viewModel: ReaderViewModel
 
     var body: some View {
         VStack(spacing: 30) {
@@ -125,7 +126,7 @@ private struct ScenarioButton: View {
 // MARK: - Scanning View (Tap to Pay style)
 
 private struct ScanningView: View {
-    @ObservedObject var viewModel: ReaderViewModel
+    var viewModel: ReaderViewModel
     @State private var animationPhase = 0.0
 
     var body: some View {
@@ -217,7 +218,7 @@ private struct WaitingView: View {
 
 private struct SuccessView: View {
     let attributes: [String: Any]
-    @ObservedObject var viewModel: ReaderViewModel
+    var viewModel: ReaderViewModel
 
     var body: some View {
         VStack(spacing: 20) {
@@ -320,7 +321,7 @@ private struct AttributeRow: View {
 
 private struct ErrorView: View {
     let message: String
-    @ObservedObject var viewModel: ReaderViewModel
+    var viewModel: ReaderViewModel
 
     var body: some View {
         VStack(spacing: 20) {
@@ -363,13 +364,14 @@ private struct ErrorView: View {
 // MARK: - Reader View Model
 
 @MainActor
-class ReaderViewModel: ObservableObject {
-    @Published var state: ReaderState = .idle
-    @Published var selectedScenario: VerificationScenario = .ageVerification21
+@Observable
+class ReaderViewModel {
+    var state: ReaderState = .idle
+    var selectedScenario: VerificationScenario = .ageVerification21
 
-    private let nfcService = NFCService.shared
-    private let transportService = BLEService.shared
-    private let cborService = CBORService.shared
+    @ObservationIgnored private let nfcService = NFCService.shared
+    @ObservationIgnored private let transportService = BLEService.shared
+    @ObservationIgnored private let cborService = CBORService.shared
 
     enum ReaderState {
         case idle

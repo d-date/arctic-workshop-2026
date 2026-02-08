@@ -1,0 +1,15 @@
+{
+  "originHash" : "377a592eedc06eb9a2ff6e518d77a97e8d03c1a7110e7140dbb327b2a097d87c",
+  "pins" : [
+    {
+      "identity" : "swiftcbor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/unrelentingtech/SwiftCBOR.git",
+      "state" : {
+        "revision" : "fd929a6d8f7651ce0f63fc99397fd5762358cc29",
+        "version" : "0.6.0"
+      }
+    }
+  ],
+  "version" : 3
+}

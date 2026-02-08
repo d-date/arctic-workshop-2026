@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import MultipeerConnectivity
 
 // MARK: - Multipeer Connectivity Service for Data Transfer
@@ -13,20 +14,21 @@ import MultipeerConnectivity
 /// A 1-byte header distinguishes message types:
 /// - `0x01` = DeviceRequest (Reader → Holder)
 /// - `0x02` = DeviceResponse (Holder → Reader)
-class MPCService: NSObject, ObservableObject {
+@Observable
+class MPCService: NSObject {
     static let shared = MPCService()
 
-    // MARK: - Published State
+    // MARK: - Observable State
 
-    @Published var connectionState: ConnectionState = .disconnected
-    @Published var error: TransportError?
+    var connectionState: ConnectionState = .disconnected
+    var error: TransportError?
 
     // MARK: - MPC Objects
 
-    private let peerID: MCPeerID
-    private var session: MCSession?
-    private var browser: MCNearbyServiceBrowser?
-    private var advertiser: MCNearbyServiceAdvertiser?
+    @ObservationIgnored private let peerID: MCPeerID
+    @ObservationIgnored private var session: MCSession?
+    @ObservationIgnored private var browser: MCNearbyServiceBrowser?
+    @ObservationIgnored private var advertiser: MCNearbyServiceAdvertiser?
 
     // MARK: - Constants
 
@@ -41,10 +43,10 @@ class MPCService: NSObject, ObservableObject {
 
     // MARK: - Callbacks
 
-    var onRequestReceived: ((DeviceRequest) -> Void)?
-    var onResponseReceived: ((DeviceResponse) -> Void)?
-    var onConnected: (() -> Void)?
-    var onDisconnected: (() -> Void)?
+    @ObservationIgnored var onRequestReceived: ((DeviceRequest) -> Void)?
+    @ObservationIgnored var onResponseReceived: ((DeviceResponse) -> Void)?
+    @ObservationIgnored var onConnected: (() -> Void)?
+    @ObservationIgnored var onDisconnected: (() -> Void)?
 
     // MARK: - Init
 

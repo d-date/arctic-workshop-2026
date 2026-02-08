@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import MultipeerConnectivity
 
 // MARK: - Multipeer Connectivity Service for Data Transfer
@@ -29,20 +30,21 @@ import MultipeerConnectivity
 /// - No MTU constraints (no chunking needed)
 /// - No visible session encryption key exchange (handled internally)
 /// - No transport control (Wi-Fi vs BLE auto-selected)
-class MPCService: NSObject, ObservableObject {
+@Observable
+class MPCService: NSObject {
     static let shared = MPCService()
 
-    // MARK: - Published State
+    // MARK: - Observable State
 
-    @Published var connectionState: ConnectionState = .disconnected
-    @Published var error: TransportError?
+    var connectionState: ConnectionState = .disconnected
+    var error: TransportError?
 
     // MARK: - MPC Objects
 
-    private let peerID: MCPeerID
-    private var session: MCSession?
-    private var browser: MCNearbyServiceBrowser?
-    private var advertiser: MCNearbyServiceAdvertiser?
+    @ObservationIgnored private let peerID: MCPeerID
+    @ObservationIgnored private var session: MCSession?
+    @ObservationIgnored private var browser: MCNearbyServiceBrowser?
+    @ObservationIgnored private var advertiser: MCNearbyServiceAdvertiser?
 
     // MARK: - Constants
 
@@ -57,10 +59,10 @@ class MPCService: NSObject, ObservableObject {
 
     // MARK: - Callbacks
 
-    var onRequestReceived: ((DeviceRequest) -> Void)?
-    var onResponseReceived: ((DeviceResponse) -> Void)?
-    var onConnected: (() -> Void)?
-    var onDisconnected: (() -> Void)?
+    @ObservationIgnored var onRequestReceived: ((DeviceRequest) -> Void)?
+    @ObservationIgnored var onResponseReceived: ((DeviceResponse) -> Void)?
+    @ObservationIgnored var onConnected: (() -> Void)?
+    @ObservationIgnored var onDisconnected: (() -> Void)?
 
     // MARK: - Init
 

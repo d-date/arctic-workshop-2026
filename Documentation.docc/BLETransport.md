@@ -49,12 +49,14 @@ Review the existing scaffolding in `Services/BLEService.swift`:
 
 ```swift
 import Foundation
+import Observation
 import CoreBluetooth
 
-class BLEService: NSObject, ObservableObject {
+@Observable
+class BLEService: NSObject {
     static let shared = BLEService()
 
-    @Published var connectionState: ConnectionState = .disconnected
+    var connectionState: ConnectionState = .disconnected
 
     // UUIDs
     static let serviceUUID = CBUUID(string: "0000FF01-0000-1000-8000-00805F9B34FB")
