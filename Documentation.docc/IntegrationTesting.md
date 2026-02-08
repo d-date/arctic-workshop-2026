@@ -8,7 +8,7 @@ Now that all components are implemented, let's test the end-to-end flow between 
 
 ### Step 0: Implement ViewModels
 
-Before testing, you need to wire up the ViewModels that connect BLE, CBOR, and Authentication together.
+Before testing, you need to wire up the ViewModels that connect the transport layer (MPC or BLE), CBOR, and Authentication together.
 
 > **Initial project**: Open `Views/ReaderView.swift` and `Views/PresentmentView.swift`. Find the `📋 PASTE: ViewModel Step` markers in the ViewModel classes at the bottom of each file.
 
@@ -21,18 +21,18 @@ init() {
 }
 
 private func setupCallbacks() {
-    // Handle BLE connection
-    bleService.onConnected = { [weak self] in
+    // Handle transport connection (works with both MPC and BLE)
+    transportService.onConnected = { [weak self] in
         Task { @MainActor in
             guard let self = self else { return }
             let request = self.selectedScenario.createRequest()
-            self.bleService.sendRequest(request)
+            self.transportService.sendRequest(request)
             self.state = .waitingForResponse
         }
     }
 
     // Handle response from holder
-    bleService.onResponseReceived = { [weak self] response in
+    transportService.onResponseReceived = { [weak self] response in
         Task { @MainActor in
             self?.handleResponse(response)
         }
@@ -58,14 +58,14 @@ private func setupCallbacks() {
 func startReading() {
     state = .scanning
 
-    // For workshop: skip NFC, go directly to BLE
+    // For workshop: skip NFC, go directly to transport layer (MPC or BLE)
     state = .connecting
-    bleService.startCentralMode()
+    transportService.startCentralMode(nil)
 }
 
 func cancelReading() {
     nfcService.stopReaderSession()
-    bleService.stopCentralMode()
+    transportService.stopCentralMode()
     state = .idle
 }
 ```
@@ -76,7 +76,7 @@ private func handleResponse(_ response: DeviceResponse) {
     guard response.status == 0,
           let document = response.documents?.first else {
         state = .error("Invalid response from holder")
-        bleService.stopCentralMode()
+        transportService.stopCentralMode()
         return
     }
 
@@ -89,7 +89,7 @@ private func handleResponse(_ response: DeviceResponse) {
     }
 
     state = .success(attributes)
-    bleService.stopCentralMode()
+    transportService.stopCentralMode()
 }
 ```
 
@@ -103,14 +103,14 @@ init() {
 }
 
 private func setupCallbacks() {
-    bleService.onRequestReceived = { [weak self] request in
+    transportService.onRequestReceived = { [weak self] request in
         Task { @MainActor in
             self?.pendingRequest = request
             self?.state = .requestReceived(request)
         }
     }
 
-    bleService.onDisconnected = { [weak self] in
+    transportService.onDisconnected = { [weak self] in
         Task { @MainActor in
             if case .advertising = self?.state {
                 self?.state = .idle
@@ -124,11 +124,11 @@ private func setupCallbacks() {
 // ViewModel Step 5: startPresenting + cancelPresenting
 func startPresenting() {
     state = .advertising
-    bleService.startPeripheralMode()
+    transportService.startPeripheralMode()
 }
 
 func cancelPresenting() {
-    bleService.stopPeripheralMode()
+    transportService.stopPeripheralMode()
     state = .idle
     pendingRequest = nil
 }
@@ -191,11 +191,11 @@ private func sendResponse(for request: DeviceRequest) {
         status: 0
     )
 
-    bleService.sendResponse(response)
+    transportService.sendResponse(response)
 
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
         self?.state = .success
-        self?.bleService.stopPeripheralMode()
+        self?.transportService.stopPeripheralMode()
     }
 }
 
@@ -206,8 +206,8 @@ func denyDisclosure() {
         documentErrors: nil,
         status: 10  // General error - user denied
     )
-    bleService.sendResponse(response)
-    bleService.stopPeripheralMode()
+    transportService.sendResponse(response)
+    transportService.stopPeripheralMode()
     state = .idle
     pendingRequest = nil
 }
@@ -421,9 +421,10 @@ This approach enables cross-device verification (e.g., web-based Verifiers) and 
 You've learned:
 1. ISO 18013-5 mdoc structure
 2. CBOR encoding/decoding
-3. NFC-to-BLE handover mechanics and iOS technical constraints
-4. BLE communication patterns
-5. Selective disclosure
-6. Biometric authentication
+3. Multipeer Connectivity as a quick-start transport
+4. BLE communication patterns and why ISO 18013-5 chose BLE over MPC
+5. NFC-to-BLE handover mechanics and iOS technical constraints
+6. Selective disclosure
+7. Biometric authentication
 
 These concepts apply directly to real mobile identity implementations.

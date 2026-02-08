@@ -368,7 +368,7 @@ class ReaderViewModel: ObservableObject {
     @Published var selectedScenario: VerificationScenario = .ageVerification21
 
     private let nfcService = NFCService.shared
-    private let bleService = BLEService.shared
+    private let transportService = BLEService.shared
     private let cborService = CBORService.shared
 
     enum ReaderState {
@@ -390,8 +390,8 @@ class ReaderViewModel: ObservableObject {
     /// ✏️ Paste your implementation here
     private func setupCallbacks() {
         // Steps:
-        // 1. bleService.onConnected → send request, set state to .waitingForResponse
-        // 2. bleService.onResponseReceived → call handleResponse
+        // 1. transportService.onConnected → send request, set state to .waitingForResponse
+        // 2. transportService.onResponseReceived → call handleResponse
         // 3. nfcService.onEngagementReceived → call handleEngagementReceived (optional for BLE-only)
         // 4. nfcService.onError → set state to .error
 
@@ -417,7 +417,7 @@ class ReaderViewModel: ObservableObject {
         // ## Implementation steps
         //
         // 1. Set state to .connecting
-        // 2. Call bleService.startCentralMode()
+        // 2. Call transportService.startCentralMode()
 
         fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 2")
     }
@@ -454,7 +454,7 @@ class ReaderViewModel: ObservableObject {
     }
 
     func reset() {
-        bleService.stopCentralMode()
+        transportService.stopCentralMode()
         state = .idle
     }
 }

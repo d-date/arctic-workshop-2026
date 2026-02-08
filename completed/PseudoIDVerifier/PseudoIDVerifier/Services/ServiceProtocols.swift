@@ -3,15 +3,15 @@ import DependenciesMacros
 import Foundation
 import LocalAuthentication
 
-// MARK: - BLE Service Client
+// MARK: - Transport Service Client
 
-/// Dependency client abstracting BLE operations for dependency injection.
+/// Dependency client abstracting transport operations (BLE / MPC) for dependency injection.
 /// Uses closure-based endpoints following the Point-Free DependencyClient pattern.
 @DependencyClient
-struct BLEServiceClient: Sendable {
+struct TransportServiceClient: Sendable {
     // MARK: - State Access
-    var connectionState: @Sendable () -> BLEConnectionState = { .disconnected }
-    var error: @Sendable () -> BLEError? = { nil }
+    var connectionState: @Sendable () -> ConnectionState = { .disconnected }
+    var error: @Sendable () -> TransportError? = { nil }
 
     // MARK: - Callback Registration
     var setOnRequestReceived: @Sendable (@escaping (DeviceRequest) -> Void) -> Void

@@ -4,6 +4,13 @@ Implement Bluetooth Low Energy communication for data transfer.
 
 ## Overview
 
+> In <doc:MPCTransport>, you built a working transport layer with Multipeer Connectivity.
+> It was quick and easy — but it can't support NFC handover, asymmetric BLE roles,
+> or the fine-grained control that ISO 18013-5 requires.
+>
+> In this chapter, you'll implement the BLE transport layer using CoreBluetooth,
+> gaining full control over Central/Peripheral roles, GATT characteristics, and data chunking.
+
 In ISO 18013-5, data transfer occurs over BLE after the NFC handover. Due to iOS technical constraints (NFC tag emulation is unavailable), this workshop uses direct BLE connection, but the BLE transport layer itself is an ISO 18013-5 compliant implementation.
 
 The Reader operates as a BLE **Central**, and the Holder operates as a BLE **Peripheral**.
@@ -47,7 +54,7 @@ import CoreBluetooth
 class BLEService: NSObject, ObservableObject {
     static let shared = BLEService()
 
-    @Published var connectionState: BLEConnectionState = .disconnected
+    @Published var connectionState: ConnectionState = .disconnected
 
     // UUIDs
     static let serviceUUID = CBUUID(string: "0000FF01-0000-1000-8000-00805F9B34FB")
@@ -285,17 +292,19 @@ extension BLEService {
 
 ### Connection States
 
+These enums are shared by both MPC and BLE transport layers (defined in `BLEService.swift`):
+
 ```swift
-enum BLEConnectionState {
+enum ConnectionState {
     case disconnected
     case scanning
     case connecting
     case connected
     case advertising
-    case error(BLEError)
+    case error(TransportError)
 }
 
-enum BLEError: LocalizedError {
+enum TransportError: LocalizedError {
     case bluetoothUnavailable
     case bluetoothPoweredOff
     case connectionFailed(String)

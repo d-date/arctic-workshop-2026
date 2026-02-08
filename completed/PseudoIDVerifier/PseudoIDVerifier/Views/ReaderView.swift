@@ -364,7 +364,7 @@ class ReaderViewModel: ObservableObject {
     @Published var selectedScenario: VerificationScenario = .ageVerification21
 
     @Dependency(\.nfcService) var nfcService
-    @Dependency(\.bleService) var bleService
+    @Dependency(\.transportService) var transportService
     private let cborService = CBORService.shared
 
     enum ReaderState {
@@ -397,18 +397,18 @@ class ReaderViewModel: ObservableObject {
 
     private func setupCallbacks() {
         // Handle BLE connection
-        bleService.setOnConnected { [weak self] in
+        transportService.setOnConnected { [weak self] in
             Task { @MainActor in
                 guard let self = self else { return }
                 // Send the request after connection
                 let request = self.selectedScenario.createRequest()
-                self.bleService.sendRequest(request)
+                self.transportService.sendRequest(request)
                 self.state = .waitingForResponse
             }
         }
 
         // Handle response from holder
-        bleService.setOnResponseReceived { [weak self] response in
+        transportService.setOnResponseReceived { [weak self] response in
             Task { @MainActor in
                 self?.handleResponse(response)
             }
@@ -443,7 +443,7 @@ class ReaderViewModel: ObservableObject {
         // This workshop uses direct BLE connection instead,
         // while recreating a Tap to Pay style UI experience.
         state = .scanning
-        bleService.startCentralMode(nil)
+        transportService.startCentralMode(nil)
     }
 
     private func handleEngagementReceived(_ engagement: DeviceEngagement, bleData: Data) {
@@ -452,9 +452,9 @@ class ReaderViewModel: ObservableObject {
         // Extract BLE UUID from engagement if available
         if let method = engagement.deviceRetrievalMethods.first(where: { $0.type == 2 }),
            let uuid = method.options.peripheralServerUUID {
-            bleService.startCentralMode(UUID(uuidString: uuid))
+            transportService.startCentralMode(UUID(uuidString: uuid))
         } else {
-            bleService.startCentralMode(nil)
+            transportService.startCentralMode(nil)
         }
     }
 
@@ -462,7 +462,7 @@ class ReaderViewModel: ObservableObject {
         guard response.status == 0,
               let document = response.documents?.first else {
             state = .error("Invalid response from holder")
-            bleService.stopCentralMode()
+            transportService.stopCentralMode()
             return
         }
 
@@ -475,17 +475,17 @@ class ReaderViewModel: ObservableObject {
         }
 
         state = .success(attributes)
-        bleService.stopCentralMode()
+        transportService.stopCentralMode()
     }
 
     func cancelReading() {
         nfcService.stopReaderSession()
-        bleService.stopCentralMode()
+        transportService.stopCentralMode()
         state = .idle
     }
 
     func reset() {
-        bleService.stopCentralMode()
+        transportService.stopCentralMode()
         state = .idle
     }
 }

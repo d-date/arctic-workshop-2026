@@ -1,13 +1,13 @@
 # Build Your Own (Pseudo) ID Verifier
 
-Build an iOS app that simulates ISO 18013-5 compliant ID verification using BLE and selective disclosure.
+Build an iOS app that simulates ISO 18013-5 compliant ID verification using MPC, BLE, and selective disclosure.
 
 ## Overview
 
 In this hands-on workshop, you'll build an app that can act as both a **Holder** (presenting credentials) and a **Verifier** (reading credentials). The app demonstrates key concepts from mobile driving license (mDL) standards:
 
 - **Device Engagement**: Establishing a secure session between devices
-- **BLE Transport**: Transferring data over Bluetooth Low Energy
+- **Transport Layer**: Transferring data over Multipeer Connectivity (MPC) and Bluetooth Low Energy (BLE)
 - **Selective Disclosure**: Sharing only the requested attributes
 - **CBOR Encoding**: Using the binary format specified by ISO 18013-5
 
@@ -41,10 +41,13 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
 
 > Important: Step 1 (NFC tap) cannot be implemented in third-party apps on iOS.
 > NFC tag emulation (HCE) is exclusive to Apple Wallet.
-> This workshop uses direct BLE connection, while NFC concepts are covered as learning material.
+> This workshop uses direct device-to-device connection, while NFC concepts are covered as learning material.
 > See <doc:NFCHandshake> for details.
 
 ### Actual Flow in This Workshop
+
+We start with **Multipeer Connectivity (MPC)** for the simplest possible transport,
+then discover its limitations and re-implement with **CoreBluetooth (BLE)** for ISO 18013-5 compliance.
 
 ```
 ┌─────────────────┐                    ┌──────────────────┐
@@ -52,10 +55,10 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
 │   (Verifier)    │                    │    (Holder)      │
 └────────┬────────┘                    └────────┬─────────┘
          │                                      │
-         │ 1. BLE Scanning                      │
-         │────────────────── BLE ──────────────►│ BLE Advertising
+         │ 1a. MPC Browse / BLE Scan             │
+         │──────────────────────────────────────►│ MPC Advertise / BLE Advertise
          │                                      │
-         │ 2. BLE Connection                    │
+         │ 2. Connection                        │
          │◄────────────────────────────────────►│
          │                                      │
          │ 3. Send DeviceRequest (CBOR)         │
@@ -68,7 +71,7 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
          ▼                                      ▼
 ```
 
-## Workshop Timeline (2.5 hours)
+## Workshop Timeline (3 hours)
 
 | Time | Section | What You'll Do |
 |------|---------|---------------|
@@ -76,9 +79,11 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
 | 0:15–0:45 | Understanding MDoc + CBOR Step 1–2 | Review models, implement encode(mdoc) and decodeMDoc |
 | 0:45–1:15 | CBOR Step 3–4 | encode(request), decodeRequest, encode(response), decodeResponse |
 | 1:15–1:30 | **Break** | |
-| 1:30–2:00 | BLE Transport | Implement BLEService (central, peripheral, chunking) |
-| 2:00–2:15 | Selective Disclosure + Biometric Auth | createSelectiveResponse + authenticateForDisclosure |
-| 2:15–2:30 | Integration Testing | Wire up ViewModels + test on two devices |
+| 1:30–1:55 | MPC Transport | Implement MPCService, test CBOR flow between devices |
+| 1:55–2:05 | MPC Limitations | "What can't MPC do?" — motivation for BLE |
+| 2:05–2:35 | BLE Transport | Implement BLEService (central, peripheral, chunking) |
+| 2:35–2:50 | Selective Disclosure + Biometric Auth | createSelectiveResponse + authenticateForDisclosure |
+| 2:50–3:00 | Integration Testing | Wire up ViewModels + test on two devices |
 
 > **Tip**: The initial project has `📋 PASTE` markers showing exactly where to paste code from each chapter.
 
@@ -94,8 +99,9 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
 - <doc:UnderstandingMDoc>
 - <doc:CBOREncodingDecoding>
 
-### Connection: NFC-to-BLE Handover (Ideal vs Reality)
+### Transport: From Simple to Standard
 
+- <doc:MPCTransport>
 - <doc:BLETransport>
 
 ### Security & Privacy
@@ -106,7 +112,6 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
 ### Putting It Together
 
 - <doc:IntegrationTesting>
-
 
 ### Bonus (Optional)
 

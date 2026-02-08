@@ -348,7 +348,7 @@ class PresentmentViewModel: ObservableObject {
     @Published var state: PresentmentState = .idle
     @Published var credential: MDoc
 
-    @Dependency(\.bleService) var bleService
+    @Dependency(\.transportService) var transportService
     @Dependency(\.authenticationService) var authService
     private let cborService = CBORService.shared
 
@@ -372,7 +372,7 @@ class PresentmentViewModel: ObservableObject {
 
     private func setupCallbacks() {
         // Handle request received from reader
-        bleService.setOnRequestReceived { [weak self] request in
+        transportService.setOnRequestReceived { [weak self] request in
             Task { @MainActor in
                 self?.pendingRequest = request
                 self?.state = .requestReceived(request)
@@ -380,7 +380,7 @@ class PresentmentViewModel: ObservableObject {
         }
 
         // Handle disconnection
-        bleService.setOnDisconnected { [weak self] in
+        transportService.setOnDisconnected { [weak self] in
             Task { @MainActor in
                 // Only reset if we're not already in success/error state
                 if case .advertising = self?.state {
@@ -405,11 +405,11 @@ class PresentmentViewModel: ObservableObject {
         //
         // This workshop uses direct BLE advertising for connection.
         state = .advertising
-        bleService.startPeripheralMode()
+        transportService.startPeripheralMode()
     }
 
     func cancelPresenting() {
-        bleService.stopPeripheralMode()
+        transportService.stopPeripheralMode()
         state = .idle
         pendingRequest = nil
     }
@@ -474,12 +474,12 @@ class PresentmentViewModel: ObservableObject {
         )
 
         // Send via BLE
-        bleService.sendResponse(response)
+        transportService.sendResponse(response)
 
         // Transition to success after a brief delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             self?.state = .success
-            self?.bleService.stopPeripheralMode()
+            self?.transportService.stopPeripheralMode()
         }
     }
 
@@ -492,15 +492,15 @@ class PresentmentViewModel: ObservableObject {
             status: 10  // General error - user denied
         )
 
-        bleService.sendResponse(response)
-        bleService.stopPeripheralMode()
+        transportService.sendResponse(response)
+        transportService.stopPeripheralMode()
 
         state = .idle
         pendingRequest = nil
     }
 
     func reset() {
-        bleService.stopPeripheralMode()
+        transportService.stopPeripheralMode()
         state = .idle
         pendingRequest = nil
         authService.resetAuthentication()
