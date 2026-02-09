@@ -1,0 +1,76 @@
+{
+  "" : {
+    "const-values" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/CombineSchedulers-primary.swiftconstvalues",
+    "dependencies" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/CombineSchedulers-primary.d",
+    "diagnostics" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/CombineSchedulers-primary.dia",
+    "emit-module-dependencies" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/CombineSchedulers-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/CombineSchedulers-primary-emit-module.dia",
+    "pch" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/CombineSchedulers-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/CombineSchedulers-primary.swiftdeps"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/AnyScheduler.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/AnyScheduler.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/AnyScheduler.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/AnyScheduler.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/Concurrency.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Concurrency.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Concurrency.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Concurrency.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/ImmediateScheduler.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/ImmediateScheduler.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/ImmediateScheduler.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/ImmediateScheduler.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/Internal/Deprecations.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Deprecations.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Deprecations.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Deprecations.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/Internal/Lock.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Lock.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Lock.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Lock.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/Internal/NSRecursiveLock.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/NSRecursiveLock.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/NSRecursiveLock.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/NSRecursiveLock.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/Internal/Platform.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Platform.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Platform.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Platform.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/SwiftUI.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/SwiftUI.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/SwiftUI.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/SwiftUI.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/TestScheduler.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/TestScheduler.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/TestScheduler.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/TestScheduler.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/Timer.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Timer.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Timer.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/Timer.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/UIKit.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/UIKit.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/UIKit.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/UIKit.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/UIScheduler.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/UIScheduler.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/UIScheduler.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/UIScheduler.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/Sources/CombineSchedulers/UnimplementedScheduler.swift" : {
+    "index-unit-output-path" : "/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/UnimplementedScheduler.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/UnimplementedScheduler.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-btlxtttgsampbxbhxynffotvwitp/SourcePackages/checkouts/combine-schedulers/build/combine-schedulers.build/Release-iphoneos/CombineSchedulers.build/Objects-normal/arm64/UnimplementedScheduler.o"
+  }
+}

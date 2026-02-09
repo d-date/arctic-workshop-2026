@@ -1,0 +1,4 @@
+module SwiftCBOR {
+header "SwiftCBOR-Swift.h"
+export *
+}

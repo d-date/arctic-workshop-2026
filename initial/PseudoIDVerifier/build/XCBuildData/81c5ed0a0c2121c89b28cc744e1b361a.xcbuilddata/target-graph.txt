@@ -1,0 +1,6 @@
+Target dependency graph (3 targets)
+Target 'PseudoIDVerifier' in project 'PseudoIDVerifier'
+➜ Explicit dependency on target 'SwiftCBOR' in project 'SwiftCBOR'
+Target 'SwiftCBOR' in project 'SwiftCBOR'
+➜ Explicit dependency on target 'SwiftCBOR' in project 'SwiftCBOR'
+Target 'SwiftCBOR' in project 'SwiftCBOR' (no dependencies)
