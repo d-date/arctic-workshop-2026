@@ -58,6 +58,12 @@ private struct IdleView: View {
             CredentialCard(credential: viewModel.credential)
                 .padding(.horizontal)
 
+            Button(action: viewModel.refreshCredential) {
+                Label("Randomize", systemImage: "arrow.triangle.2.circlepath")
+                    .font(.subheadline)
+                    .foregroundStyle(.blue)
+            }
+
             Spacer()
 
             // Instructions
@@ -458,6 +464,10 @@ class PresentmentViewModel {
         // Send error response (status: 10) and reset
 
         fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 6")
+    }
+
+    func refreshCredential() {
+        credential = DummyCredentials.createRandomMDL()
     }
 
     func reset() {

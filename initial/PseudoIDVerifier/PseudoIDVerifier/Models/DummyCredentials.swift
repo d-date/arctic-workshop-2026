@@ -7,24 +7,60 @@ import UIKit
 enum DummyCredentials {
     /// Creates a sample mDL credential with dummy data
     static func createSampleMDL() -> MDoc {
+        let person = samplePeople[0]
+        return buildMDL(from: person)
+    }
+
+    /// Creates a new mDL credential with randomly selected identity data.
+    /// Useful for workshop demos to visually confirm that different data is being sent each time.
+    static func createRandomMDL() -> MDoc {
+        let person = samplePeople.randomElement()!
+        return buildMDL(from: person)
+    }
+
+    private struct SamplePerson {
+        let givenName: String
+        let familyName: String
+        let birthDate: String
+        let documentNumber: String
+        let city: String
+        let state: String
+        let postalCode: String
+        let age: Int
+    }
+
+    private static let samplePeople = [
+        SamplePerson(givenName: "JOHN", familyName: "SMITH", birthDate: "1990-01-15",
+                     documentNumber: "DL123456789", city: "San Francisco", state: "CA", postalCode: "94102", age: 35),
+        SamplePerson(givenName: "EMMA", familyName: "JOHNSON", birthDate: "1985-07-22",
+                     documentNumber: "DL987654321", city: "Los Angeles", state: "CA", postalCode: "90001", age: 40),
+        SamplePerson(givenName: "TAKESHI", familyName: "TANAKA", birthDate: "1992-03-10",
+                     documentNumber: "DL555666777", city: "San Jose", state: "CA", postalCode: "95101", age: 33),
+        SamplePerson(givenName: "MARIA", familyName: "GARCIA", birthDate: "1988-11-30",
+                     documentNumber: "DL111222333", city: "San Diego", state: "CA", postalCode: "92101", age: 37),
+        SamplePerson(givenName: "ALEX", familyName: "CHEN", birthDate: "1995-05-18",
+                     documentNumber: "DL444888999", city: "Sacramento", state: "CA", postalCode: "95814", age: 30),
+    ]
+
+    private static func buildMDL(from person: SamplePerson) -> MDoc {
         let items: [IssuerSignedItem] = [
             IssuerSignedItem(
                 digestID: 0,
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.familyName.rawValue,
-                elementValue: "SMITH"
+                elementValue: person.familyName
             ),
             IssuerSignedItem(
                 digestID: 1,
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.givenName.rawValue,
-                elementValue: "JOHN"
+                elementValue: person.givenName
             ),
             IssuerSignedItem(
                 digestID: 2,
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.birthDate.rawValue,
-                elementValue: "1990-01-15" // Full date tag 1004 in real impl
+                elementValue: person.birthDate
             ),
             IssuerSignedItem(
                 digestID: 3,
@@ -54,43 +90,43 @@ enum DummyCredentials {
                 digestID: 7,
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.documentNumber.rawValue,
-                elementValue: "DL123456789"
+                elementValue: person.documentNumber
             ),
             IssuerSignedItem(
                 digestID: 8,
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.ageOver18.rawValue,
-                elementValue: true
+                elementValue: person.age >= 18
             ),
             IssuerSignedItem(
                 digestID: 9,
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.ageOver21.rawValue,
-                elementValue: true
+                elementValue: person.age >= 21
             ),
             IssuerSignedItem(
                 digestID: 10,
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.ageInYears.rawValue,
-                elementValue: 35
+                elementValue: person.age
             ),
             IssuerSignedItem(
                 digestID: 11,
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.residentCity.rawValue,
-                elementValue: "San Francisco"
+                elementValue: person.city
             ),
             IssuerSignedItem(
                 digestID: 12,
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.residentState.rawValue,
-                elementValue: "CA"
+                elementValue: person.state
             ),
             IssuerSignedItem(
                 digestID: 13,
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.residentPostalCode.rawValue,
-                elementValue: "94102"
+                elementValue: person.postalCode
             ),
             IssuerSignedItem(
                 digestID: 14,

@@ -237,6 +237,7 @@ We'll test the most common scenario: verifying someone is over 21.
 1. Launch the app
 2. Tap "Presentment"
 3. You should see the sample credential card
+4. (Optional) Tap "Randomize" to switch to a different identity — this helps confirm that different data is actually being sent each time
 
 ### Step 2: Initiate Connection
 
@@ -339,9 +340,10 @@ func encode(mdoc: MDoc) -> Data {
 
 | Scenario | Expected Result |
 |----------|----------------|
-| Age 21+ | age_over_21: true |
-| Age 18+ | age_over_18: true |
-| Full Identity | name, DOB, doc# |
+| Age 21+ | age_over_21: true, portrait image |
+| Age 18+ | age_over_18: true, portrait image |
+| Full Identity | name, DOB, doc#, portrait image |
+| Randomize + Full Identity | Different name/DOB on Reader |
 | User Denies | No data sent, Reader shows error |
 | Cancel Face ID | Returns to request screen |
 | BLE Disconnect | Both apps reset to idle |
