@@ -284,14 +284,13 @@ extension BLEService: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        print("BLEService: Connected to peripheral")
+        print("BLEService: Connected to peripheral, discovering services...")
 
         peripheral.delegate = self
         peripheral.discoverServices([Self.serviceUUID])
 
         DispatchQueue.main.async {
-            self.connectionState = .connected
-            self.onConnected?()
+            self.connectionState = .connecting
         }
     }
 
@@ -363,6 +362,16 @@ extension BLEService: CBPeripheralDelegate {
         }
 
         print("BLEService: Characteristics discovered and subscribed")
+
+        // Notify connection ready only after characteristics are available,
+        // so sendRequest can safely write to the client2Server characteristic.
+        if discoveredClient2ServerCharacteristic != nil,
+           discoveredServer2ClientCharacteristic != nil {
+            DispatchQueue.main.async {
+                self.connectionState = .connected
+                self.onConnected?()
+            }
+        }
     }
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
