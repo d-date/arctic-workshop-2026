@@ -96,6 +96,12 @@ enum DummyCredentials {
                 random: generateRandom(),
                 elementIdentifier: MDLElementIdentifier.residentCountry.rawValue,
                 elementValue: "US"
+            ),
+            IssuerSignedItem(
+                digestID: 15,
+                random: generateRandom(),
+                elementIdentifier: MDLElementIdentifier.portrait.rawValue,
+                elementValue: generateDummyPortrait()
             )
         ]
 
@@ -110,6 +116,14 @@ enum DummyCredentials {
     /// Generate random bytes for privacy protection
     private static func generateRandom() -> Data {
         var bytes = [UInt8](repeating: 0, count: 16)
+        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        return Data(bytes)
+    }
+
+    /// Generate a dummy portrait JPEG (~32 KB) to simulate a real mDL photo.
+    /// In a real implementation this would be the holder's JPEG-encoded face photo.
+    private static func generateDummyPortrait() -> Data {
+        var bytes = [UInt8](repeating: 0, count: 32_768) // 32 KB
         _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
         return Data(bytes)
     }

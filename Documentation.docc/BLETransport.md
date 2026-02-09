@@ -258,6 +258,7 @@ extension BLEService {
     private let headerMoreData: UInt8 = 0x01
     private let headerLastChunk: UInt8 = 0x00
 
+    // Central mode: write chunks to peripheral
     private func sendDataInChunks(_ data: Data,
                                    to peripheral: CBPeripheral,
                                    characteristic: CBCharacteristic) {
@@ -293,6 +294,75 @@ extension BLEService {
     }
 }
 ```
+
+### Step 5: Handle `updateValue` Queue Overflow (Peripheral Mode)
+
+> Important: This step is critical for **Full Identity Check**, which includes portrait
+> data. The portrait is a JPEG image — typically tens of kilobytes — that requires many
+> BLE chunks. Without this fix, the reader will be stuck on "Waiting for approval…" forever.
+
+In Peripheral mode (Holder), `sendResponse` uses `peripheralManager.updateValue(_:for:onSubscribedCentrals:)` to push data to the Reader via notifications. Unlike `writeValue` in Central mode, **`updateValue` can return `false`** when the BLE transmit queue is full. When this happens, the chunk is silently dropped.
+
+For small payloads (e.g. Age Verification with 2 attributes), all chunks may fit in a single queue flush. But for Full Identity Check — which includes portrait data (JPEG, ~20–50 KB) plus 5 other attributes — the CBOR-encoded response can easily exceed the queue capacity. Chunks are lost, and the Reader never receives a complete response.
+
+**Solution**: Buffer all chunks and drain them progressively. When `updateValue` returns `false`, stop and wait for the `peripheralManagerIsReady(toUpdateSubscribers:)` callback, then resume sending.
+
+```swift
+// Peripheral mode: notify chunks to central with backpressure handling
+@ObservationIgnored private var pendingChunks: [Data] = []
+@ObservationIgnored private var sendCharacteristic: CBMutableCharacteristic?
+@ObservationIgnored private var sendCentral: CBCentral?
+
+private func sendDataInChunks(_ data: Data,
+                               toCharacteristic characteristic: CBMutableCharacteristic,
+                               central: CBCentral) {
+    sendCharacteristic = characteristic
+    sendCentral = central
+    pendingChunks.removeAll()
+
+    var offset = 0
+    while offset < data.count {
+        let chunkSize = min(maxChunkSize - 1, data.count - offset)
+        let isLast = (offset + chunkSize >= data.count)
+
+        var chunk = Data()
+        chunk.append(isLast ? headerLastChunk : headerMoreData)
+        chunk.append(data[offset..<(offset + chunkSize)])
+
+        pendingChunks.append(chunk)
+        offset += chunkSize
+    }
+
+    drainPendingChunks()
+}
+
+private func drainPendingChunks() {
+    guard let characteristic = sendCharacteristic,
+          let central = sendCentral else { return }
+
+    while !pendingChunks.isEmpty {
+        let chunk = pendingChunks[0]
+        let sent = peripheralManager?.updateValue(
+            chunk, for: characteristic, onSubscribedCentrals: [central]
+        ) ?? false
+
+        if sent {
+            pendingChunks.removeFirst()
+        } else {
+            // Queue full — peripheralManagerIsReady will call us back
+            break
+        }
+    }
+}
+
+// Add this delegate method to CBPeripheralManagerDelegate:
+func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+    drainPendingChunks()
+}
+```
+
+> Tip: The `sendResponse` method in Step 3 should also use `sendDataInChunks` for chunking,
+> rather than calling `updateValue` directly on the full data.
 
 ### Connection States
 
