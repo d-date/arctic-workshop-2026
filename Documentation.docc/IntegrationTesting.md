@@ -10,7 +10,7 @@ Now that all components are implemented, let's test the end-to-end flow between 
 
 Before testing, you need to wire up the ViewModels that connect the transport layer (MPC or BLE), CBOR, and Authentication together.
 
-> **Initial project**: Open `Views/ReaderView.swift` and `Views/PresentmentView.swift`. Find the `📋 PASTE: ViewModel Step` markers in the ViewModel classes at the bottom of each file.
+> Tip: **Initial project**: Open `Views/ReaderView.swift` and `Views/PresentmentView.swift`. Find the `📋 PASTE: ViewModel Step` markers in the ViewModel classes at the bottom of each file.
 
 #### ReaderViewModel (in ReaderView.swift)
 
@@ -220,8 +220,6 @@ func denyDisclosure() {
 }
 ```
 
----
-
 ### Prerequisites
 
 - Two iPhones running iOS 17+
@@ -248,9 +246,7 @@ We'll test the most common scenario: verifying someone is over 21.
 
 ### Step 2: Initiate Connection
 
-> Note: In the intended ISO 18013-5 flow, an NFC tap (Device Engagement) would occur here.
-> Since NFC tag emulation (HCE) is exclusive to Apple Wallet on iOS,
-> direct BLE connection is used. See <doc:NFCHandshake> for details.
+> Note: In the intended ISO 18013-5 flow, an NFC tap (Device Engagement) would occur here. Since NFC tag emulation (HCE) is exclusive to Apple Wallet on iOS, direct BLE connection is used. See <doc:NFCHandshake> for details.
 
 **On Device A (Reader)**
 1. Tap "Start Reading"
@@ -393,10 +389,7 @@ To extend this workshop:
 - Investigate NFC & SE Platform (iOS 18.2+) for HCE support (requires entitlement request)
 - Explore **Remote Retrieval** — verify credentials via a Wallet API instead of device-to-device BLE
 
-> Note: iOS 18.2 introduced HCE support via the NFC & SE Platform, but it requires
-> an entitlement request to Apple and it is unclear whether general developers can obtain approval.
-> Using the Apple ID Verifier API (`ProximityReader`)
-> requires an individual agreement with Apple and a dedicated entitlement.
+> Note: iOS 18.2 introduced HCE support via the NFC & SE Platform, but it requires an entitlement request to Apple and it is unclear whether general developers can obtain approval. Using the Apple ID Verifier API (`ProximityReader`) requires an individual agreement with Apple and a dedicated entitlement.
 
 #### Beyond This Workshop: Remote Retrieval
 
