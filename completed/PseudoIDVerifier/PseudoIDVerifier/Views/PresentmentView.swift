@@ -18,22 +18,8 @@ struct PresentmentView: View {
             case .idle:
                 IdleView(viewModel: viewModel)
 
-            case .advertising:
+            case .advertising, .requestReceived, .authenticating, .sending:
                 AdvertisingView(viewModel: viewModel)
-
-            case .requestReceived(let request):
-                DisclosureRequestView(
-                    request: request,
-                    credential: viewModel.credential,
-                    onApprove: { viewModel.approveDisclosure() },
-                    onDeny: { viewModel.denyDisclosure() }
-                )
-
-            case .authenticating:
-                AuthenticatingView()
-
-            case .sending:
-                SendingView()
 
             case .success:
                 SuccessView(viewModel: viewModel)
@@ -44,6 +30,12 @@ struct PresentmentView: View {
         }
         .navigationTitle("Present ID")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $viewModel.isDisclosureSheetPresented) {
+            DisclosureSheetView(
+                viewModel: viewModel
+            )
+            .interactiveDismissDisabled()
+        }
     }
 }
 
@@ -231,35 +223,46 @@ private struct AdvertisingView: View {
     }
 }
 
-// MARK: - Authenticating View
+// MARK: - Disclosure Sheet View
 
-private struct AuthenticatingView: View {
+private struct DisclosureSheetView: View {
+    var viewModel: PresentmentViewModel
+
     @Dependency(\.authenticationService) var authService
 
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: authService.biometricType().systemImageName)
-                .font(.system(size: 60))
-                .foregroundStyle(.blue)
+        switch viewModel.state {
+        case .requestReceived(let request):
+            DisclosureRequestView(
+                request: request,
+                onApprove: { viewModel.approveDisclosure() },
+                onDeny: { viewModel.denyDisclosure() }
+            )
+        case .authenticating:
+            VStack(spacing: 20) {
+                Spacer()
+                Image(systemName: authService.biometricType().systemImageName)
+                    .font(.system(size: 60))
+                    .foregroundStyle(.blue)
 
-            Text("Authenticating...")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-        }
-    }
-}
+                Text("Authenticating...")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+            }
+        case .sending:
+            VStack(spacing: 20) {
+                Spacer()
+                ProgressView()
+                    .scaleEffect(1.5)
 
-// MARK: - Sending View
-
-private struct SendingView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            ProgressView()
-                .scaleEffect(1.5)
-
-            Text("Sending credentials...")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+                Text("Sending credentials...")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+            }
+        default:
+            EmptyView()
         }
     }
 }
@@ -347,7 +350,10 @@ private struct ErrorView: View {
 @MainActor
 @Observable
 class PresentmentViewModel {
-    var state: PresentmentState = .idle
+    var state: PresentmentState = .idle {
+        didSet { syncDisclosureSheet() }
+    }
+    var isDisclosureSheetPresented = false
     var credential: MDoc
 
     @ObservationIgnored @Dependency(\.transportService) var transportService
@@ -364,6 +370,15 @@ class PresentmentViewModel {
         case sending
         case success
         case error(String)
+    }
+
+    private func syncDisclosureSheet() {
+        switch state {
+        case .requestReceived, .authenticating, .sending:
+            isDisclosureSheetPresented = true
+        default:
+            isDisclosureSheetPresented = false
+        }
     }
 
     init() {
@@ -384,9 +399,16 @@ class PresentmentViewModel {
         // Handle disconnection
         transportService.setOnDisconnected { [weak self] in
             Task { @MainActor in
-                // Only reset if we're not already in success/error state
-                if case .advertising = self?.state {
-                    self?.state = .idle
+                guard let self else { return }
+                switch self.state {
+                case .advertising:
+                    // Reader disconnected before request was sent
+                    self.state = .idle
+                case .success:
+                    // Reader received response and disconnected — clean up transport
+                    self.transportService.stopPeripheralMode()
+                default:
+                    break
                 }
             }
         }
@@ -475,14 +497,15 @@ class PresentmentViewModel {
             status: 0  // Success
         )
 
-        // Send via BLE
+        // Send via BLE/MPC
         transportService.sendResponse(response)
 
-        // Transition to success after a brief delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.state = .success
-            self?.transportService.stopPeripheralMode()
-        }
+        // Transition to success state.
+        // Do NOT stop peripheral mode here — the reader will disconnect
+        // after receiving the response, which tears down the session cleanly.
+        // Stopping too early (e.g. after 0.5s) can destroy the MPC/BLE session
+        // before the data reaches the reader, causing "Waiting for approval" to hang.
+        state = .success
     }
 
     func denyDisclosure() {
