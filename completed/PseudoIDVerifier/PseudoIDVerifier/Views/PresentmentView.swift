@@ -235,7 +235,6 @@ private struct DisclosureSheetView: View {
         case .requestReceived(let request):
             DisclosureRequestView(
                 request: request,
-                credential: viewModel.credential,
                 onApprove: { viewModel.approveDisclosure() },
                 onDeny: { viewModel.denyDisclosure() }
             )
