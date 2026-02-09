@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import Observation
 
 // MARK: - Reader View (Verifier Mode)
@@ -220,6 +221,17 @@ private struct SuccessView: View {
     let attributes: [String: Any]
     var viewModel: ReaderViewModel
 
+    private var portraitImage: UIImage? {
+        guard let data = attributes[MDLElementIdentifier.portrait.rawValue] as? Data else { return nil }
+        return UIImage(data: data)
+    }
+
+    private var nonPortraitKeys: [String] {
+        attributes.keys
+            .filter { $0 != MDLElementIdentifier.portrait.rawValue }
+            .sorted()
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             // Success header
@@ -234,9 +246,19 @@ private struct SuccessView: View {
             }
             .padding(.top, 40)
 
+            // Portrait
+            if let uiImage = portraitImage {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 120, height: 120)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.green, lineWidth: 3))
+            }
+
             // Attributes list
             VStack(alignment: .leading, spacing: 16) {
-                ForEach(Array(attributes.keys.sorted()), id: \.self) { key in
+                ForEach(nonPortraitKeys, id: \.self) { key in
                     AttributeRow(
                         identifier: key,
                         value: attributes[key]
