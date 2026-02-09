@@ -6,11 +6,8 @@ import SwiftUI
 /// Shows which information is being requested and allows user to approve/deny
 struct DisclosureRequestView: View {
     let request: DeviceRequest
-    let credential: MDoc
     let onApprove: () -> Void
     let onDeny: () -> Void
-
-    @State private var showingAllAttributes = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -32,15 +29,11 @@ struct DisclosureRequestView: View {
             .padding(.top, 40)
             .padding(.bottom, 24)
 
-            // Requested Attributes
+            // Requested Attributes (names only)
             ScrollView {
                 VStack(spacing: 12) {
-                    ForEach(requestedAttributes, id: \.identifier) { attr in
-                        RequestedAttributeRow(
-                            identifier: attr.identifier,
-                            value: attr.value,
-                            intentToRetain: attr.intentToRetain
-                        )
+                    ForEach(requestedElementNames, id: \.self) { name in
+                        RequestedAttributeRow(name: name)
                     }
                 }
                 .padding(.horizontal)
@@ -93,110 +86,33 @@ struct DisclosureRequestView: View {
 
     // MARK: - Computed Properties
 
-    private var requestedAttributes: [RequestedAttribute] {
-        // TODO: Extract requested attributes from request and match with credential
-        //
-        // Steps:
-        // 1. Get the first docRequest from the request
-        // 2. Get the nameSpaces from itemsRequest
-        // 3. For each namespace/element, find the corresponding value in credential
-        // 4. Return array of RequestedAttribute
-
-        // Placeholder implementation for initial project
+    private var requestedElementNames: [String] {
         guard let docRequest = request.docRequests.first else {
             return []
         }
 
-        var attributes: [RequestedAttribute] = []
-
-        for (namespace, elements) in docRequest.itemsRequest.nameSpaces {
-            guard let items = credential.issuerSigned.nameSpaces[namespace] else {
-                continue
-            }
-
-            for (elementId, intentToRetain) in elements {
-                if let item = items.first(where: { $0.elementIdentifier == elementId }) {
-                    attributes.append(RequestedAttribute(
-                        identifier: elementId,
-                        value: item.elementValue,
-                        intentToRetain: intentToRetain
-                    ))
-                }
+        return docRequest.itemsRequest.nameSpaces.flatMap { _, elements in
+            elements.map { elementId, _ in
+                MDLElementIdentifier(rawValue: elementId)?.displayName ?? elementId
             }
         }
-
-        return attributes
     }
-}
-
-// MARK: - Requested Attribute Model
-
-struct RequestedAttribute {
-    let identifier: String
-    let value: Any
-    let intentToRetain: Bool
 }
 
 // MARK: - Requested Attribute Row
 
 struct RequestedAttributeRow: View {
-    let identifier: String
-    let value: Any
-    let intentToRetain: Bool
+    let name: String
 
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(displayName)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                Text(displayValue)
-                    .font(.headline)
-            }
-
+            Text(name)
+                .font(.headline)
             Spacer()
-
-            // Value indicator
-            if isBooleanValue {
-                Image(systemName: boolValue ? "checkmark.seal.fill" : "xmark.seal.fill")
-                    .foregroundStyle(boolValue ? .green : .red)
-                    .font(.title2)
-            }
-
-            // Retention indicator
-            if intentToRetain {
-                Image(systemName: "doc.badge.clock")
-                    .foregroundStyle(.orange)
-                    .font(.caption)
-            }
         }
         .padding()
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var displayName: String {
-        MDLElementIdentifier(rawValue: identifier)?.displayName ?? identifier
-    }
-
-    private var displayValue: String {
-        if let boolVal = value as? Bool {
-            return boolVal ? "Yes" : "No"
-        } else if let stringVal = value as? String {
-            return stringVal
-        } else if let intVal = value as? Int {
-            return String(intVal)
-        }
-        return String(describing: value)
-    }
-
-    private var isBooleanValue: Bool {
-        value is Bool
-    }
-
-    private var boolValue: Bool {
-        value as? Bool ?? false
     }
 }
 
@@ -204,11 +120,9 @@ struct RequestedAttributeRow: View {
 
 #Preview {
     let request = VerificationScenario.ageVerification21.createRequest()
-    let credential = DummyCredentials.createSampleMDL()
 
     return DisclosureRequestView(
         request: request,
-        credential: credential,
         onApprove: { print("Approved") },
         onDeny: { print("Denied") }
     )
