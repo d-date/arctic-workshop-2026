@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 // MARK: - Dummy Credential Data for Workshop
 
@@ -120,12 +121,27 @@ enum DummyCredentials {
         return Data(bytes)
     }
 
-    /// Generate a dummy portrait JPEG (~32 KB) to simulate a real mDL photo.
-    /// In a real implementation this would be the holder's JPEG-encoded face photo.
+    /// Generate a dummy portrait JPEG to simulate a real mDL photo.
+    /// Renders a placeholder person icon as a valid JPEG so UIImage(data:) works.
     private static func generateDummyPortrait() -> Data {
-        var bytes = [UInt8](repeating: 0, count: 32_768) // 32 KB
-        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-        return Data(bytes)
+        let size = CGSize(width: 240, height: 240)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let image = renderer.image { ctx in
+            // Background
+            UIColor.systemGray5.setFill()
+            ctx.fill(CGRect(origin: .zero, size: size))
+
+            // Draw SF Symbol as placeholder face
+            let config = UIImage.SymbolConfiguration(pointSize: 120, weight: .regular)
+            if let symbol = UIImage(systemName: "person.crop.circle.fill", withConfiguration: config) {
+                let symbolSize = symbol.size
+                let origin = CGPoint(x: (size.width - symbolSize.width) / 2,
+                                     y: (size.height - symbolSize.height) / 2)
+                symbol.withTintColor(.systemGray, renderingMode: .alwaysOriginal)
+                    .draw(at: origin)
+            }
+        }
+        return image.jpegData(compressionQuality: 0.8) ?? Data()
     }
 
     /// Generate a dummy issuer auth (in real implementation, this would be a COSE_Sign1)
