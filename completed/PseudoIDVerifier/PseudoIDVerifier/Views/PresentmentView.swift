@@ -52,6 +52,12 @@ private struct IdleView: View {
             CredentialCard(credential: viewModel.credential)
                 .padding(.horizontal)
 
+            Button(action: viewModel.refreshCredential) {
+                Label("Randomize", systemImage: "arrow.triangle.2.circlepath")
+                    .font(.subheadline)
+                    .foregroundStyle(.blue)
+            }
+
             Spacer()
 
             // Instructions
@@ -522,6 +528,10 @@ class PresentmentViewModel {
 
         state = .idle
         pendingRequest = nil
+    }
+
+    func refreshCredential() {
+        credential = DummyCredentials.createRandomMDL()
     }
 
     func reset() {
