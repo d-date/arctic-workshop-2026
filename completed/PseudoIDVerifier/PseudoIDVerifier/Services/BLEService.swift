@@ -167,10 +167,23 @@ class BLEService: NSObject {
 
     // MARK: - Data Transfer Helpers (Peripheral Mode)
 
+    /// Queued chunks waiting to be sent via updateValue (peripheral mode).
+    /// `updateValue` can return false when the BLE transmit queue is full;
+    /// remaining chunks are buffered here and drained when
+    /// `peripheralManagerIsReady(toUpdateSubscribers:)` fires.
+    @ObservationIgnored private var pendingChunks: [Data] = []
+    @ObservationIgnored private var sendCharacteristic: CBMutableCharacteristic?
+    @ObservationIgnored private var sendCentral: CBCentral?
+
     private func sendDataInChunks(_ data: Data, toCharacteristic characteristic: CBMutableCharacteristic, central: CBCentral) {
+        sendCharacteristic = characteristic
+        sendCentral = central
+        pendingChunks.removeAll()
+
         var offset = 0
         let totalLength = data.count
 
+        // Build all chunks first
         while offset < totalLength {
             let chunkSize = min(maxChunkSize - 1, totalLength - offset)
             let isLastChunk = (offset + chunkSize >= totalLength)
@@ -179,8 +192,27 @@ class BLEService: NSObject {
             chunk.append(isLastChunk ? headerLastChunk : headerMoreData)
             chunk.append(data[offset..<(offset + chunkSize)])
 
-            peripheralManager?.updateValue(chunk, for: characteristic, onSubscribedCentrals: [central])
+            pendingChunks.append(chunk)
             offset += chunkSize
+        }
+
+        drainPendingChunks()
+    }
+
+    /// Send as many queued chunks as the BLE stack will accept.
+    private func drainPendingChunks() {
+        guard let characteristic = sendCharacteristic,
+              let central = sendCentral else { return }
+
+        while !pendingChunks.isEmpty {
+            let chunk = pendingChunks[0]
+            let sent = peripheralManager?.updateValue(chunk, for: characteristic, onSubscribedCentrals: [central]) ?? false
+            if sent {
+                pendingChunks.removeFirst()
+            } else {
+                // Queue full — peripheralManagerIsReady will call us back
+                break
+            }
         }
     }
 
@@ -461,6 +493,10 @@ extension BLEService: CBPeripheralManagerDelegate {
             self.connectionState = .connected
             self.onConnected?()
         }
+    }
+
+    func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+        drainPendingChunks()
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager,
