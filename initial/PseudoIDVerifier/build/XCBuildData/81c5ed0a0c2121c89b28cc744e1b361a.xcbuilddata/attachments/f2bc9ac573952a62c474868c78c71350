@@ -1,0 +1,96 @@
+{
+  "" : {
+    "const-values" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SwiftCBOR-primary.swiftconstvalues",
+    "dependencies" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SwiftCBOR-primary.d",
+    "diagnostics" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SwiftCBOR-primary.dia",
+    "emit-module-dependencies" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SwiftCBOR-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SwiftCBOR-primary-emit-module.dia",
+    "pch" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SwiftCBOR-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SwiftCBOR-primary.swiftdeps"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/AnyCodingKey.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/AnyCodingKey.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/AnyCodingKey.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/AnyCodingKey.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/CBOR.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOR.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOR.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOR.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/CBORDecoder.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBORDecoder.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBORDecoder.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBORDecoder.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/CBOREncodable.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOREncodable.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOREncodable.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOREncodable.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/CBOREncoder.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOREncoder.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOREncoder.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOREncoder.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/CBORInputStream.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBORInputStream.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBORInputStream.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBORInputStream.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/CBOROptions.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOROptions.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOROptions.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CBOROptions.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/Decoder/CodableCBORDecoder.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CodableCBORDecoder.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CodableCBORDecoder.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CodableCBORDecoder.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/Decoder/KeyedDecodingContainer.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/KeyedDecodingContainer.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/KeyedDecodingContainer.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/KeyedDecodingContainer.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/Decoder/SingleValueDecodingContainer.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SingleValueDecodingContainer.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SingleValueDecodingContainer.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SingleValueDecodingContainer.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/Decoder/UnkeyedDecodingContainer.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/UnkeyedDecodingContainer.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/UnkeyedDecodingContainer.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/UnkeyedDecodingContainer.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/Encoder/CodableCBOREncoder.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CodableCBOREncoder.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CodableCBOREncoder.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/CodableCBOREncoder.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/Encoder/KeyedEncodingContainer.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/KeyedEncodingContainer.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/KeyedEncodingContainer.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/KeyedEncodingContainer.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/Encoder/SingleValueEncodingContainer.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SingleValueEncodingContainer.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SingleValueEncodingContainer.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/SingleValueEncodingContainer.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/Encoder/UnkeyedEncodingContainer.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/UnkeyedEncodingContainer.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/UnkeyedEncodingContainer.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/UnkeyedEncodingContainer.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/FixedWidthInteger+Bytes.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/FixedWidthInteger+Bytes.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/FixedWidthInteger+Bytes.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/FixedWidthInteger+Bytes.o"
+  },
+  "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/Sources/Util.swift" : {
+    "index-unit-output-path" : "/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/Util.o",
+    "llvm-bc" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/Util.bc",
+    "object" : "/Users/daimatsud/Library/Developer/Xcode/DerivedData/PseudoIDVerifier-fbfwyqxvhejuntdqutmyhkgauqmj/SourcePackages/checkouts/SwiftCBOR/build/SwiftCBOR.build/Release-iphoneos/SwiftCBOR.build/Objects-normal/arm64/Util.o"
+  }
+}
