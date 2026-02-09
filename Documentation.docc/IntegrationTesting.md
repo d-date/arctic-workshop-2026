@@ -57,9 +57,6 @@ private func setupCallbacks() {
 // ViewModel Step 2: startReading + cancelReading
 func startReading() {
     state = .scanning
-
-    // For workshop: skip NFC, go directly to transport layer (MPC or BLE)
-    state = .connecting
     transportService.startCentralMode(nil)
 }
 
@@ -112,8 +109,16 @@ private func setupCallbacks() {
 
     transportService.onDisconnected = { [weak self] in
         Task { @MainActor in
-            if case .advertising = self?.state {
-                self?.state = .idle
+            guard let self else { return }
+            switch self.state {
+            case .advertising:
+                // Reader disconnected before request was sent
+                self.state = .idle
+            case .success:
+                // Reader received response and disconnected — clean up transport
+                self.transportService.stopPeripheralMode()
+            default:
+                break
             }
         }
     }
@@ -193,10 +198,12 @@ private func sendResponse(for request: DeviceRequest) {
 
     transportService.sendResponse(response)
 
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-        self?.state = .success
-        self?.transportService.stopPeripheralMode()
-    }
+    // Transition to success state.
+    // Do NOT stop peripheral mode here — the reader will disconnect
+    // after receiving the response, which tears down the session cleanly.
+    // Stopping too early destroys the BLE session before data reaches the reader.
+    // See onDisconnected handler in Step 4 for the cleanup logic.
+    state = .success
 }
 
 func denyDisclosure() {
@@ -271,6 +278,7 @@ We'll test the most common scenario: verifying someone is over 21.
 **On Device A (Reader)**
 1. After the Holder approves, results appear
 2. You should see:
+   - Portrait image (circular photo at the top)
    - "Age Over 21: Yes" with green checkmark
 3. Tap "Done" to reset
 
