@@ -1,13 +1,13 @@
-# ``PseudoIDVerifier``
+# Build Your Own (Pseudo) ID Verifier
 
-Build an iOS app that simulates ISO 18013-5 compliant ID verification using BLE and selective disclosure.
+Build an iOS app that simulates ISO 18013-5 compliant ID verification using MPC, BLE, and selective disclosure.
 
 ## Overview
 
 In this hands-on workshop, you'll build an app that can act as both a **Holder** (presenting credentials) and a **Verifier** (reading credentials). The app demonstrates key concepts from mobile driving license (mDL) standards:
 
 - **Device Engagement**: Establishing a secure session between devices
-- **Transport Layer**: Transferring data over Bluetooth Low Energy (BLE)
+- **Transport Layer**: Transferring data over Multipeer Connectivity (MPC) and Bluetooth Low Energy (BLE)
 - **Selective Disclosure**: Sharing only the requested attributes
 - **CBOR Encoding**: Using the binary format specified by ISO 18013-5
 
@@ -46,7 +46,8 @@ In this hands-on workshop, you'll build an app that can act as both a **Holder**
 
 ### Actual Flow in This Workshop
 
-This workshop uses **CoreBluetooth (BLE)** for device-to-device communication, which closely mirrors the ISO 18013-5 transport layer. The Reader operates as a BLE **Central** and the Holder as a BLE **Peripheral**.
+We start with **Multipeer Connectivity (MPC)** for the simplest possible transport,
+then discover its limitations and re-implement with **CoreBluetooth (BLE)** for ISO 18013-5 compliance.
 
 ```
 ┌─────────────────┐                    ┌──────────────────┐
@@ -54,10 +55,10 @@ This workshop uses **CoreBluetooth (BLE)** for device-to-device communication, w
 │   (Verifier)    │                    │    (Holder)      │
 └────────┬────────┘                    └────────┬─────────┘
          │                                      │
-         │ 1. BLE Scan (Central)                │
-         │──────────────────────────────────────►│ BLE Advertise (Peripheral)
+         │ 1a. MPC Browse / BLE Scan             │
+         │──────────────────────────────────────►│ MPC Advertise / BLE Advertise
          │                                      │
-         │ 2. BLE Connection                    │
+         │ 2. Connection                        │
          │◄────────────────────────────────────►│
          │                                      │
          │ 3. Send DeviceRequest (CBOR)         │
@@ -66,7 +67,7 @@ This workshop uses **CoreBluetooth (BLE)** for device-to-device communication, w
          │                        5. Face ID Auth│
          │ 6. Receive DeviceResponse (CBOR)     │
          │◄─────────────────────────────────────│
-         │ 7. Verify MSO + Display Results      │
+         │ 7. Decode CBOR → Display Key-Values   │
          ▼                                      ▼
 ```
 
@@ -90,11 +91,13 @@ After the break, each person focuses on their role-specific code, then pairs up 
 | 0:15–0:45 | MDoc + CBOR Step 1–2 | (together) | (together) |
 | 0:45–1:15 | CBOR Step 3–4 | (together) | (together) |
 | 1:15–1:30 | **Break** | | |
-| 1:30–2:00 | BLE Transport | Central (Step 2, 4) | Peripheral (Step 3, 4, 5) |
-| 2:00–2:10 | BLE Pair Test | (pair test) | (pair test) |
-| 2:10–2:40 | Security & Privacy | MSO Verification (Step 2) | Selective Disclosure + Biometric Auth |
+| 1:30–1:45 | MPC Transport | Browse + sendRequest | Advertise + sendResponse |
+| 1:45–1:55 | MPC Test + Limitations | (pair test) | (pair test) |
+| 1:55–2:15 | BLE Transport | Central (Step 2, 4) | Peripheral (Step 3, 4, 5) |
+| 2:15–2:25 | BLE Pair Test | (pair test) | (pair test) |
+| 2:25–2:45 | Security & Privacy | MSO Verification (Step 2) | Selective Disclosure + Biometric Auth |
 |  | | | MSO Verification (Step 1) |
-| 2:40–3:00 | Integration Testing | ReaderViewModel | PresentmentViewModel |
+| 2:45–3:00 | Integration Testing | ReaderViewModel | PresentmentViewModel |
 |  | | (pair test) | (pair test) |
 
 > **Tip**: The initial project has `📋 PASTE` markers showing exactly where to paste code from each chapter.
@@ -114,6 +117,7 @@ After the break, each person focuses on their role-specific code, then pairs up 
 
 ### Transport (Pair Work)
 
+- <doc:MPCTransport>
 - <doc:BLETransport>
 
 ### Holder Path (Pair Work)
@@ -131,6 +135,5 @@ After the break, each person focuses on their role-specific code, then pairs up 
 
 ### Bonus (Optional)
 
-- <doc:MPCTransport>
 - <doc:NFCHandshake>
 - <doc:SimulatorTesting>

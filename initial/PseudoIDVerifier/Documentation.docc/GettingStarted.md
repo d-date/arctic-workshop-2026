@@ -1,4 +1,4 @@
-# Getting Started
+# ``PseudoIDVerifier``
 
 Learn the basics of ISO 18013-5 and the workshop objectives.
 
