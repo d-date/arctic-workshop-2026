@@ -142,9 +142,12 @@ enum DummyCredentials {
             )
         ]
 
+        let nameSpaces = [mDLNamespace: items]
+        let issuerAuth = generateIssuerAuth(docType: mDLDocType, nameSpaces: nameSpaces)
+
         let issuerSigned = IssuerSigned(
-            nameSpaces: [mDLNamespace: items],
-            issuerAuth: generateDummyIssuerAuth()
+            nameSpaces: nameSpaces,
+            issuerAuth: issuerAuth
         )
 
         return MDoc(docType: mDLDocType, issuerSigned: issuerSigned, deviceSigned: nil)
@@ -180,11 +183,35 @@ enum DummyCredentials {
         return image.jpegData(compressionQuality: 0.8) ?? Data()
     }
 
-    /// Generate a dummy issuer auth (in real implementation, this would be a COSE_Sign1)
-    private static func generateDummyIssuerAuth() -> Data {
-        // This is a placeholder - in a real implementation, this would be
-        // a proper COSE_Sign1 structure signed by the issuing authority
-        return Data("DUMMY_ISSUER_AUTH".utf8)
+    /// Generate issuerAuth (COSE_Sign1 wrapping MSO) for the given items.
+    ///
+    /// In a real implementation, the issuing authority (e.g., DMV) would sign the MSO
+    /// with its own private key. For this workshop, we reuse the device key from
+    /// `CryptoService` to keep things simple.
+    private static func generateIssuerAuth(
+        docType: String,
+        nameSpaces: [String: [IssuerSignedItem]]
+    ) -> Data {
+        let validityInfo = ValidityInfo(
+            signed: "2023-06-01T00:00:00Z",
+            validFrom: "2023-06-01T00:00:00Z",
+            validUntil: "2028-06-01T00:00:00Z"
+        )
+
+        let msoBytes = CBORService.shared.encodeMSO(
+            docType: docType,
+            nameSpaces: nameSpaces,
+            validityInfo: validityInfo
+        )
+
+        // Sign the MSO with COSE_Sign1
+        // In production, this would use the issuing authority's private key
+        guard let coseSign1 = try? CryptoService.shared.createCOSESign1(payload: msoBytes) else {
+            // Fallback: return empty data (should not happen in workshop)
+            return Data()
+        }
+
+        return coseSign1
     }
 }
 

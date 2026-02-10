@@ -85,6 +85,56 @@ nonisolated class CBORService: @unchecked Sendable {
     }
 
     // ┌──────────────────────────────────────────────────────┐
+    // │  MSO (Mobile Security Object) Encoding/Decoding      │
+    // │  📖 See: MSOVerification > Step 1                    │
+    // └──────────────────────────────────────────────────────┘
+
+    // MARK: - 📋 PASTE: <doc:MSOVerification> Step 1 — encodeMSO
+
+    /// Encode a Mobile Security Object (MSO) to CBOR format.
+    ///
+    /// The MSO contains SHA-256 digests of each IssuerSignedItem (Tag 24-wrapped),
+    /// allowing the Reader to verify that attributes have not been tampered with.
+    ///
+    /// - Parameters:
+    ///   - docType: The document type (e.g., "org.iso.18013.5.1.mDL")
+    ///   - nameSpaces: Map of namespace to IssuerSignedItems to compute digests for
+    ///   - validityInfo: Validity period of the MSO
+    /// - Returns: CBOR-encoded MSO data
+    func encodeMSO(
+        docType: String,
+        nameSpaces: [String: [IssuerSignedItem]],
+        validityInfo: ValidityInfo
+    ) -> Data {
+        // ✏️ Paste your implementation here
+        //
+        // Steps:
+        // 1. For each IssuerSignedItem, compute SHA-256(Tag24(item.toCBOR()))
+        // 2. Build valueDigests map: namespace → { digestID → hash }
+        // 3. Encode MSO CBOR map with version, digestAlgorithm, valueDigests, docType, validityInfo
+
+        fatalError("Not implemented — Paste code from <doc:MSOVerification> Step 1")
+    }
+
+    // MARK: - 📋 PASTE: <doc:MSOVerification> Step 1 — decodeMSO
+
+    /// Decode a Mobile Security Object from CBOR data.
+    ///
+    /// - Parameter data: CBOR-encoded MSO data
+    /// - Returns: Decoded MobileSecurityObject, or nil if decoding fails
+    func decodeMSO(from data: Data) -> MobileSecurityObject? {
+        // ✏️ Paste your implementation here
+        //
+        // Steps:
+        // 1. Decode CBOR to get the MSO map
+        // 2. Extract version, digestAlgorithm, docType
+        // 3. Decode valueDigests: namespace → { digestID → hash }
+        // 4. Decode validityInfo
+
+        fatalError("Not implemented — Paste code from <doc:MSOVerification> Step 1")
+    }
+
+    // ┌──────────────────────────────────────────────────────┐
     // │  CBOR Decoding                                       │
     // │  📖 See: CBOREncodingDecoding > Step 2, Step 4       │
     // └──────────────────────────────────────────────────────┘

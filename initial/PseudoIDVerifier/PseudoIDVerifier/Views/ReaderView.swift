@@ -460,13 +460,22 @@ class ReaderViewModel {
         // ✏️ Paste your implementation here
         //
         // Steps:
-        // 1. Check response.status == 0
-        // 2. Extract first document
-        // 3. Build attributes dictionary from issuerSigned items
-        // 4. Set state to .success(attributes)
-        // 5. Stop BLE central mode
+        // 1. Check response.status == 0 and extract first document
+        // 2. Verify issuerAuth (COSE_Sign1) signature using CryptoService
+        //    - In production, use the issuing authority's public key
+        //    - For this workshop, the issuer key is the same as the device key
+        // 3. Decode the MSO from the verified payload using CBORService.decodeMSO()
+        // 4. Verify docType matches between MSO and document
+        // 5. For each IssuerSignedItem, verify its digest against MSO valueDigests:
+        //    - Recompute SHA-256(Tag 24-wrapped IssuerSignedItem CBOR)
+        //    - Compare with expected hash in MSO
+        // 6. Build attributes dictionary from verified items
+        // 7. Set state to .success(attributes)
+        // 8. Stop BLE central mode
+        //
+        // 📖 See: <doc:MSOVerification> Step 2
 
-        fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 3")
+        fatalError("Not implemented — Paste code from <doc:MSOVerification> Step 2")
     }
 
     // MARK: - 📋 PASTE: <doc:IntegrationTesting> ViewModel Step 2 — cancelReading

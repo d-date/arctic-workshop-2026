@@ -62,6 +62,37 @@ nonisolated struct DeviceAuth {
     let deviceSignature: Data?
 }
 
+/// Mobile Security Object (MSO) as defined in ISO 18013-5
+/// Contains digests of all IssuerSignedItems for integrity verification
+nonisolated struct MobileSecurityObject {
+    /// MSO version (always "1.0")
+    let version: String
+
+    /// Digest algorithm used (always "SHA-256" in this workshop)
+    let digestAlgorithm: String
+
+    /// Map of namespace → (digestID → SHA-256 hash of Tag 24-wrapped IssuerSignedItem)
+    let valueDigests: [String: [Int: Data]]
+
+    /// The document type this MSO applies to
+    let docType: String
+
+    /// Validity period of the issuer's signature
+    let validityInfo: ValidityInfo
+}
+
+/// Validity information for the MSO
+nonisolated struct ValidityInfo {
+    /// When the MSO was signed
+    let signed: String
+
+    /// Start of validity period
+    let validFrom: String
+
+    /// End of validity period
+    let validUntil: String
+}
+
 // MARK: - CBOR Encoding/Decoding
 
 extension MDoc {

@@ -108,6 +108,7 @@ then discover its limitations and re-implement with **CoreBluetooth (BLE)** for 
 
 - <doc:SelectiveDisclosure>
 - <doc:BiometricAuthentication>
+- <doc:MSOVerification>
 
 ### Putting It Together
 

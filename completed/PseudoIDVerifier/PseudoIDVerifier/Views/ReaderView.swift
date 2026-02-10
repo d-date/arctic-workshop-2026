@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 @preconcurrency import Dependencies
 import Observation
+import SwiftCBOR
 
 // MARK: - Reader View (Verifier Mode)
 
@@ -490,10 +491,55 @@ class ReaderViewModel {
             return
         }
 
-        // Extract attributes from the response
+        // Step 1: Verify issuerAuth (COSE_Sign1) signature
+        // In production, use the issuing authority's public key (e.g., from a trust list).
+        // For this workshop, the issuer key is the same as the device key.
+        guard let issuerPublicKey = CryptoService.shared.devicePublicKey,
+              let msoPayload = CryptoService.shared.verifyCOSESign1(
+                  document.issuerSigned.issuerAuth, using: issuerPublicKey
+              ) else {
+            state = .error("Issuer signature verification failed")
+            transportService.stopCentralMode()
+            return
+        }
+
+        // Step 2: Decode the MSO from the verified payload
+        guard let mso = cborService.decodeMSO(from: msoPayload) else {
+            state = .error("Failed to decode Mobile Security Object")
+            transportService.stopCentralMode()
+            return
+        }
+
+        // Step 3: Verify docType matches
+        guard mso.docType == document.docType else {
+            state = .error("Document type mismatch in MSO")
+            transportService.stopCentralMode()
+            return
+        }
+
+        // Step 4: Verify each IssuerSignedItem's digest against the MSO
         var attributes: [String: Any] = [:]
-        for (_, items) in document.issuerSigned.nameSpaces {
+        for (namespace, items) in document.issuerSigned.nameSpaces {
+            guard let digests = mso.valueDigests[namespace] else {
+                state = .error("Missing digests for namespace: \(namespace)")
+                transportService.stopCentralMode()
+                return
+            }
+
             for item in items {
+                // Recompute the digest: SHA-256 of Tag 24-wrapped IssuerSignedItem CBOR
+                let itemBytes = item.toCBOR()
+                let tagged = CBOR.tagged(CBOR.Tag(rawValue: 24), .byteString(Array(itemBytes)))
+                let taggedBytes = Data(tagged.encode())
+                let computedHash = CryptoService.shared.sha256(taggedBytes)
+
+                guard let expectedHash = digests[item.digestID],
+                      computedHash == expectedHash else {
+                    state = .error("Digest verification failed for \(item.elementIdentifier)")
+                    transportService.stopCentralMode()
+                    return
+                }
+
                 attributes[item.elementIdentifier] = item.elementValue
             }
         }

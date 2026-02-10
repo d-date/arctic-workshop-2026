@@ -574,6 +574,102 @@ nonisolated class CBORService: @unchecked Sendable {
         )
     }
 
+    // MARK: - MSO (Mobile Security Object)
+
+    /// Encode a Mobile Security Object to CBOR
+    /// - Parameters:
+    ///   - docType: The document type (e.g., "org.iso.18013.5.1.mDL")
+    ///   - nameSpaces: Map of namespace to array of IssuerSignedItems
+    ///   - validityInfo: The validity period for the MSO
+    /// - Returns: CBOR-encoded MSO data
+    func encodeMSO(
+        docType: String,
+        nameSpaces: [String: [IssuerSignedItem]],
+        validityInfo: ValidityInfo
+    ) -> Data {
+        var msoMap: [CBOR: CBOR] = [:]
+
+        msoMap[.utf8String("version")] = .utf8String("1.0")
+        msoMap[.utf8String("digestAlgorithm")] = .utf8String("SHA-256")
+        msoMap[.utf8String("docType")] = .utf8String(docType)
+
+        // Build valueDigests: namespace → (digestID → SHA-256 hash)
+        var valueDigestsMap: [CBOR: CBOR] = [:]
+        for (namespace, items) in nameSpaces {
+            var digestsMap: [CBOR: CBOR] = [:]
+            for item in items {
+                // ISO 18013-5: hash the Tag 24-wrapped CBOR encoding of each IssuerSignedItem
+                let itemBytes = encodeIssuerSignedItem(item)
+                let tagged = CBOR.tagged(CBOR.Tag(rawValue: 24), .byteString(itemBytes))
+                let taggedBytes = Data(tagged.encode())
+                let hash = CryptoService.shared.sha256(taggedBytes)
+                digestsMap[.unsignedInt(UInt64(item.digestID))] = .byteString(Array(hash))
+            }
+            valueDigestsMap[.utf8String(namespace)] = .map(digestsMap)
+        }
+        msoMap[.utf8String("valueDigests")] = .map(valueDigestsMap)
+
+        // validityInfo
+        var validityMap: [CBOR: CBOR] = [:]
+        validityMap[.utf8String("signed")] = .utf8String(validityInfo.signed)
+        validityMap[.utf8String("validFrom")] = .utf8String(validityInfo.validFrom)
+        validityMap[.utf8String("validUntil")] = .utf8String(validityInfo.validUntil)
+        msoMap[.utf8String("validityInfo")] = .map(validityMap)
+
+        return Data(CBOR.map(msoMap).encode())
+    }
+
+    /// Decode a Mobile Security Object from CBOR data
+    /// - Parameter data: CBOR-encoded MSO
+    /// - Returns: Decoded MobileSecurityObject, or nil if invalid
+    func decodeMSO(from data: Data) -> MobileSecurityObject? {
+        guard let cbor = try? CBOR.decode(Array(data)),
+              case .map(let map) = cbor else {
+            return nil
+        }
+
+        guard case .utf8String(let version) = map[.utf8String("version")],
+              case .utf8String(let digestAlgorithm) = map[.utf8String("digestAlgorithm")],
+              case .utf8String(let docType) = map[.utf8String("docType")],
+              case .map(let valueDigestsMap) = map[.utf8String("valueDigests")],
+              case .map(let validityMap) = map[.utf8String("validityInfo")] else {
+            return nil
+        }
+
+        // Parse valueDigests
+        var valueDigests: [String: [Int: Data]] = [:]
+        for (nsKey, nsValue) in valueDigestsMap {
+            guard case .utf8String(let namespace) = nsKey,
+                  case .map(let digestsMap) = nsValue else {
+                continue
+            }
+            var digests: [Int: Data] = [:]
+            for (idKey, hashValue) in digestsMap {
+                guard case .unsignedInt(let digestID) = idKey,
+                      case .byteString(let hashBytes) = hashValue else {
+                    continue
+                }
+                digests[Int(digestID)] = Data(hashBytes)
+            }
+            valueDigests[namespace] = digests
+        }
+
+        // Parse validityInfo
+        guard case .utf8String(let signed) = validityMap[.utf8String("signed")],
+              case .utf8String(let validFrom) = validityMap[.utf8String("validFrom")],
+              case .utf8String(let validUntil) = validityMap[.utf8String("validUntil")] else {
+            return nil
+        }
+
+        return MobileSecurityObject(
+            version: version,
+            digestAlgorithm: digestAlgorithm,
+            valueDigests: valueDigests,
+            docType: docType,
+            validityInfo: ValidityInfo(signed: signed, validFrom: validFrom, validUntil: validUntil)
+        )
+    }
+
     // MARK: - Helper Methods
 
     /// Extract specific attributes from an mdoc
