@@ -42,23 +42,23 @@ import CoreNFC
 /// - Holder-side `createHandoverMessage` is kept for learning NDEF message structure
 /// - Actual connection uses direct BLE (`BLEService`)
 @Observable
-class NFCService: NSObject {
+class NFCService: NSObject, @unchecked Sendable {
     static let shared = NFCService()
 
     // MARK: - Observable State
 
-    var isScanning = false
-    var error: NFCError?
-    var receivedEngagement: DeviceEngagement?
+    @ObservationIgnored nonisolated(unsafe) var isScanning = false
+    @ObservationIgnored nonisolated(unsafe) var error: NFCError?
+    @ObservationIgnored nonisolated(unsafe) var receivedEngagement: DeviceEngagement?
 
     // MARK: - NFC Session
 
-    @ObservationIgnored private var readerSession: NFCNDEFReaderSession?
+    @ObservationIgnored nonisolated(unsafe) private var readerSession: NFCNDEFReaderSession?
 
     // MARK: - Callbacks
 
-    @ObservationIgnored var onEngagementReceived: ((DeviceEngagement, Data) -> Void)?
-    @ObservationIgnored var onError: ((NFCError) -> Void)?
+    @ObservationIgnored nonisolated(unsafe) var onEngagementReceived: ((DeviceEngagement, Data) -> Void)?
+    @ObservationIgnored nonisolated(unsafe) var onError: ((NFCError) -> Void)?
 
     // MARK: - Constants
 
@@ -78,7 +78,7 @@ class NFCService: NSObject {
     // MARK: - Reader Mode (Verifier)
 
     /// Start scanning for NFC tags containing device engagement
-    func startReaderSession() {
+    nonisolated func startReaderSession() {
         guard NFCNDEFReaderSession.readingAvailable else {
             DispatchQueue.main.async {
                 self.error = .notAvailable
@@ -98,7 +98,7 @@ class NFCService: NSObject {
     }
 
     /// Stop the current reader session
-    func stopReaderSession() {
+    nonisolated func stopReaderSession() {
         readerSession?.invalidate()
         readerSession = nil
         DispatchQueue.main.async {
@@ -109,7 +109,7 @@ class NFCService: NSObject {
     // MARK: - Tag Writing (Holder/Presentment)
 
     /// Create NDEF message containing device engagement for BLE handover
-    func createHandoverMessage(bleUUID: String, engagement: DeviceEngagement) -> NFCNDEFMessage? {
+    nonisolated func createHandoverMessage(bleUUID: String, engagement: DeviceEngagement) -> NFCNDEFMessage? {
         // Encode device engagement to CBOR
         let engagementData = CBORService.shared.encode(engagement: engagement)
 
@@ -153,7 +153,7 @@ class NFCService: NSObject {
     }
 
     /// Create BLE OOB (Out of Band) data for NFC handover
-    private func createBLEOOBData(uuid: String) -> Data {
+    nonisolated private func createBLEOOBData(uuid: String) -> Data {
         var data = Data()
 
         // LE Role: 0x00 = Peripheral only
@@ -174,7 +174,7 @@ class NFCService: NSObject {
     // MARK: - Parsing
 
     /// Parse device engagement from NDEF message
-    private func parseHandoverMessage(_ message: NFCNDEFMessage) -> (DeviceEngagement, Data)? {
+    nonisolated private func parseHandoverMessage(_ message: NFCNDEFMessage) -> (DeviceEngagement, Data)? {
         var bleUUIDData: Data?
         var engagementData: Data?
 
@@ -211,7 +211,7 @@ class NFCService: NSObject {
     }
 
     /// Parse BLE UUID from OOB data
-    private func parseBLEOOBData(_ data: Data) -> Data? {
+    nonisolated private func parseBLEOOBData(_ data: Data) -> Data? {
         // Simple parsing: look for 128-bit UUID (type 0x07)
         var index = 0
         while index < data.count {
@@ -235,7 +235,7 @@ class NFCService: NSObject {
 
 // MARK: - NFCNDEFReaderSessionDelegate
 
-extension NFCService: NFCNDEFReaderSessionDelegate {
+nonisolated extension NFCService: NFCNDEFReaderSessionDelegate {
     func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
         guard let message = messages.first else {
             session.invalidate(errorMessage: "No NDEF message found")
@@ -244,9 +244,9 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
 
         guard let (engagement, bleData) = parseHandoverMessage(message) else {
             session.invalidate(errorMessage: "Invalid handover message format")
-            DispatchQueue.main.async {
-                self.error = .invalidMessage
-                self.onError?(.invalidMessage)
+            Task { @MainActor [weak self] in
+                self?.error = .invalidMessage
+                self?.onError?(.invalidMessage)
             }
             return
         }
@@ -254,16 +254,16 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
         session.alertMessage = "Device engagement received!"
         session.invalidate()
 
-        DispatchQueue.main.async {
-            self.receivedEngagement = engagement
-            self.isScanning = false
-            self.onEngagementReceived?(engagement, bleData)
+        Task { @MainActor [weak self] in
+            self?.receivedEngagement = engagement
+            self?.isScanning = false
+            self?.onEngagementReceived?(engagement, bleData)
         }
     }
 
     func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: Error) {
-        DispatchQueue.main.async {
-            self.isScanning = false
+        Task { @MainActor [weak self] in
+            self?.isScanning = false
 
             if let nfcError = error as? NFCReaderError {
                 switch nfcError.code {
@@ -274,23 +274,23 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
                     // Successfully read - not an error
                     break
                 default:
-                    self.error = .sessionInvalidated(nfcError.localizedDescription)
-                    self.onError?(.sessionInvalidated(nfcError.localizedDescription))
+                    self?.error = .sessionInvalidated(nfcError.localizedDescription)
+                    self?.onError?(.sessionInvalidated(nfcError.localizedDescription))
                 }
             }
         }
     }
 
     func readerSessionDidBecomeActive(_ session: NFCNDEFReaderSession) {
-        DispatchQueue.main.async {
-            self.isScanning = true
+        Task { @MainActor [weak self] in
+            self?.isScanning = true
         }
     }
 }
 
 // MARK: - Error Types
 
-enum NFCError: LocalizedError {
+nonisolated enum NFCError: LocalizedError {
     case notAvailable
     case sessionInvalidated(String)
     case invalidMessage
@@ -314,7 +314,7 @@ enum NFCError: LocalizedError {
 
 extension NFCService {
     /// Check if NFC reading is available on this device
-    var isNFCAvailable: Bool {
+    nonisolated var isNFCAvailable: Bool {
         NFCNDEFReaderSession.readingAvailable
     }
 }

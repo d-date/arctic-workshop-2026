@@ -1,6 +1,6 @@
 import SwiftUI
 import UIKit
-import Dependencies
+@preconcurrency import Dependencies
 import Observation
 
 // MARK: - Reader View (Verifier Mode)

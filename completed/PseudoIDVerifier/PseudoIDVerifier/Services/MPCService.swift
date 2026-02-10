@@ -31,25 +31,25 @@ import MultipeerConnectivity
 /// - No visible session encryption key exchange (handled internally)
 /// - No transport control (Wi-Fi vs BLE auto-selected)
 @Observable
-class MPCService: NSObject {
+class MPCService: NSObject, @unchecked Sendable {
     static let shared = MPCService()
 
     // MARK: - Observable State
 
-    var connectionState: ConnectionState = .disconnected
-    var error: TransportError?
+    @ObservationIgnored nonisolated(unsafe) var connectionState: ConnectionState = .disconnected
+    @ObservationIgnored nonisolated(unsafe) var error: TransportError?
 
     // MARK: - MPC Objects
 
-    @ObservationIgnored private let peerID: MCPeerID
-    @ObservationIgnored private var session: MCSession?
-    @ObservationIgnored private var browser: MCNearbyServiceBrowser?
-    @ObservationIgnored private var advertiser: MCNearbyServiceAdvertiser?
+    @ObservationIgnored nonisolated(unsafe) private let peerID: MCPeerID
+    @ObservationIgnored nonisolated(unsafe) private var session: MCSession?
+    @ObservationIgnored nonisolated(unsafe) private var browser: MCNearbyServiceBrowser?
+    @ObservationIgnored nonisolated(unsafe) private var advertiser: MCNearbyServiceAdvertiser?
 
     // MARK: - Constants
 
     /// Bonjour service type (max 15 chars, lowercase ASCII + hyphens)
-    static let serviceType = "pseudo-id-vrfy"
+    nonisolated static let serviceType = "pseudo-id-vrfy"
 
     /// Message type header: DeviceRequest
     private let messageTypeRequest: UInt8 = 0x01
@@ -59,10 +59,10 @@ class MPCService: NSObject {
 
     // MARK: - Callbacks
 
-    @ObservationIgnored var onRequestReceived: ((DeviceRequest) -> Void)?
-    @ObservationIgnored var onResponseReceived: ((DeviceResponse) -> Void)?
-    @ObservationIgnored var onConnected: (() -> Void)?
-    @ObservationIgnored var onDisconnected: (() -> Void)?
+    @ObservationIgnored nonisolated(unsafe) var onRequestReceived: ((DeviceRequest) -> Void)?
+    @ObservationIgnored nonisolated(unsafe) var onResponseReceived: ((DeviceResponse) -> Void)?
+    @ObservationIgnored nonisolated(unsafe) var onConnected: (() -> Void)?
+    @ObservationIgnored nonisolated(unsafe) var onDisconnected: (() -> Void)?
 
     // MARK: - Init
 
@@ -73,7 +73,7 @@ class MPCService: NSObject {
 
     // MARK: - Session
 
-    private func createSession() -> MCSession {
+    nonisolated private func createSession() -> MCSession {
         let session = MCSession(
             peer: peerID,
             securityIdentity: nil,
@@ -86,7 +86,7 @@ class MPCService: NSObject {
     // MARK: - Browser Mode (Reader/Verifier)
 
     /// Start browsing for nearby peers advertising the mdoc service
-    func startBrowsing() {
+    nonisolated func startBrowsing() {
         let session = createSession()
         self.session = session
 
@@ -100,7 +100,7 @@ class MPCService: NSObject {
     }
 
     /// Stop browsing and disconnect
-    func stopBrowsing() {
+    nonisolated func stopBrowsing() {
         browser?.stopBrowsingForPeers()
         browser = nil
         session?.disconnect()
@@ -112,7 +112,7 @@ class MPCService: NSObject {
     }
 
     /// Send a DeviceRequest to the connected peer (holder)
-    func sendRequest(_ request: DeviceRequest) {
+    nonisolated func sendRequest(_ request: DeviceRequest) {
         guard let session = session,
               let peer = session.connectedPeers.first else {
             print("MPCService: Cannot send request — no connected peer")
@@ -133,7 +133,7 @@ class MPCService: NSObject {
     // MARK: - Advertiser Mode (Holder/Presentment)
 
     /// Start advertising to nearby peers
-    func startAdvertising() {
+    nonisolated func startAdvertising() {
         let session = createSession()
         self.session = session
 
@@ -151,7 +151,7 @@ class MPCService: NSObject {
     }
 
     /// Stop advertising and disconnect
-    func stopAdvertising() {
+    nonisolated func stopAdvertising() {
         advertiser?.stopAdvertisingPeer()
         advertiser = nil
         session?.disconnect()
@@ -163,7 +163,7 @@ class MPCService: NSObject {
     }
 
     /// Send a DeviceResponse to the connected peer (reader)
-    func sendResponse(_ response: DeviceResponse) {
+    nonisolated func sendResponse(_ response: DeviceResponse) {
         guard let session = session,
               let peer = session.connectedPeers.first else {
             print("MPCService: Cannot send response — no connected peer")
@@ -184,22 +184,24 @@ class MPCService: NSObject {
 
 // MARK: - MCSessionDelegate
 
-extension MPCService: MCSessionDelegate {
+nonisolated extension MPCService: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        DispatchQueue.main.async {
+        let peerName = peerID.displayName
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             switch state {
             case .connected:
-                print("MPCService: Connected to \(peerID.displayName)")
+                print("MPCService: Connected to \(peerName)")
                 self.connectionState = .connected
                 self.onConnected?()
 
             case .notConnected:
-                print("MPCService: Disconnected from \(peerID.displayName)")
+                print("MPCService: Disconnected from \(peerName)")
                 self.connectionState = .disconnected
                 self.onDisconnected?()
 
             case .connecting:
-                print("MPCService: Connecting to \(peerID.displayName)")
+                print("MPCService: Connecting to \(peerName)")
                 self.connectionState = .connecting
 
             @unknown default:
@@ -212,19 +214,20 @@ extension MPCService: MCSessionDelegate {
         guard !data.isEmpty else { return }
 
         let messageType = data[0]
-        let payload = data.dropFirst()
+        let payload = Data(data.dropFirst())
 
-        DispatchQueue.main.async {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             switch messageType {
             case self.messageTypeRequest:
-                if let request = CBORService.shared.decodeRequest(from: Data(payload)) {
+                if let request = CBORService.shared.decodeRequest(from: payload) {
                     self.onRequestReceived?(request)
                 } else {
                     print("MPCService: Failed to decode DeviceRequest")
                 }
 
             case self.messageTypeResponse:
-                if let response = CBORService.shared.decodeResponse(from: Data(payload)) {
+                if let response = CBORService.shared.decodeResponse(from: payload) {
                     self.onResponseReceived?(response)
                 } else {
                     print("MPCService: Failed to decode DeviceResponse")
@@ -244,7 +247,7 @@ extension MPCService: MCSessionDelegate {
 
 // MARK: - MCNearbyServiceBrowserDelegate
 
-extension MPCService: MCNearbyServiceBrowserDelegate {
+nonisolated extension MPCService: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
         guard let session = session else { return }
         print("MPCService: Found peer \(peerID.displayName), sending invitation")
@@ -257,16 +260,16 @@ extension MPCService: MCNearbyServiceBrowserDelegate {
 
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
         print("MPCService: Failed to start browsing: \(error.localizedDescription)")
-        DispatchQueue.main.async {
-            self.error = .connectionFailed(error.localizedDescription)
-            self.connectionState = .error(.connectionFailed(error.localizedDescription))
+        Task { @MainActor [weak self] in
+            self?.error = .connectionFailed(error.localizedDescription)
+            self?.connectionState = .error(.connectionFailed(error.localizedDescription))
         }
     }
 }
 
 // MARK: - MCNearbyServiceAdvertiserDelegate
 
-extension MPCService: MCNearbyServiceAdvertiserDelegate {
+nonisolated extension MPCService: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         print("MPCService: Received invitation from \(peerID.displayName), auto-accepting")
         invitationHandler(true, session)
@@ -274,9 +277,9 @@ extension MPCService: MCNearbyServiceAdvertiserDelegate {
 
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
         print("MPCService: Failed to start advertising: \(error.localizedDescription)")
-        DispatchQueue.main.async {
-            self.error = .connectionFailed(error.localizedDescription)
-            self.connectionState = .error(.connectionFailed(error.localizedDescription))
+        Task { @MainActor [weak self] in
+            self?.error = .connectionFailed(error.localizedDescription)
+            self?.connectionState = .error(.connectionFailed(error.localizedDescription))
         }
     }
 }

@@ -191,7 +191,7 @@ enum DummyCredentials {
 // MARK: - Predefined Request Scenarios
 
 /// Common verification scenarios for the workshop
-enum VerificationScenario: CaseIterable, Identifiable {
+nonisolated enum VerificationScenario: CaseIterable, Identifiable {
     case ageVerification21
     case ageVerification18
     case fullIdentity

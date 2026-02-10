@@ -6,38 +6,38 @@ import LocalAuthentication
 
 /// Service for handling biometric authentication for disclosure approval
 @Observable
-class AuthenticationService {
+class AuthenticationService: @unchecked Sendable {
     static let shared = AuthenticationService()
 
     // MARK: - Observable State
 
-    var isAuthenticated = false
-    var authenticationError: AuthError?
+    @ObservationIgnored nonisolated(unsafe) var isAuthenticated = false
+    @ObservationIgnored nonisolated(unsafe) var authenticationError: AuthError?
 
     // MARK: - LAContext
 
-    @ObservationIgnored private var context = LAContext()
+    @ObservationIgnored nonisolated(unsafe) private var context = LAContext()
 
     private init() {}
 
     // MARK: - Biometric Authentication
 
     /// Check if biometric authentication is available
-    var isBiometricAvailable: Bool {
+    nonisolated var isBiometricAvailable: Bool {
         var error: NSError?
         return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
     }
 
     /// Get the type of biometric available
-    var biometricType: LABiometryType {
+    nonisolated var biometricType: LABiometryType {
         _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
         return context.biometryType
     }
 
     /// Authenticate user for disclosure approval
-    func authenticateForDisclosure(
+    nonisolated func authenticateForDisclosure(
         reason: String = "Approve sharing your information",
-        completion: @escaping (Result<Void, AuthError>) -> Void
+        completion: @escaping @Sendable (Result<Void, AuthError>) -> Void
     ) {
         // Create a fresh context for each authentication
         context = LAContext()
@@ -72,8 +72,7 @@ class AuthenticationService {
     }
 
     /// Authenticate using async/await
-    @MainActor
-    func authenticate(reason: String = "Approve sharing your information") async throws -> Bool {
+    nonisolated func authenticate(reason: String = "Approve sharing your information") async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
             authenticateForDisclosure(reason: reason) { result in
                 switch result {
@@ -87,7 +86,7 @@ class AuthenticationService {
     }
 
     /// Reset authentication state
-    func resetAuthentication() {
+    nonisolated func resetAuthentication() {
         context = LAContext()
         isAuthenticated = false
         authenticationError = nil
@@ -96,7 +95,7 @@ class AuthenticationService {
     // MARK: - Policy Selection
 
     /// Get the appropriate authentication policy based on device capabilities
-    private var authenticationPolicy: LAPolicy {
+    nonisolated private var authenticationPolicy: LAPolicy {
         var error: NSError?
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             return .deviceOwnerAuthenticationWithBiometrics
@@ -108,7 +107,7 @@ class AuthenticationService {
 
     // MARK: - Error Mapping
 
-    private func mapError(_ error: NSError?) -> AuthError {
+    nonisolated private func mapError(_ error: NSError?) -> AuthError {
         guard let error = error else {
             return .unknown("Unknown authentication error")
         }
@@ -139,7 +138,7 @@ class AuthenticationService {
 
 // MARK: - Error Types
 
-enum AuthError: LocalizedError {
+nonisolated enum AuthError: LocalizedError {
     case biometricNotAvailable
     case biometricNotEnrolled
     case authenticationFailed
