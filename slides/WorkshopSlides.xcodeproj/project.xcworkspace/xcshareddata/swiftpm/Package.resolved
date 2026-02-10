@@ -1,0 +1,24 @@
+{
+  "originHash" : "6e60c6687fab58b709d8757fdf9722b114946310f870d3c1d98ec468798a2f94",
+  "pins" : [
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax",
+      "state" : {
+        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+        "version" : "601.0.1"
+      }
+    },
+    {
+      "identity" : "syntaxink",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mtj0928/SyntaxInk",
+      "state" : {
+        "revision" : "66fea7139f8e27cc2ac7c42fa9a5167c59685e16",
+        "version" : "0.0.2"
+      }
+    }
+  ],
+  "version" : 3
+}
