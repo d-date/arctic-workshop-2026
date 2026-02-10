@@ -156,13 +156,13 @@ func decodeMSO(from data: Data) -> MobileSecurityObject? {
 }
 ```
 
-## Step 2: Verify the MSO in the Reader
+## Step 2: Verify the MSO in the Reader (Reference)
 
-> **Pair Work**: This step is for the **Reader** participant. Start this right after <doc:BLETransport>.
+> **Note**: This step is provided as **reference material** to understand how MSO verification works in production.
+> The workshop project uses simplified attribute extraction without MSO verification.
+> In a real ISO 18013-5 implementation, the Reader would perform the full verification shown below.
 
-> **Initial project**: Open `Views/ReaderView.swift`. Find the `📋 PASTE: MSOVerification Step 2` marker inside `handleResponse`.
-
-Replace the simple attribute extraction with full MSO verification:
+The following code shows how a Reader would verify the MSO when receiving a response:
 
 ```swift
 private func handleResponse(_ response: DeviceResponse) {
