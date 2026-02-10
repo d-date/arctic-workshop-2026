@@ -2,6 +2,10 @@
 
 Test the complete verification flow between two devices.
 
+> **Pair Work**: This is where both participants rejoin. Each person implements their own ViewModel, then tests the complete flow together.
+> - **Reader**: Implements `ReaderViewModel` (Steps 1-3)
+> - **Holder**: Implements `PresentmentViewModel` (Steps 4-6)
+
 ## Overview
 
 Now that all components are implemented, let's test the end-to-end flow between two iPhones.
@@ -429,5 +433,14 @@ You've learned:
 5. NFC-to-BLE handover mechanics and iOS technical constraints
 6. Selective disclosure
 7. Biometric authentication
+8. MSO (Mobile Security Object) verification for data integrity
+
+Through pair work, you've experienced the asymmetric nature of ISO 18013-5 firsthand: the Reader and Holder have fundamentally different responsibilities, and both sides must work correctly for verification to succeed.
 
 These concepts apply directly to real mobile identity implementations.
+
+## See Also
+
+- <doc:MSOVerification>
+- <doc:BiometricAuthentication>
+- <doc:SimulatorTesting>

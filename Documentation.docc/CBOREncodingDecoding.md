@@ -483,6 +483,26 @@ extension CBORService {
 }
 ```
 
-## Next Steps
+## Next Steps: Pair Work Begins
 
-Continue to <doc:NFCHandshake> to implement the NFC connection handshake.
+From here, the workshop splits into **pair work**. Decide who takes which role:
+
+| Role | What you'll build | Next chapter |
+|------|------------------|-------------|
+| **Reader** (Verifier) | Browse/scan, send requests, MSO verification | <doc:MPCTransport> (Reader steps) |
+| **Holder** (Presentment) | Advertise, selective disclosure, biometric auth | <doc:MPCTransport> (Holder steps) |
+
+Both of you will work through the same transport chapters (<doc:MPCTransport> and <doc:BLETransport>), but each person implements only their role-specific methods. After BLE, the paths diverge further:
+
+- **Reader** proceeds to <doc:MSOVerification> (verify issuerAuth and digests)
+- **Holder** proceeds to <doc:SelectiveDisclosure> and <doc:BiometricAuthentication>
+
+You'll rejoin for <doc:IntegrationTesting> to test the complete flow together.
+
+> Tip: Optionally, read <doc:NFCHandshake> for background on the ISO 18013-5 NFC-to-BLE handover mechanism. This is educational material and not required for the workshop.
+
+## See Also
+
+- <doc:UnderstandingMDoc>
+- <doc:MPCTransport>
+- <doc:BLETransport>

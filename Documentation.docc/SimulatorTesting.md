@@ -197,3 +197,8 @@ With `@DependencyClient`, unit testing is straightforward. The macro generates `
 ```
 
 See the [swift-dependencies documentation](https://pointfreeco.github.io/swift-dependencies/main/documentation/dependencies/) for advanced testing patterns.
+
+## See Also
+
+- <doc:IntegrationTesting>
+- <doc:BLETransport>

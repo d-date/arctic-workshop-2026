@@ -71,46 +71,65 @@ then discover its limitations and re-implement with **CoreBluetooth (BLE)** for 
          ▼                                      ▼
 ```
 
+### Pair Work
+
+This workshop is designed for **pair work**. Two participants share one project, each with their own iPhone:
+
+| Role | Device | Responsibility |
+|------|--------|---------------|
+| **Reader** (Verifier) | Device A | Browse/scan, send requests, verify MSO, display results |
+| **Holder** (Presentment) | Device B | Advertise, receive requests, authenticate, send responses |
+
+In the first half, both participants implement the same shared foundation (models, CBOR).
+After the break, each person focuses on their role-specific code, then pairs up for integration testing.
+
 ## Workshop Timeline (3 hours)
 
-| Time | Section | What You'll Do |
-|------|---------|---------------|
-| 0:00–0:15 | Getting Started + Setup | ISO 18013-5 concepts, open the initial project |
-| 0:15–0:45 | Understanding MDoc + CBOR Step 1–2 | Review models, implement encode(mdoc) and decodeMDoc |
-| 0:45–1:15 | CBOR Step 3–4 | encode(request), decodeRequest, encode(response), decodeResponse |
-| 1:15–1:30 | **Break** | |
-| 1:30–1:55 | MPC Transport | Implement MPCService, test CBOR flow between devices |
-| 1:55–2:05 | MPC Limitations | "What can't MPC do?" — motivation for BLE |
-| 2:05–2:35 | BLE Transport | Implement BLEService (central, peripheral, chunking) |
-| 2:35–2:50 | Selective Disclosure + Biometric Auth | createSelectiveResponse + authenticateForDisclosure |
-| 2:50–3:00 | Integration Testing | Wire up ViewModels + test on two devices |
+| Time | Section | Reader | Holder |
+|------|---------|--------|--------|
+| 0:00–0:15 | Getting Started + Setup | (together) | (together) |
+| 0:15–0:45 | MDoc + CBOR Step 1–2 | (together) | (together) |
+| 0:45–1:15 | CBOR Step 3–4 | (together) | (together) |
+| 1:15–1:30 | **Break** | | |
+| 1:30–1:45 | MPC Transport | Browse + sendRequest | Advertise + sendResponse |
+| 1:45–1:55 | MPC Test + Limitations | (pair test) | (pair test) |
+| 1:55–2:15 | BLE Transport | Central (Step 2, 4) | Peripheral (Step 3, 4, 5) |
+| 2:15–2:25 | BLE Pair Test | (pair test) | (pair test) |
+| 2:25–2:45 | Security & Privacy | MSO Verification (Step 2) | Selective Disclosure + Biometric Auth |
+|  | | | MSO Verification (Step 1) |
+| 2:45–3:00 | Integration Testing | ReaderViewModel | PresentmentViewModel |
+|  | | (pair test) | (pair test) |
 
 > **Tip**: The initial project has `📋 PASTE` markers showing exactly where to paste code from each chapter.
+> Each marker indicates which role should implement that section.
 
 ## Topics
 
-### Essentials
+### Essentials (Together)
 
 - <doc:GettingStarted>
 - <doc:ProjectSetup>
 
-### Building the Data Layer
+### Building the Data Layer (Together)
 
 - <doc:UnderstandingMDoc>
 - <doc:CBOREncodingDecoding>
 
-### Transport: From Simple to Standard
+### Transport (Pair Work)
 
 - <doc:MPCTransport>
 - <doc:BLETransport>
 
-### Security & Privacy
+### Holder Path (Pair Work)
 
 - <doc:SelectiveDisclosure>
 - <doc:BiometricAuthentication>
+
+### Reader Path (Pair Work)
+
 - <doc:MSOVerification>
 
-### Putting It Together
+### Putting It Together (Pair Test)
 
 - <doc:IntegrationTesting>
 

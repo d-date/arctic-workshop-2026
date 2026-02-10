@@ -2,6 +2,8 @@
 
 Implement attribute selection and user consent for sharing data.
 
+> **Pair Work**: This chapter is primarily for the **Holder** participant. The Reader participant should work on <doc:MSOVerification> in parallel.
+
 ## Overview
 
 Selective disclosure is a core privacy feature of ISO 18013-5. It allows holders to share only the specific attributes requested by a verifier, rather than their entire credential.
@@ -305,3 +307,9 @@ Reader                                  Holder
 ## Next Steps
 
 Continue to <doc:BiometricAuthentication> to implement Face ID approval.
+
+## See Also
+
+- <doc:BiometricAuthentication>
+- <doc:MSOVerification>
+- <doc:BLETransport>

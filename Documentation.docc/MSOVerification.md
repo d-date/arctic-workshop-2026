@@ -2,6 +2,12 @@
 
 Verify the integrity of issuer-signed attributes using the Mobile Security Object (MSO).
 
+> **Pair Work**: This chapter is split between both roles.
+> - **Holder** implements Step 1 (encode the MSO into `issuerAuth`)
+> - **Reader** implements Step 2 (verify the MSO when receiving a response)
+>
+> The Reader participant should start this chapter right after <doc:BLETransport>, while the Holder works on <doc:SelectiveDisclosure> and <doc:BiometricAuthentication>.
+
 ## Overview
 
 In ISO 18013-5, the **Mobile Security Object (MSO)** is a critical component that ensures the integrity of attributes in a mobile document (mdoc). The MSO contains SHA-256 digests of every `IssuerSignedItem`, allowing the Reader to verify that no attribute has been tampered with since the issuing authority signed the document.
@@ -47,7 +53,9 @@ In production, the MSO is signed by the **issuing authority** (e.g., a DMV) usin
 
 For this workshop, we simplify by reusing the device key from `CryptoService` as the issuer key. This lets us demonstrate the full verification flow without requiring a separate PKI infrastructure.
 
-## Step 1: Encode and Decode the MSO
+## Step 1: Encode and Decode the MSO (Holder)
+
+> **Pair Work**: This step is for the **Holder** participant. Implement this after completing <doc:BiometricAuthentication>.
 
 > **Initial project**: Open `Services/CBORService.swift`. Find the `📋 PASTE: MSOVerification Step 1` markers.
 
@@ -67,7 +75,7 @@ func encodeMSO(
     msoMap[.utf8String("digestAlgorithm")] = .utf8String("SHA-256")
     msoMap[.utf8String("docType")] = .utf8String(docType)
 
-    // Build valueDigests: namespace → (digestID → SHA-256 hash)
+    // Build valueDigests: namespace -> (digestID -> SHA-256 hash)
     var valueDigestsMap: [CBOR: CBOR] = [:]
     for (namespace, items) in nameSpaces {
         var digestsMap: [CBOR: CBOR] = [:]
@@ -150,6 +158,8 @@ func decodeMSO(from data: Data) -> MobileSecurityObject? {
 
 ## Step 2: Verify the MSO in the Reader
 
+> **Pair Work**: This step is for the **Reader** participant. Start this right after <doc:BLETransport>.
+
 > **Initial project**: Open `Views/ReaderView.swift`. Find the `📋 PASTE: MSOVerification Step 2` marker inside `handleResponse`.
 
 Replace the simple attribute extraction with full MSO verification:
@@ -223,21 +233,21 @@ private func handleResponse(_ response: DeviceResponse) {
 
 ```
 Reader receives DeviceResponse
-    │
-    ├── 1. Verify COSE_Sign1 signature on issuerAuth
-    │       → Extracts MSO payload
-    │
-    ├── 2. Decode MSO from payload
-    │       → MobileSecurityObject with valueDigests
-    │
-    ├── 3. Check docType matches
-    │
-    ├── 4. For each IssuerSignedItem:
-    │       a. Recompute SHA-256(Tag24(item.toCBOR()))
-    │       b. Compare with MSO valueDigests[namespace][digestID]
-    │       c. If mismatch → reject
-    │
-    └── 5. All digests verified → display attributes
+    |
+    +-- 1. Verify COSE_Sign1 signature on issuerAuth
+    |       -> Extracts MSO payload
+    |
+    +-- 2. Decode MSO from payload
+    |       -> MobileSecurityObject with valueDigests
+    |
+    +-- 3. Check docType matches
+    |
+    +-- 4. For each IssuerSignedItem:
+    |       a. Recompute SHA-256(Tag24(item.toCBOR()))
+    |       b. Compare with MSO valueDigests[namespace][digestID]
+    |       c. If mismatch -> reject
+    |
+    +-- 5. All digests verified -> display attributes
 ```
 
 ## What This Protects Against
@@ -251,3 +261,13 @@ Reader receives DeviceResponse
 | Expired credentials | validityInfo check (not enforced in this workshop) |
 
 > Note: In a production implementation, Step 1 would verify the COSE_Sign1 signature against a trusted issuing authority's certificate chain, not the device key. The Reader would also check `validityInfo` dates and verify the certificate hasn't been revoked.
+
+## Next Steps
+
+Both participants should now proceed to <doc:IntegrationTesting> to wire up the ViewModels and test the complete flow together.
+
+## See Also
+
+- <doc:CBOREncodingDecoding>
+- <doc:SelectiveDisclosure>
+- <doc:IntegrationTesting>

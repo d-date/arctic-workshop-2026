@@ -2,6 +2,8 @@
 
 Implement Face ID/Touch ID for disclosure approval.
 
+> **Pair Work**: This chapter is for the **Holder** participant. The Reader participant should be working on <doc:MSOVerification> Step 2 in parallel.
+
 ## Overview
 
 Before sharing any data, the holder must explicitly approve the request. We use LocalAuthentication framework to require biometric confirmation.
@@ -268,4 +270,10 @@ struct AuthenticatingView: View {
 
 ## Next Steps
 
-Continue to <doc:IntegrationTesting> to test the complete flow.
+After completing this chapter, the Holder participant should also implement <doc:MSOVerification> Step 1 (encodeMSO) before proceeding to <doc:IntegrationTesting>.
+
+## See Also
+
+- <doc:SelectiveDisclosure>
+- <doc:IntegrationTesting>
+- <doc:MSOVerification>

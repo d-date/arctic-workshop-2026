@@ -90,6 +90,8 @@ class BLEService: NSObject {
 
 ### Step 2: Implement Central Mode (Reader)
 
+> **Pair Work**: This step is for the **Reader** participant.
+
 > **Initial project**: Find the `📋 PASTE: Step 2` markers in `Services/BLEService.swift`.
 
 ```swift
@@ -150,6 +152,8 @@ extension BLEService: CBCentralManagerDelegate {
 ```
 
 ### Step 3: Implement Peripheral Mode (Holder)
+
+> **Pair Work**: This step is for the **Holder** participant.
 
 > **Initial project**: Find the `📋 PASTE: Step 3` markers in `Services/BLEService.swift`.
 
@@ -248,6 +252,8 @@ extension BLEService: CBPeripheralManagerDelegate {
 
 ### Step 4: Handle Data Chunking
 
+> **Pair Work**: Both participants implement this step. Reader needs `sendDataInChunks` (Central write). Holder needs `reassembleChunkedData`.
+
 > **Initial project**: Find the `📋 PASTE: Step 4` markers in `Services/BLEService.swift`.
 
 BLE has MTU limits. Implement chunking for large data:
@@ -296,6 +302,8 @@ extension BLEService {
 ```
 
 ### Step 5: Handle `updateValue` Queue Overflow (Peripheral Mode)
+
+> **Pair Work**: This step is for the **Holder** participant.
 
 > Important: This step is critical for **Full Identity Check**, which includes portrait
 > data. The portrait is a JPEG image — typically tens of kilobytes — that requires many
@@ -386,13 +394,27 @@ enum TransportError: LocalizedError {
 }
 ```
 
-### Testing
+### Pair Test: BLE
 
-1. Run the app on two iPhones
-2. Start Peripheral mode on one device
-3. Start Central mode on the other
-4. Verify connection is established
+After both partners have implemented their steps, test BLE together:
+
+1. **Holder** device: Start Peripheral mode (advertising)
+2. **Reader** device: Start Central mode (scanning)
+3. Verify BLE connection is established
+4. **Reader** sends a DeviceRequest via BLE
+5. **Holder** receives and prints the decoded request
+
+> Tip: Try the Age 21+ scenario first (small payload), then Full Identity Check (large payload with portrait) to verify chunking works.
 
 ## Next Steps
 
-Continue to <doc:SelectiveDisclosure> to implement attribute selection.
+After the BLE pair test, the paths diverge:
+
+- **Reader**: Continue to <doc:MSOVerification> to implement issuerAuth signature and digest verification.
+- **Holder**: Continue to <doc:SelectiveDisclosure> to implement attribute filtering and user consent UI, then <doc:BiometricAuthentication>.
+
+## See Also
+
+- <doc:MPCTransport>
+- <doc:SelectiveDisclosure>
+- <doc:MSOVerification>

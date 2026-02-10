@@ -189,3 +189,8 @@ At this point, you should be able to:
 ## Next Steps
 
 Continue to <doc:CBOREncodingDecoding> to implement CBOR serialization.
+
+## See Also
+
+- <doc:CBOREncodingDecoding>
+- <doc:MSOVerification>

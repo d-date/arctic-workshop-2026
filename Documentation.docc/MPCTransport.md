@@ -31,6 +31,8 @@ Unlike BLE, which uses separate GATT characteristics for client-to-server and se
 
 > **Initial project**: Open `Services/MPCService.swift`. Find the `📋 PASTE: Step 1` markers.
 
+> **Pair Work**: Reader implements `startBrowsing()`/`stopBrowsing()`. Holder implements `startAdvertising()`/`stopAdvertising()`.
+
 Implement the four methods that start and stop browsing and advertising:
 
 ```swift
@@ -90,6 +92,8 @@ func stopAdvertising() {
 ### Step 2: Session and Discovery Delegates
 
 > **Initial project**: Find the `📋 PASTE: Step 2` markers in `Services/MPCService.swift`.
+
+> **Pair Work**: Both implement `MCSessionDelegate`. Reader implements `MCNearbyServiceBrowserDelegate`. Holder implements `MCNearbyServiceAdvertiserDelegate`.
 
 Implement `MCSessionDelegate` to handle connection state changes and incoming data, `MCNearbyServiceBrowserDelegate` to auto-invite discovered peers, and `MCNearbyServiceAdvertiserDelegate` to auto-accept invitations:
 
@@ -160,6 +164,8 @@ func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFro
 ### Step 3: Send Request and Response
 
 > **Initial project**: Find the `📋 PASTE: Step 3` markers in `Services/MPCService.swift`.
+
+> **Pair Work**: Reader implements `sendRequest()`. Holder implements `sendResponse()`.
 
 Each message is prefixed with the 1-byte header before sending:
 
@@ -233,6 +239,23 @@ Each limitation is explained below:
 > The standard needs NFC handover, asymmetric roles, and fine-grained transport control
 > that MPC simply cannot provide.
 
+### Pair Test: MPC
+
+After both partners have implemented their steps, test the MPC transport together:
+
+1. **Reader** device: Browse for peers
+2. **Holder** device: Advertise
+3. Verify connection is established
+4. **Reader** sends a DeviceRequest
+5. **Holder** receives and prints the decoded request
+
+> Tip: Add `print()` statements to verify CBOR encoding/decoding works end-to-end before moving to BLE.
+
 ## Next Steps
 
 Continue to <doc:BLETransport> to implement the ISO 18013-5 compliant BLE transport layer.
+
+## See Also
+
+- <doc:CBOREncodingDecoding>
+- <doc:BLETransport>

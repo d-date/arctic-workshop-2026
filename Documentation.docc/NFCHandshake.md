@@ -419,3 +419,8 @@ enum NFCError: LocalizedError {
 ## Next Steps
 
 Continue to <doc:BLETransport> to implement the BLE communication layer that handles the actual data transfer.
+
+## See Also
+
+- <doc:BLETransport>
+- <doc:GettingStarted>
