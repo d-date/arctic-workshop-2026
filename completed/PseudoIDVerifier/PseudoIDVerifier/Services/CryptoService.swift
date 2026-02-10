@@ -29,12 +29,21 @@ nonisolated class CryptoService: @unchecked Sendable {
 
     /// Load existing device key from Keychain or generate new one
     private func loadOrGenerateDeviceKey() {
-        // For the workshop, we generate a new key each time
-        // In production, you would:
-        // 1. Try to load from Keychain
-        // 2. If not found, generate and store
+        do {
+            // We can show ReaderAuth working by using a known key across both devices
+            // In production, you would keep this private key safe and share the public key widely:
+            devicePrivateKey = try P256.Signing.PrivateKey(pemRepresentation: """
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg690v9tH9eHIv4adt
+            ZyrobFdHa+8inPkr7KT50tSUtpWhRANCAASdmasXZjyELURP7AUI0USRMTnMPhRc
+            CzKAxdNJ3isZR3Gfvwfw+EnV1/GKYy4237qEJA9XRbetlNnZ4DXaHSX9
+            -----END PRIVATE KEY-----
+            """)
+        } catch {
+            // Use this branch to show Issuer Signature verification failing:
+            devicePrivateKey = P256.Signing.PrivateKey()
+        }
 
-        devicePrivateKey = P256.Signing.PrivateKey()
         keyAgreementPrivateKey = P256.KeyAgreement.PrivateKey()
     }
 
