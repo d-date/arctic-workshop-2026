@@ -386,7 +386,9 @@ class PresentmentViewModel {
     private func setupCallbacks() {
         // Steps:
         // 1. transportService.onRequestReceived → store request, set state to .requestReceived
-        // 2. transportService.onDisconnected → reset to .idle if still advertising
+        // 2. transportService.onDisconnected →
+        //    - .advertising → reset to .idle (reader disconnected before request)
+        //    - .success → call stopPeripheralMode() (reader received data, clean up)
 
         fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 4")
     }
@@ -452,6 +454,9 @@ class PresentmentViewModel {
         // 3. Create Document + DeviceResponse
         // 4. Send via transportService.sendResponse
         // 5. Transition to .success
+        //
+        // ⚠️ Do NOT call stopPeripheralMode() here — let the reader disconnect
+        //    first so all BLE data is received. See onDisconnected in Step 4.
 
         fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 6")
     }

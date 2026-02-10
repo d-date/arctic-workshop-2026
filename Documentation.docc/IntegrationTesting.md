@@ -10,7 +10,7 @@ Now that all components are implemented, let's test the end-to-end flow between 
 
 Before testing, you need to wire up the ViewModels that connect the transport layer (MPC or BLE), CBOR, and Authentication together.
 
-> **Initial project**: Open `Views/ReaderView.swift` and `Views/PresentmentView.swift`. Find the `📋 PASTE: ViewModel Step` markers in the ViewModel classes at the bottom of each file.
+> Tip: **Initial project**: Open `Views/ReaderView.swift` and `Views/PresentmentView.swift`. Find the `📋 PASTE: ViewModel Step` markers in the ViewModel classes at the bottom of each file.
 
 #### ReaderViewModel (in ReaderView.swift)
 
@@ -57,9 +57,6 @@ private func setupCallbacks() {
 // ViewModel Step 2: startReading + cancelReading
 func startReading() {
     state = .scanning
-
-    // For workshop: skip NFC, go directly to transport layer (MPC or BLE)
-    state = .connecting
     transportService.startCentralMode(nil)
 }
 
@@ -112,8 +109,16 @@ private func setupCallbacks() {
 
     transportService.onDisconnected = { [weak self] in
         Task { @MainActor in
-            if case .advertising = self?.state {
-                self?.state = .idle
+            guard let self else { return }
+            switch self.state {
+            case .advertising:
+                // Reader disconnected before request was sent
+                self.state = .idle
+            case .success:
+                // Reader received response and disconnected — clean up transport
+                self.transportService.stopPeripheralMode()
+            default:
+                break
             }
         }
     }
@@ -193,10 +198,12 @@ private func sendResponse(for request: DeviceRequest) {
 
     transportService.sendResponse(response)
 
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-        self?.state = .success
-        self?.transportService.stopPeripheralMode()
-    }
+    // Transition to success state.
+    // Do NOT stop peripheral mode here — the reader will disconnect
+    // after receiving the response, which tears down the session cleanly.
+    // Stopping too early destroys the BLE session before data reaches the reader.
+    // See onDisconnected handler in Step 4 for the cleanup logic.
+    state = .success
 }
 
 func denyDisclosure() {
@@ -212,8 +219,6 @@ func denyDisclosure() {
     pendingRequest = nil
 }
 ```
-
----
 
 ### Prerequisites
 
@@ -241,9 +246,7 @@ We'll test the most common scenario: verifying someone is over 21.
 
 ### Step 2: Initiate Connection
 
-> Note: In the intended ISO 18013-5 flow, an NFC tap (Device Engagement) would occur here.
-> Since NFC tag emulation (HCE) is exclusive to Apple Wallet on iOS,
-> direct BLE connection is used. See <doc:NFCHandshake> for details.
+> Note: In the intended ISO 18013-5 flow, an NFC tap (Device Engagement) would occur here. Since NFC tag emulation (HCE) is exclusive to Apple Wallet on iOS, direct BLE connection is used. See <doc:NFCHandshake> for details.
 
 **On Device A (Reader)**
 1. Tap "Start Reading"
@@ -271,6 +274,7 @@ We'll test the most common scenario: verifying someone is over 21.
 **On Device A (Reader)**
 1. After the Holder approves, results appear
 2. You should see:
+   - Portrait image (circular photo at the top)
    - "Age Over 21: Yes" with green checkmark
 3. Tap "Done" to reset
 
@@ -385,10 +389,7 @@ To extend this workshop:
 - Investigate NFC & SE Platform (iOS 18.2+) for HCE support (requires entitlement request)
 - Explore **Remote Retrieval** — verify credentials via a Wallet API instead of device-to-device BLE
 
-> Note: iOS 18.2 introduced HCE support via the NFC & SE Platform, but it requires
-> an entitlement request to Apple and it is unclear whether general developers can obtain approval.
-> Using the Apple ID Verifier API (`ProximityReader`)
-> requires an individual agreement with Apple and a dedicated entitlement.
+> Note: iOS 18.2 introduced HCE support via the NFC & SE Platform, but it requires an entitlement request to Apple and it is unclear whether general developers can obtain approval. Using the Apple ID Verifier API (`ProximityReader`) requires an individual agreement with Apple and a dedicated entitlement.
 
 #### Beyond This Workshop: Remote Retrieval
 
