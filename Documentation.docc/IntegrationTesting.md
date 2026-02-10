@@ -12,7 +12,7 @@ Now that all components are implemented, let's test the end-to-end flow between 
 
 ### Step 0: Implement ViewModels
 
-Before testing, you need to wire up the ViewModels that connect the transport layer (MPC or BLE), CBOR, and Authentication together.
+Before testing, you need to wire up the ViewModels that connect the transport layer (BLE), CBOR, and Authentication together.
 
 > Tip: **Initial project**: Open `Views/ReaderView.swift` and `Views/PresentmentView.swift`. Find the `📋 PASTE: ViewModel Step` markers in the ViewModel classes at the bottom of each file.
 
@@ -25,7 +25,7 @@ init() {
 }
 
 private func setupCallbacks() {
-    // Handle transport connection (works with both MPC and BLE)
+    // Handle transport connection
     transportService.onConnected = { [weak self] in
         Task { @MainActor in
             guard let self = self else { return }
@@ -428,8 +428,7 @@ This approach enables cross-device verification (e.g., web-based Verifiers) and 
 You've learned:
 1. ISO 18013-5 mdoc structure
 2. CBOR encoding/decoding
-3. Multipeer Connectivity as a quick-start transport
-4. BLE communication patterns and why ISO 18013-5 chose BLE over MPC
+3. BLE communication patterns for ISO 18013-5
 5. NFC-to-BLE handover mechanics and iOS technical constraints
 6. Selective disclosure
 7. Biometric authentication
