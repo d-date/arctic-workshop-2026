@@ -6,5 +6,12 @@
 	<array>
 		<string>A0000002471001</string>
 	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app uses the local network to discover nearby devices for ID verification via Multipeer Connectivity.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_pseudo-id-vrfy._tcp</string>
+		<string>_pseudo-id-vrfy._udp</string>
+	</array>
 </dict>
 </plist>
