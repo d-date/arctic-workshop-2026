@@ -452,22 +452,20 @@ class PresentmentViewModel {
 
         state = .authenticating
 
-        // Trigger biometric authentication
-        authService.authenticateForDisclosure(
-            "Approve sharing your ID information"
-        ) { [weak self] result in
-            Task { @MainActor in
-                switch result {
-                case .success:
-                    self?.sendResponse(for: request)
-                case .failure(let error):
-                    if case .userCancelled = error {
-                        // User cancelled - go back to request view
-                        self?.state = .requestReceived(request)
-                    } else {
-                        self?.state = .error(error.localizedDescription)
-                    }
+        Task {
+            do {
+                _ = try await authService.authenticate(reason: "Approve sharing your ID information")
+                sendResponse(for: request)
+            } catch is CancellationError {
+                state = .requestReceived(request)
+            } catch let error as AuthError {
+                if case .userCancelled = error {
+                    state = .requestReceived(request)
+                } else {
+                    state = .error(error.localizedDescription)
                 }
+            } catch {
+                state = .error(error.localizedDescription)
             }
         }
     }
