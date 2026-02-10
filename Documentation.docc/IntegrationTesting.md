@@ -149,20 +149,20 @@ func approveDisclosure() {
 
     state = .authenticating
 
-    authService.authenticateForDisclosure(
-        reason: "Approve sharing your ID information"
-    ) { [weak self] result in
-        Task { @MainActor in
-            switch result {
-            case .success:
-                self?.sendResponse(for: request)
-            case .failure(let error):
-                if case .userCancelled = error {
-                    self?.state = .requestReceived(request)
-                } else {
-                    self?.state = .error(error.localizedDescription)
-                }
+    Task {
+        do {
+            _ = try await authService.authenticate(
+                reason: "Approve sharing your ID information"
+            )
+            sendResponse(for: request)
+        } catch let error as AuthError {
+            if case .userCancelled = error {
+                state = .requestReceived(request)
+            } else {
+                state = .error(error.localizedDescription)
             }
+        } catch {
+            state = .error(error.localizedDescription)
         }
     }
 }

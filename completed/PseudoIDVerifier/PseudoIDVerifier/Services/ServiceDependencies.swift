@@ -243,8 +243,8 @@ extension AuthenticationServiceClient: DependencyKey {
             isAuthenticated: { service.isAuthenticated },
             isBiometricAvailable: { service.isBiometricAvailable },
             biometricType: { service.biometricType },
-            authenticateForDisclosure: { reason, completion in
-                service.authenticateForDisclosure(reason: reason, completion: completion)
+            authenticate: { reason in
+                try await service.authenticate(reason: reason)
             },
             resetAuthentication: { service.resetAuthentication() }
         )
@@ -255,16 +255,13 @@ extension AuthenticationServiceClient: DependencyKey {
 
     /// Simulator mock that always succeeds
     static var simulator: AuthenticationServiceClient {
-        let simulatedDelay: TimeInterval = 0.5
-
         return AuthenticationServiceClient(
             isAuthenticated: { false },
             isBiometricAvailable: { true },
             biometricType: { .faceID },
-            authenticateForDisclosure: { _, completion in
-                DispatchQueue.main.asyncAfter(deadline: .now() + simulatedDelay) {
-                    completion(.success(()))
-                }
+            authenticate: { _ in
+                try await Task.sleep(for: .milliseconds(500))
+                return true
             },
             resetAuthentication: { }
         )

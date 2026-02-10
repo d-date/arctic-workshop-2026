@@ -435,10 +435,10 @@ class PresentmentViewModel {
         // Steps:
         // 1. Check pendingRequest exists
         // 2. Set state to .authenticating
-        // 3. Call authService.authenticateForDisclosure
+        // 3. In a Task, call try await authService.authenticate(reason:)
         // 4. On success → call sendResponse(for:)
-        // 5. On failure (userCancelled) → go back to .requestReceived
-        // 6. On failure (other) → set state to .error
+        // 5. catch AuthError.userCancelled → go back to .requestReceived
+        // 6. catch other errors → set state to .error
 
         fatalError("Not implemented — Paste code from <doc:IntegrationTesting> ViewModel Step 6")
     }

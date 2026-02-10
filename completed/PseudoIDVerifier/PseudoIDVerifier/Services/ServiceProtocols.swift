@@ -54,10 +54,7 @@ struct AuthenticationServiceClient: Sendable {
     var isBiometricAvailable: @Sendable () -> Bool = { false }
     var biometricType: @Sendable () -> LABiometryType = { .none }
 
-    var authenticateForDisclosure: @Sendable (
-        _ reason: String,
-        _ completion: @escaping (Result<Void, AuthError>) -> Void
-    ) -> Void
+    var authenticate: @Sendable (_ reason: String) async throws -> Bool
 
     var resetAuthentication: @Sendable () -> Void
 }
