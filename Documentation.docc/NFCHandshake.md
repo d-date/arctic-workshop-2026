@@ -163,11 +163,11 @@ class NFCService: NSObject {
 
 ```swift
 extension NFCService {
-    func startReaderSession() {
+    nonisolated func startReaderSession() {
         guard NFCNDEFReaderSession.readingAvailable else {
-            DispatchQueue.main.async {
-                self.error = .notAvailable
-                self.onError?(.notAvailable)
+            Task { @MainActor [weak self] in
+                self?.error = .notAvailable
+                self?.onError?(.notAvailable)
             }
             return
         }
@@ -182,11 +182,11 @@ extension NFCService {
         readerSession?.begin()
     }
 
-    func stopReaderSession() {
+    nonisolated func stopReaderSession() {
         readerSession?.invalidate()
         readerSession = nil
-        DispatchQueue.main.async {
-            self.isScanning = false
+        Task { @MainActor [weak self] in
+            self?.isScanning = false
         }
     }
 }
@@ -198,7 +198,7 @@ extension NFCService {
 ### Step 3: Implementing Delegate Methods
 
 ```swift
-extension NFCService: NFCNDEFReaderSessionDelegate {
+nonisolated extension NFCService: NFCNDEFReaderSessionDelegate {
     func readerSession(_ session: NFCNDEFReaderSession,
                       didDetectNDEFs messages: [NFCNDEFMessage]) {
         guard let message = messages.first else {
@@ -214,32 +214,32 @@ extension NFCService: NFCNDEFReaderSessionDelegate {
         session.alertMessage = "Device engagement received!"
         session.invalidate()
 
-        DispatchQueue.main.async {
-            self.receivedEngagement = engagement
-            self.isScanning = false
-            self.onEngagementReceived?(engagement, bleData)
+        Task { @MainActor [weak self] in
+            self?.receivedEngagement = engagement
+            self?.isScanning = false
+            self?.onEngagementReceived?(engagement, bleData)
         }
     }
 
     func readerSession(_ session: NFCNDEFReaderSession,
                       didInvalidateWithError error: Error) {
-        DispatchQueue.main.async {
-            self.isScanning = false
+        Task { @MainActor [weak self] in
+            self?.isScanning = false
 
             if let nfcError = error as? NFCReaderError {
                 switch nfcError.code {
                 case .readerSessionInvalidationErrorUserCanceled:
                     break  // User cancelled - not an error
                 default:
-                    self.error = .sessionInvalidated(nfcError.localizedDescription)
+                    self?.error = .sessionInvalidated(nfcError.localizedDescription)
                 }
             }
         }
     }
 
     func readerSessionDidBecomeActive(_ session: NFCNDEFReaderSession) {
-        DispatchQueue.main.async {
-            self.isScanning = true
+        Task { @MainActor [weak self] in
+            self?.isScanning = true
         }
     }
 }

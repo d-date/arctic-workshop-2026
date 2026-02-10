@@ -1,5 +1,5 @@
-import Dependencies
-import DependenciesMacros
+@preconcurrency import Dependencies
+@preconcurrency import DependenciesMacros
 import Foundation
 import LocalAuthentication
 
@@ -8,7 +8,7 @@ import LocalAuthentication
 /// Dependency client abstracting transport operations (BLE / MPC) for dependency injection.
 /// Uses closure-based endpoints following the Point-Free DependencyClient pattern.
 @DependencyClient
-struct TransportServiceClient: Sendable {
+nonisolated struct TransportServiceClient: Sendable {
     // MARK: - State Access
     var connectionState: @Sendable () -> ConnectionState = { .disconnected }
     var error: @Sendable () -> TransportError? = { nil }
@@ -34,7 +34,7 @@ struct TransportServiceClient: Sendable {
 
 /// Dependency client abstracting NFC operations for dependency injection.
 @DependencyClient
-struct NFCServiceClient: Sendable {
+nonisolated struct NFCServiceClient: Sendable {
     var isScanning: @Sendable () -> Bool = { false }
     var isNFCAvailable: @Sendable () -> Bool = { false }
 
@@ -49,7 +49,7 @@ struct NFCServiceClient: Sendable {
 
 /// Dependency client abstracting biometric authentication for dependency injection.
 @DependencyClient
-struct AuthenticationServiceClient: Sendable {
+nonisolated struct AuthenticationServiceClient: Sendable {
     var isAuthenticated: @Sendable () -> Bool = { false }
     var isBiometricAvailable: @Sendable () -> Bool = { false }
     var biometricType: @Sendable () -> LABiometryType = { .none }

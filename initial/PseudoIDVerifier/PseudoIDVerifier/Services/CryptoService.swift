@@ -5,7 +5,7 @@ import CryptoKit
 
 /// Service for cryptographic operations (signing and verification)
 /// Uses CryptoKit for ECDSA signatures compatible with COSE
-class CryptoService {
+nonisolated class CryptoService: @unchecked Sendable {
     static let shared = CryptoService()
 
     // MARK: - Key Storage
@@ -222,7 +222,7 @@ class CryptoService {
 
 // MARK: - Error Types
 
-enum CryptoError: LocalizedError {
+nonisolated enum CryptoError: LocalizedError {
     case keyNotAvailable
     case sessionKeyNotEstablished
     case invalidPublicKey

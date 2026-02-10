@@ -97,18 +97,20 @@ Implement `MCSessionDelegate` to handle connection state changes and incoming da
 // MARK: - MCSessionDelegate
 
 func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-    DispatchQueue.main.async {
+    let peerName = peerID.displayName
+    Task { @MainActor [weak self] in
+        guard let self else { return }
         switch state {
         case .connected:
-            print("MPCService: Connected to \(peerID.displayName)")
+            print("MPCService: Connected to \(peerName)")
             self.connectionState = .connected
             self.onConnected?()
         case .notConnected:
-            print("MPCService: Disconnected from \(peerID.displayName)")
+            print("MPCService: Disconnected from \(peerName)")
             self.connectionState = .disconnected
             self.onDisconnected?()
         case .connecting:
-            print("MPCService: Connecting to \(peerID.displayName)")
+            print("MPCService: Connecting to \(peerName)")
             self.connectionState = .connecting
         @unknown default:
             break
@@ -120,16 +122,17 @@ func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPee
     guard !data.isEmpty else { return }
 
     let messageType = data[0]
-    let payload = data.dropFirst()
+    let payload = Data(data.dropFirst())
 
-    DispatchQueue.main.async {
+    Task { @MainActor [weak self] in
+        guard let self else { return }
         switch messageType {
         case self.messageTypeRequest:
-            if let request = CBORService.shared.decodeRequest(from: Data(payload)) {
+            if let request = CBORService.shared.decodeRequest(from: payload) {
                 self.onRequestReceived?(request)
             }
         case self.messageTypeResponse:
-            if let response = CBORService.shared.decodeResponse(from: Data(payload)) {
+            if let response = CBORService.shared.decodeResponse(from: payload) {
                 self.onResponseReceived?(response)
             }
         default:

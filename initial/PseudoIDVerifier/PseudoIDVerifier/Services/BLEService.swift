@@ -7,60 +7,60 @@ import CoreBluetooth
 /// Service for BLE-based data transfer between Reader and Holder
 /// Implements the BLE transport layer similar to ISO 18013-5
 @Observable
-class BLEService: NSObject {
+class BLEService: NSObject, @unchecked Sendable {
     static let shared = BLEService()
 
     // MARK: - Observable State
 
-    var connectionState: ConnectionState = .disconnected
-    var error: TransportError?
+    @ObservationIgnored nonisolated(unsafe) var connectionState: ConnectionState = .disconnected
+    @ObservationIgnored nonisolated(unsafe) var error: TransportError?
 
     // MARK: - UUIDs
 
     /// Service UUID for mdoc data transfer
-    static let serviceUUID = CBUUID(string: "0000FF01-0000-1000-8000-00805F9B34FB")
+    nonisolated(unsafe) static let serviceUUID = CBUUID(string: "0000FF01-0000-1000-8000-00805F9B34FB")
 
     /// Characteristic for state (indicates data transfer state)
-    static let stateCharacteristicUUID = CBUUID(string: "0000FF02-0000-1000-8000-00805F9B34FB")
+    nonisolated(unsafe) static let stateCharacteristicUUID = CBUUID(string: "0000FF02-0000-1000-8000-00805F9B34FB")
 
     /// Characteristic for client2server data (Reader → Holder)
-    static let client2ServerCharacteristicUUID = CBUUID(string: "0000FF03-0000-1000-8000-00805F9B34FB")
+    nonisolated(unsafe) static let client2ServerCharacteristicUUID = CBUUID(string: "0000FF03-0000-1000-8000-00805F9B34FB")
 
     /// Characteristic for server2client data (Holder → Reader)
-    static let server2ClientCharacteristicUUID = CBUUID(string: "0000FF04-0000-1000-8000-00805F9B34FB")
+    nonisolated(unsafe) static let server2ClientCharacteristicUUID = CBUUID(string: "0000FF04-0000-1000-8000-00805F9B34FB")
 
     // MARK: - Core Bluetooth Objects
 
-    @ObservationIgnored private var centralManager: CBCentralManager?
-    @ObservationIgnored private var peripheralManager: CBPeripheralManager?
+    @ObservationIgnored nonisolated(unsafe) private var centralManager: CBCentralManager?
+    @ObservationIgnored nonisolated(unsafe) private var peripheralManager: CBPeripheralManager?
 
-    @ObservationIgnored private var connectedPeripheral: CBPeripheral?
-    @ObservationIgnored private var connectedCentral: CBCentral?
+    @ObservationIgnored nonisolated(unsafe) private var connectedPeripheral: CBPeripheral?
+    @ObservationIgnored nonisolated(unsafe) private var connectedCentral: CBCentral?
 
     // MARK: - Characteristics (for peripheral mode)
 
-    @ObservationIgnored private var stateCharacteristic: CBMutableCharacteristic?
-    @ObservationIgnored private var client2ServerCharacteristic: CBMutableCharacteristic?
-    @ObservationIgnored private var server2ClientCharacteristic: CBMutableCharacteristic?
+    @ObservationIgnored nonisolated(unsafe) private var stateCharacteristic: CBMutableCharacteristic?
+    @ObservationIgnored nonisolated(unsafe) private var client2ServerCharacteristic: CBMutableCharacteristic?
+    @ObservationIgnored nonisolated(unsafe) private var server2ClientCharacteristic: CBMutableCharacteristic?
 
     // MARK: - Discovered Characteristics (for central mode)
 
-    @ObservationIgnored private var discoveredStateCharacteristic: CBCharacteristic?
-    @ObservationIgnored private var discoveredClient2ServerCharacteristic: CBCharacteristic?
-    @ObservationIgnored private var discoveredServer2ClientCharacteristic: CBCharacteristic?
+    @ObservationIgnored nonisolated(unsafe) private var discoveredStateCharacteristic: CBCharacteristic?
+    @ObservationIgnored nonisolated(unsafe) private var discoveredClient2ServerCharacteristic: CBCharacteristic?
+    @ObservationIgnored nonisolated(unsafe) private var discoveredServer2ClientCharacteristic: CBCharacteristic?
 
     // MARK: - Data Buffers
 
-    @ObservationIgnored private var receivedData = Data()
-    @ObservationIgnored private var dataToSend = Data()
-    @ObservationIgnored private var sendDataIndex = 0
+    @ObservationIgnored nonisolated(unsafe) private var receivedData = Data()
+    @ObservationIgnored nonisolated(unsafe) private var dataToSend = Data()
+    @ObservationIgnored nonisolated(unsafe) private var sendDataIndex = 0
 
     // MARK: - Callbacks
 
-    @ObservationIgnored var onRequestReceived: ((DeviceRequest) -> Void)?
-    @ObservationIgnored var onResponseReceived: ((DeviceResponse) -> Void)?
-    @ObservationIgnored var onConnected: (() -> Void)?
-    @ObservationIgnored var onDisconnected: (() -> Void)?
+    @ObservationIgnored nonisolated(unsafe) var onRequestReceived: ((DeviceRequest) -> Void)?
+    @ObservationIgnored nonisolated(unsafe) var onResponseReceived: ((DeviceResponse) -> Void)?
+    @ObservationIgnored nonisolated(unsafe) var onConnected: (() -> Void)?
+    @ObservationIgnored nonisolated(unsafe) var onDisconnected: (() -> Void)?
 
     // MARK: - Constants
 
@@ -86,7 +86,7 @@ class BLEService: NSObject {
 
     /// Start scanning for peripherals advertising the mdoc service
     /// - Parameter targetUUID: Optional specific peripheral UUID to connect to
-    func startCentralMode(targetUUID: UUID? = nil) {
+    nonisolated func startCentralMode(targetUUID: UUID? = nil) {
         // ✏️ Paste your implementation here
         //
         // Steps:
@@ -100,7 +100,7 @@ class BLEService: NSObject {
     // MARK: - 📋 PASTE: <doc:BLETransport> Step 2 — stopCentralMode
 
     /// Stop central mode and disconnect
-    func stopCentralMode() {
+    nonisolated func stopCentralMode() {
         // ✏️ Paste your implementation here
         //
         // Steps:
@@ -115,7 +115,7 @@ class BLEService: NSObject {
 
     /// Send a device request to the connected peripheral (holder)
     /// - Parameter request: The request to send
-    func sendRequest(_ request: DeviceRequest) {
+    nonisolated func sendRequest(_ request: DeviceRequest) {
         // ✏️ Paste your implementation here
         //
         // Steps:
@@ -133,7 +133,7 @@ class BLEService: NSObject {
     // MARK: - 📋 PASTE: <doc:BLETransport> Step 3 — startPeripheralMode
 
     /// Start peripheral mode to advertise and accept connections
-    func startPeripheralMode() {
+    nonisolated func startPeripheralMode() {
         // ✏️ Paste your implementation here
         //
         // Steps:
@@ -147,7 +147,7 @@ class BLEService: NSObject {
     // MARK: - 📋 PASTE: <doc:BLETransport> Step 3 — stopPeripheralMode
 
     /// Stop peripheral mode
-    func stopPeripheralMode() {
+    nonisolated func stopPeripheralMode() {
         // ✏️ Paste your implementation here
 
         fatalError("Not implemented — Paste code from <doc:BLETransport> Step 3")
@@ -157,7 +157,7 @@ class BLEService: NSObject {
 
     /// Send a device response to the connected central (reader)
     /// - Parameter response: The response to send
-    func sendResponse(_ response: DeviceResponse) {
+    nonisolated func sendResponse(_ response: DeviceResponse) {
         // ✏️ Paste your implementation here
         //
         // Steps:
@@ -175,7 +175,7 @@ class BLEService: NSObject {
     // MARK: - 📋 PASTE: <doc:BLETransport> Step 4 — sendDataInChunks (Central)
 
     /// Send data in chunks to a peripheral characteristic
-    private func sendDataInChunks(_ data: Data, toPeripheral peripheral: CBPeripheral, characteristic: CBCharacteristic) {
+    nonisolated private func sendDataInChunks(_ data: Data, toPeripheral peripheral: CBPeripheral, characteristic: CBCharacteristic) {
         // ✏️ Paste your implementation here
         //
         // BLE has a maximum transmission unit (MTU) limit.
@@ -192,7 +192,7 @@ class BLEService: NSObject {
     // MARK: - 📋 PASTE: <doc:BLETransport> Step 4 — sendDataInChunks (Peripheral)
 
     /// Send data in chunks via peripheral manager
-    private func sendDataInChunks(_ data: Data, toCharacteristic characteristic: CBMutableCharacteristic, central: CBCentral) {
+    nonisolated private func sendDataInChunks(_ data: Data, toCharacteristic characteristic: CBMutableCharacteristic, central: CBCentral) {
         // ✏️ Paste your implementation here
         // Same chunking logic, but uses peripheralManager?.updateValue
 
@@ -202,7 +202,7 @@ class BLEService: NSObject {
     // MARK: - 📋 PASTE: <doc:BLETransport> Step 4 — reassembleChunkedData
 
     /// Reassemble chunked data
-    private func reassembleChunkedData(_ chunk: Data) -> Data? {
+    nonisolated private func reassembleChunkedData(_ chunk: Data) -> Data? {
         // ✏️ Paste your implementation here
         //
         // Check the header byte to know if more chunks are expected
@@ -219,7 +219,7 @@ class BLEService: NSObject {
 
     // MARK: - 📋 PASTE: <doc:BLETransport> Step 3 — setupService
 
-    private func setupService() {
+    nonisolated private func setupService() {
         // ✏️ Paste your implementation here
         //
         // Create characteristics:
@@ -243,7 +243,7 @@ class BLEService: NSObject {
 
 // MARK: - 📋 PASTE: <doc:BLETransport> Step 2 — CBCentralManagerDelegate
 
-extension BLEService: CBCentralManagerDelegate {
+nonisolated extension BLEService: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         // ✏️ Paste your implementation here
         //
@@ -296,7 +296,7 @@ extension BLEService: CBCentralManagerDelegate {
 
 // MARK: - 📋 PASTE: <doc:BLETransport> Step 2 — CBPeripheralDelegate
 
-extension BLEService: CBPeripheralDelegate {
+nonisolated extension BLEService: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         // ✏️ Paste your implementation here
         //
@@ -338,7 +338,7 @@ extension BLEService: CBPeripheralDelegate {
 
 // MARK: - 📋 PASTE: <doc:BLETransport> Step 3 — CBPeripheralManagerDelegate
 
-extension BLEService: CBPeripheralManagerDelegate {
+nonisolated extension BLEService: CBPeripheralManagerDelegate {
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         // ✏️ Paste your implementation here
         //
@@ -391,7 +391,7 @@ extension BLEService: CBPeripheralManagerDelegate {
 
 // MARK: - Connection State
 
-enum ConnectionState {
+nonisolated enum ConnectionState {
     case disconnected
     case scanning
     case connecting
@@ -402,7 +402,7 @@ enum ConnectionState {
 
 // MARK: - Error Types
 
-enum TransportError: LocalizedError {
+nonisolated enum TransportError: LocalizedError {
     case bluetoothUnavailable
     case bluetoothPoweredOff
     case connectionFailed(String)

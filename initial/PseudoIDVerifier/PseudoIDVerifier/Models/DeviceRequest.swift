@@ -3,7 +3,7 @@ import Foundation
 // MARK: - Device Engagement and Request Structures (ISO 18013-5)
 
 /// Device engagement structure for initiating a session
-struct DeviceEngagement {
+nonisolated struct DeviceEngagement {
     /// Protocol version
     let version: String
 
@@ -25,7 +25,7 @@ struct DeviceEngagement {
 }
 
 /// Security structure containing session establishment info
-struct Security {
+nonisolated struct Security {
     /// Cipher suite identifier
     let cipherSuiteIdentifier: Int
 
@@ -34,7 +34,7 @@ struct Security {
 }
 
 /// Device retrieval method
-struct DeviceRetrievalMethod {
+nonisolated struct DeviceRetrievalMethod {
     /// Method type: 1 = NFC, 2 = BLE, 3 = WiFi Aware
     let type: Int
 
@@ -46,7 +46,7 @@ struct DeviceRetrievalMethod {
 }
 
 /// BLE-specific retrieval options
-struct RetrievalOptions {
+nonisolated struct RetrievalOptions {
     /// Whether the mdoc acts as BLE peripheral
     let peripheralServerMode: Bool?
 
@@ -64,14 +64,14 @@ struct RetrievalOptions {
 }
 
 /// Server retrieval method (not used in this workshop)
-struct ServerRetrievalMethod {
+nonisolated struct ServerRetrievalMethod {
     let webAPI: String?
 }
 
 // MARK: - Request Structures
 
 /// Request from reader to holder
-struct DeviceRequest {
+nonisolated struct DeviceRequest {
     /// Protocol version
     let version: String
 
@@ -85,7 +85,7 @@ struct DeviceRequest {
 }
 
 /// Request for a specific document type
-struct DocRequest {
+nonisolated struct DocRequest {
     /// The requested items
     let itemsRequest: ItemsRequest
 
@@ -99,7 +99,7 @@ struct DocRequest {
 }
 
 /// Specification of requested items
-struct ItemsRequest {
+nonisolated struct ItemsRequest {
     /// Document type being requested
     let docType: String
 
@@ -115,7 +115,7 @@ struct ItemsRequest {
 // MARK: - Response Structures
 
 /// Response from holder to reader
-struct DeviceResponse {
+nonisolated struct DeviceResponse {
     /// Protocol version
     let version: String
 
@@ -130,7 +130,7 @@ struct DeviceResponse {
 }
 
 /// A document in the response
-struct Document {
+nonisolated struct Document {
     /// Document type
     let docType: String
 
@@ -145,7 +145,7 @@ struct Document {
 }
 
 /// Error information for a document
-struct DocumentError {
+nonisolated struct DocumentError {
     /// Document type
     let docType: String
 
@@ -156,7 +156,7 @@ struct DocumentError {
 // MARK: - Common Attribute Identifiers (ISO 18013-5)
 
 /// Standard mDL element identifiers
-enum MDLElementIdentifier: String, CaseIterable {
+nonisolated enum MDLElementIdentifier: String, CaseIterable {
     case familyName = "family_name"
     case givenName = "given_name"
     case birthDate = "birth_date"

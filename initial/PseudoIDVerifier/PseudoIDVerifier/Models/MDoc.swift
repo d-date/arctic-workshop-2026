@@ -3,13 +3,13 @@ import Foundation
 // MARK: - ISO 18013-5 mdoc Structures
 
 /// The document type identifier for mobile driving license
-let mDLDocType = "org.iso.18013.5.1.mDL"
+nonisolated let mDLDocType = "org.iso.18013.5.1.mDL"
 
 /// The namespace for mDL attributes
-let mDLNamespace = "org.iso.18013.5.1"
+nonisolated let mDLNamespace = "org.iso.18013.5.1"
 
 /// Mobile Document (mdoc) structure according to ISO 18013-5
-struct MDoc {
+nonisolated struct MDoc {
     let docType: String
     let issuerSigned: IssuerSigned
     let deviceSigned: DeviceSigned?
@@ -22,7 +22,7 @@ struct MDoc {
 }
 
 /// Issuer-signed portion of the mdoc
-struct IssuerSigned {
+nonisolated struct IssuerSigned {
     /// Map of namespace to array of signed items
     let nameSpaces: [String: [IssuerSignedItem]]
 
@@ -31,7 +31,7 @@ struct IssuerSigned {
 }
 
 /// Individual signed item within a namespace
-struct IssuerSignedItem {
+nonisolated struct IssuerSignedItem {
     /// Unique identifier for this item within the document
     let digestID: Int
 
@@ -46,7 +46,7 @@ struct IssuerSignedItem {
 }
 
 /// Device-signed portion of the mdoc (for device authentication)
-struct DeviceSigned {
+nonisolated struct DeviceSigned {
     /// CBOR-encoded device namespaces
     let nameSpaces: Data
 
@@ -55,7 +55,7 @@ struct DeviceSigned {
 }
 
 /// Device authentication structure
-struct DeviceAuth {
+nonisolated struct DeviceAuth {
     /// COSE_Mac0 or COSE_Sign1 for device authentication
     let deviceMac: Data?
     let deviceSignature: Data?
