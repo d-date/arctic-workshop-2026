@@ -9,9 +9,9 @@ nonisolated extension TransportServiceClient: DependencyKey {
         #if targetEnvironment(simulator)
         .simulator
         #elseif USE_MPC
-        .mpc(MPCService.shared)
+        MainActor.assumeIsolated { .mpc(MPCService.shared) }
         #else
-        .ble(BLEService.shared)
+        MainActor.assumeIsolated { .ble(BLEService.shared) }
         #endif
     }
 
@@ -160,7 +160,7 @@ nonisolated extension NFCServiceClient: DependencyKey {
         #if targetEnvironment(simulator)
         .simulator
         #else
-        let service = NFCService.shared
+        let service = MainActor.assumeIsolated { NFCService.shared }
         return NFCServiceClient(
             isScanning: { service.isScanning },
             isNFCAvailable: { service.isNFCAvailable },
@@ -239,7 +239,7 @@ nonisolated extension AuthenticationServiceClient: DependencyKey {
         #if targetEnvironment(simulator)
         .simulator
         #else
-        let service = AuthenticationService.shared
+        let service = MainActor.assumeIsolated { AuthenticationService.shared }
         return AuthenticationServiceClient(
             isAuthenticated: { service.isAuthenticated },
             isBiometricAvailable: { service.isBiometricAvailable },
