@@ -1,5 +1,5 @@
 import SwiftUI
-import Dependencies
+@preconcurrency import Dependencies
 import Observation
 
 // MARK: - Presentment View (Holder Mode)

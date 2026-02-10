@@ -4,7 +4,7 @@ import SwiftCBOR
 // MARK: - CBOR Encoding/Decoding Service
 
 /// Service for encoding and decoding CBOR data according to ISO 18013-5
-class CBORService {
+nonisolated class CBORService: @unchecked Sendable {
     static let shared = CBORService()
 
     private init() {}

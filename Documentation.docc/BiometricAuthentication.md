@@ -53,9 +53,9 @@ class AuthenticationService {
     }
 
     /// Authenticate for disclosure approval
-    func authenticateForDisclosure(
+    nonisolated func authenticateForDisclosure(
         reason: String = "Approve sharing your information",
-        completion: @escaping (Result<Void, AuthError>) -> Void
+        completion: @escaping @Sendable (Result<Void, AuthError>) -> Void
     ) {
         // Create fresh context
         context = LAContext()
@@ -90,8 +90,7 @@ class AuthenticationService {
     }
 
     /// Async/await version
-    @MainActor
-    func authenticate(reason: String) async throws -> Bool {
+    nonisolated func authenticate(reason: String) async throws -> Bool {
         try await withCheckedThrowingContinuation { continuation in
             authenticateForDisclosure(reason: reason) { result in
                 switch result {

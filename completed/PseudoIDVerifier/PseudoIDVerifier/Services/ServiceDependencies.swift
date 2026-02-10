@@ -1,10 +1,10 @@
-import Dependencies
-import DependenciesMacros
+@preconcurrency import Dependencies
+@preconcurrency import DependenciesMacros
 import LocalAuthentication
 
 // MARK: - Transport Service Dependency
 
-extension TransportServiceClient: DependencyKey {
+nonisolated extension TransportServiceClient: DependencyKey {
     static var liveValue: TransportServiceClient {
         #if targetEnvironment(simulator)
         .simulator
@@ -55,7 +55,7 @@ extension TransportServiceClient: DependencyKey {
 
     /// Simulator mock that simulates the full transport flow with delays
     static var simulator: TransportServiceClient {
-        final class Storage: @unchecked Sendable {
+        nonisolated final class Storage: @unchecked Sendable {
             var connectionState: ConnectionState = .disconnected
             var error: TransportError?
             var onRequestReceived: ((DeviceRequest) -> Void)?
@@ -137,15 +137,16 @@ extension TransportServiceClient: DependencyKey {
                 storage.connectionState = .disconnected
             },
             sendResponse: { response in
+                nonisolated(unsafe) let captured = response
                 DispatchQueue.main.asyncAfter(deadline: .now() + transferDelay) {
-                    storage.onResponseReceived?(response)
+                    storage.onResponseReceived?(captured)
                 }
             }
         )
     }
 }
 
-extension DependencyValues {
+nonisolated extension DependencyValues {
     var transportService: TransportServiceClient {
         get { self[TransportServiceClient.self] }
         set { self[TransportServiceClient.self] = newValue }
@@ -154,7 +155,7 @@ extension DependencyValues {
 
 // MARK: - NFC Service Dependency
 
-extension NFCServiceClient: DependencyKey {
+nonisolated extension NFCServiceClient: DependencyKey {
     static var liveValue: NFCServiceClient {
         #if targetEnvironment(simulator)
         .simulator
@@ -175,7 +176,7 @@ extension NFCServiceClient: DependencyKey {
 
     /// Simulator mock that simulates NFC device engagement
     static var simulator: NFCServiceClient {
-        final class Storage: @unchecked Sendable {
+        nonisolated final class Storage: @unchecked Sendable {
             var isScanning = false
             var onEngagementReceived: ((DeviceEngagement, Data) -> Void)?
             var onError: ((NFCError) -> Void)?
@@ -224,7 +225,7 @@ extension NFCServiceClient: DependencyKey {
     }
 }
 
-extension DependencyValues {
+nonisolated extension DependencyValues {
     var nfcService: NFCServiceClient {
         get { self[NFCServiceClient.self] }
         set { self[NFCServiceClient.self] = newValue }
@@ -233,7 +234,7 @@ extension DependencyValues {
 
 // MARK: - Authentication Service Dependency
 
-extension AuthenticationServiceClient: DependencyKey {
+nonisolated extension AuthenticationServiceClient: DependencyKey {
     static var liveValue: AuthenticationServiceClient {
         #if targetEnvironment(simulator)
         .simulator
@@ -268,7 +269,7 @@ extension AuthenticationServiceClient: DependencyKey {
     }
 }
 
-extension DependencyValues {
+nonisolated extension DependencyValues {
     var authenticationService: AuthenticationServiceClient {
         get { self[AuthenticationServiceClient.self] }
         set { self[AuthenticationServiceClient.self] = newValue }

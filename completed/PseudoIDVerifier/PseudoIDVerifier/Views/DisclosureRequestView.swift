@@ -1,5 +1,5 @@
 import SwiftUI
-import Dependencies
+@preconcurrency import Dependencies
 
 // MARK: - Disclosure Request View
 
