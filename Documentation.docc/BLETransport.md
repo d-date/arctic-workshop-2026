@@ -140,8 +140,89 @@ extension BLEService: CBCentralManagerDelegate {
                        didConnect peripheral: CBPeripheral) {
         peripheral.delegate = self
         peripheral.discoverServices([Self.serviceUUID])
-        connectionState = .connected
-        onConnected?()
+        // Stay in .connecting until characteristics are discovered
+    }
+
+    func centralManager(_ central: CBCentralManager,
+                       didFailToConnect peripheral: CBPeripheral,
+                       error: Error?) {
+        error.map { print("BLEService: Failed to connect: \($0.localizedDescription)") }
+        connectionState = .disconnected
+    }
+
+    func centralManager(_ central: CBCentralManager,
+                       didDisconnectPeripheral peripheral: CBPeripheral,
+                       error: Error?) {
+        connectedPeripheral = nil
+        connectionState = .disconnected
+    }
+}
+
+extension BLEService: CBPeripheralDelegate {
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        guard error == nil, let services = peripheral.services else { return }
+
+        for service in services where service.uuid == Self.serviceUUID {
+            peripheral.discoverCharacteristics([
+                Self.stateCharacteristicUUID,
+                Self.client2ServerCharacteristicUUID,
+                Self.server2ClientCharacteristicUUID
+            ], for: service)
+        }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral,
+                   didDiscoverCharacteristicsFor service: CBService,
+                   error: Error?) {
+        guard error == nil, let characteristics = service.characteristics else { return }
+
+        for characteristic in characteristics {
+            switch characteristic.uuid {
+            case Self.stateCharacteristicUUID:
+                discoveredStateCharacteristic = characteristic
+                peripheral.setNotifyValue(true, for: characteristic)
+
+            case Self.client2ServerCharacteristicUUID:
+                discoveredClient2ServerCharacteristic = characteristic
+
+            case Self.server2ClientCharacteristicUUID:
+                discoveredServer2ClientCharacteristic = characteristic
+                peripheral.setNotifyValue(true, for: characteristic)
+
+            default:
+                break
+            }
+        }
+
+        // Notify connection ready only after characteristics are available,
+        // so sendRequest can safely write to the client2Server characteristic.
+        if discoveredClient2ServerCharacteristic != nil,
+           discoveredServer2ClientCharacteristic != nil {
+            connectionState = .connected
+            onConnected?()
+        }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral,
+                   didUpdateValueFor characteristic: CBCharacteristic,
+                   error: Error?) {
+        guard error == nil, let data = characteristic.value else { return }
+
+        if characteristic.uuid == Self.server2ClientCharacteristicUUID {
+            if let completeData = reassembleChunkedData(data) {
+                if let response = CBORService.shared.decodeResponse(from: completeData) {
+                    onResponseReceived?(response)
+                }
+            }
+        }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral,
+                   didWriteValueFor characteristic: CBCharacteristic,
+                   error: Error?) {
+        if let error = error {
+            print("BLEService: Write error: \(error.localizedDescription)")
+        }
     }
 }
 ```
