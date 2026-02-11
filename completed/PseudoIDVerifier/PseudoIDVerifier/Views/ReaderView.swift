@@ -492,6 +492,15 @@ class ReaderViewModel {
         // Extract attributes from the response
         // Note: In production, you would verify the MSO (Mobile Security Object) here:
         //   1. Verify issuerAuth (COSE_Sign1) signature
+        guard let issuerPublicKey = CryptoService.shared.devicePublicKey,
+              let msoPayload = CryptoService.shared.verifyCOSESign1(
+                  document.issuerSigned.issuerAuth, using: issuerPublicKey
+              ) else {
+            state = .error("Issuer signature verification failed")
+            transportService.stopCentralMode()
+            return
+        }
+
         //   2. Decode MSO and verify docType matches
         //   3. Verify each IssuerSignedItem's digest against the MSO
         var attributes: [String: Any] = [:]
